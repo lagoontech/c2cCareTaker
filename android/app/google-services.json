@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "496441455277",
+    "project_id": "c2cpatient-d4526",
+    "storage_bucket": "c2cpatient-d4526.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496441455277:android:23d1d1089abd3bbc774c24",
+        "android_client_info": {
+          "package_name": "com.example.care2care"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFzoMa0Qn3hH_WFT2qhcmnJ_cWN5GmjVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496441455277:android:662af5d3bc954389774c24",
+        "android_client_info": {
+          "package_name": "com.example.care2caretaker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFzoMa0Qn3hH_WFT2qhcmnJ_cWN5GmjVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

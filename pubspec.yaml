@@ -1,0 +1,116 @@
+name: care2caretaker
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  get:
+  intl: ^0.19.0
+  flutter_screenutil:
+  google_fonts:
+  flutter_spinkit:
+  flutter_svg:
+  auto_size_text:
+  country_code_picker: ^3.0.0
+  pin_code_fields: ^8.0.1
+  iconly:
+  enefty_icons:
+  multi_dropdown:
+  awesome_bottom_bar:
+  custom_rating_bar:
+  readmore:
+  easy_date_timeline: ^1.1.3
+  lottie:
+  dotted_border:
+  table_calendar: ^3.1.2
+  shared_preferences:
+  fluttertoast:
+  geolocator:
+  geocoding:
+  firebase_core:
+  firebase_auth:
+  google_sign_in:
+  firebase_messaging:
+  onscreen_num_keyboard: ^1.0.4
+  image_picker:
+  cached_network_image:
+  shimmer:
+  file_picker:
+  open_filex: ^4.5.0
+  dio:
+  path_provider:
+  flutter_pdfview:
+  firebase_analytics:
+  flutter_local_notifications:
+  url_launcher:
+  win32: ^5.6.0
+  awesome_dialog:
+  dropdown_button2: ^2.3.9
+  animated_refresh: ^1.0.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/svg/launcher_icon.png"
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/images/svg/
+    - assets/icons/
+    - assets/images/payment/
+    - assets/lottie/
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
