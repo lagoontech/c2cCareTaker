@@ -158,7 +158,7 @@ class PatientRequestController extends GetxController {
       if (req.statusCode == 200) {
         careTakersListResponse = careTakersListFromJson(req.body);
         rejectedList = careTakersListResponse!.data ?? [];
-        print("----------------------------->${rejectedList}");
+        update();
       } else {
         debugPrint("Not load cancel req");
       }
@@ -212,6 +212,7 @@ class PatientRequestController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     loadRequests();
+    loadRejectList();
     super.onInit();
   }
 }

@@ -9,11 +9,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'Views_/Notifications/Notification_view.dart';
 import 'Views_/SplashScreen/splash_screen.dart';
 import 'firebase_options.dart';
-import 'Notification/notification view.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+  await Firebase.initializeApp(
+    name: 'main',
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   Get.put(NotificationController());
+//  Get.put(ProfileController());
   runApp(const MyApp());
 }
 

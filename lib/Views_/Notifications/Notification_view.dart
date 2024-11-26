@@ -159,6 +159,7 @@ class CustomNotification extends StatelessWidget {
   final IconData? icon;
   final Color? circleColor;
   final Color? iconColor;
+  String ?notificationId;
 
   CustomNotification({
     super.key,
@@ -167,13 +168,15 @@ class CustomNotification extends StatelessWidget {
     this.icon,
     this.circleColor,
     this.iconColor,
+    this.notificationId
   });
-
+  final NotificationController controller = Get.put(NotificationController());
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: UniqueKey(),
-      background: Container(
+      key: ValueKey(notificationId),
+      direction: DismissDirection.endToStart,
+     /* background: Container(
         color: AppColors.primaryColor.withOpacity(0.8),
         child: Row(
           children: [
@@ -181,7 +184,15 @@ class CustomNotification extends StatelessWidget {
             Icon(Icons.delete, color: Colors.white),
           ],
         ),
-      ),
+      ),*/
+      onDismissed: (direction) {
+        controller.deleteNotification(notificationId!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Notification deleted'),
+          ),
+        );
+      },
       secondaryBackground: Container(
         color: AppColors.primaryColor.withOpacity(0.7),
         child: Row(

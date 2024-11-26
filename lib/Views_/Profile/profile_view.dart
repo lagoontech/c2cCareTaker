@@ -39,13 +39,15 @@ class ProfileView extends StatelessWidget {
                           )
                         : InkWell(
                             onTap: () {
-                              if (v.profileInfo == null) {
+                            /*  if (v.profileInfo == null) {
                                 debugPrint("insertMethod");
                                 v.insertCaretakerProfileDetails();
                               } else {
                                 debugPrint("updateMethod");
                                 v.updateCaretakerProfileDetails();
-                              }
+                              }*/
+                              v.insertCaretakerProfileDetails();
+                              v.update();
                             },
                             child: Icon(
                               IconlyLight.tick_square,

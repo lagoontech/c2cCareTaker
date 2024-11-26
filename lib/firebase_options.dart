@@ -87,7 +87,10 @@
 //   );
 //
 // }
-import 'package:firebase_core/firebase_core.dart';
+
+
+//////////////////
+/*import 'package:firebase_core/firebase_core.dart';
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get care2care {
@@ -119,4 +122,36 @@ class DefaultFirebaseOptions {
       return care2caretaker;
     }
   }
+}*/
+import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+
+class DefaultFirebaseOptions {
+
+  static FirebaseOptions get care2care {
+
+    bool isAndroid = Platform.isAndroid;
+    if(isAndroid) {
+      return const FirebaseOptions(
+        apiKey: 'AIzaSyBFzoMa0Qn3hH_WFT2qhcmnJ_cWN5GmjVM',
+        appId: '1:496441455277:android:23d1d1089abd3bbc774c24',
+        messagingSenderId: '496441455277',
+        projectId: 'c2cpatient-d4526',
+        storageBucket: 'c2cpatient-d4526.appspot.com',
+      );
+    } else {
+      return FirebaseOptions(
+        apiKey: 'AIzaSyARzj9bC7XvdxuxKDW2-mdnhpRpzoXwxnQ',
+        appId: '1:496441455277:ios:1a44c410aa9835ea774c24',
+        messagingSenderId: '496441455277',
+        projectId: 'c2cpatient-d4526',
+        storageBucket: 'c2cpatient-d4526.appspot.com',
+      );
+    }
+  }
+
+  static FirebaseOptions get currentPlatform {
+    return care2care;
+  }
+
 }

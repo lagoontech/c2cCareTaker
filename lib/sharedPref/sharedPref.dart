@@ -3,7 +3,10 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Notification/controller/controller.dart';
 import '../Views_/Auth_screen/Sigin_screen/signIn_view.dart';
+import '../Views_/HomeScreen/controller/home_controller.dart';
+import '../Views_/Profile/Controller/profileController.dart';
 
 class SharedPref {
   saveToken(String token) async {
@@ -70,11 +73,15 @@ class SharedPref {
   }
 
   Future<void> logout() async {
+    Get.delete<ProfileController>(force: true);
+    Get.delete<HomeController>(force: true);
+    Get.delete<NotificationController>(force: true);
+    Get.deleteAll(); // Optionally, delete all controllers if necessary
     // Clear shared preferences
     SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.remove('token');
-    await pref.remove('isDetailsComplete');
-    Get.deleteAll();
-    Get.offAll(MobileEmail());
+    await pref.clear();
+    Future.delayed(Duration(milliseconds: 200), () {
+      Get.offAll(() => MobileEmail()); // Navigate to the login screen
+    });
   }
 }

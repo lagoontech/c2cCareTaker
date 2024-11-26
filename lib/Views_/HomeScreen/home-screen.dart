@@ -75,9 +75,10 @@ class _HomePageState extends State<HomePage> {
           avatarUrl: full,
         ),
         body: Container(
+          height: MediaQuery.of(context).size.height,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/images/Splash.png"),
+              image: AssetImage("assets/images/Seamless pattern bg1.png"),
               fit: BoxFit.cover,
             ),
           ),

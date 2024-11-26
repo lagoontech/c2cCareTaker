@@ -173,9 +173,7 @@ class AppointmentStatusView extends StatelessWidget {
                           itemCount: v.rejectedList.length,
                           itemBuilder: (context, index) {
                             var data = v.rejectedList[index];
-                            print("rejected list ${v.rejectedList.length}");
-                            String? path =
-                                '${v.careTakersListResponse!.profilePath}';
+                            String? path = '${v.careTakersListResponse!.profilePath}';
                             String? url = '${data.patient!.profileImageUrl}';
                             return Padding(
                               padding: const EdgeInsets.all(7.0),

@@ -110,6 +110,8 @@ class ProfileController extends GetxController {
         Get.to(() => HomeView());
         debugPrint("Successfully Insert care Taker Details");
       } else {
+        var error = jsonDecode(res.body)['message'] ?? 'Error occurred';
+        showCustomToast(message: error);
         debugPrint("Not Successfully Insert care Taker Details");
       }
     } catch (e) {
@@ -157,6 +159,7 @@ class ProfileController extends GetxController {
       if (res.statusCode == 200) {
         onUserDetailsCompleted();
         Get.to(() => HomeView());
+        update();
         debugPrint("Successfully update care Taker Details");
       } else {
         debugPrint("Not Successfully update care Taker Details");
@@ -187,6 +190,7 @@ class ProfileController extends GetxController {
         var decodeJson = jsonDecode(res.body);
         /*if (decodeJson['data'] != null) {*/
         profileList = ProfileList.fromJson(decodeJson);
+        update();
         if (profileList!.data!.caretakerInfo != null) {
           profileInfo = profileList!.data!.caretakerInfo;
           firstNameController.text = profileInfo!.firstName ?? '';
@@ -210,6 +214,7 @@ class ProfileController extends GetxController {
               profileInfo!.secondaryContactNumber ?? '';
           update();
         }
+        update();
         /* } else {
           debugPrint("Data is null or not in expected format");
         }*/
@@ -322,6 +327,29 @@ class ProfileController extends GetxController {
     }
     uploadLoading = false;
     update();
+  }
+
+  deleteProfileImage() async {
+    try {
+      String? token = await SharedPref().getToken();
+      var res = await http.post(
+        Uri.parse(URls().deleteProfileImage),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      );
+      if(res.statusCode ==200 ){
+        selectImage = null;
+        profileList!.data!.profileImage = 'default-profile-img-female.png';
+        update();
+        showCustomToast(message: 'Successfully Removed');
+      }else{
+        showCustomToast(message: 'Not Successfully Removed');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override

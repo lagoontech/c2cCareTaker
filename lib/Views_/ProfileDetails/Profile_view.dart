@@ -117,7 +117,7 @@ class ProfileDetails extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Align(
+                   /*   Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
                           onPressed: () {
@@ -129,7 +129,7 @@ class ProfileDetails extends StatelessWidget {
                             size: 20.sp,
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -211,7 +211,7 @@ class ProfileDetails extends StatelessWidget {
                   icons: EneftyIcons.logout_bold,
                   iconColor: Color(0xff002574),
                   heading: "Logout",
-                  message: "",
+                  message: "Click to Logout",
                 ),
                 Divider(),
               ],

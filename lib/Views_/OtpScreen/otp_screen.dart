@@ -5,9 +5,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:onscreen_num_keyboard/onscreen_num_keyboard.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/customButton.dart';
+import '../Auth_screen/Sigin_screen/controller/login_controller.dart';
+import '../Profile/Controller/profileController.dart';
 import 'Controller/otp_controller.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -21,6 +22,14 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   OtpController vc = Get.put(OtpController());
+  ProfileController pc = Get.put(ProfileController());
+  LoginController de = Get.put(LoginController());
+
+  @override
+  void dispose() {
+    vc.otpTEC;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +37,12 @@ class _OtpScreenState extends State<OtpScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w), // added padding for responsiveness
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            // added padding for responsiveness
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                 Center(
                   child: SvgPicture.asset(
                     "assets/images/svg/logo.svg",
@@ -44,28 +54,38 @@ class _OtpScreenState extends State<OtpScreen> {
                   "Enter your 4 Digits otp",
                   textAlign: TextAlign.center,
                   maxLines: 1,
-                  style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),
+                  style:
+                      TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(height: 20.h),
                 Text(
                   "We will send you a verification code",
                   textAlign: TextAlign.center,
                   maxLines: null,
-                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.grey.shade600),
+                  style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade600),
                 ),
                 SizedBox(height: 20.h),
                 SizedBox(
                   height: 40.h,
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: PinCodeTextField(
+                    // enabled: false,
                     readOnly: true,
                     length: 4,
                     obscureText: false,
                     animationType: AnimationType.fade,
                     pinTheme: PinTheme(
-                      inactiveColor: Colors.grey.shade600,
+                      inactiveBorderWidth: 0.6,
+                      disabledBorderWidth: 0.6,
+                      activeBorderWidth: 0.6,
+                      inactiveColor: Colors.grey,
                       inactiveFillColor: Colors.white,
                       borderWidth: 0.sp,
+                      selectedColor: Colors.grey,
+                      selectedFillColor: Colors.transparent,
                       errorBorderColor: Colors.red,
                       fieldOuterPadding: EdgeInsets.symmetric(horizontal: 2.w),
                       shape: PinCodeFieldShape.box,
@@ -78,9 +98,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     backgroundColor: Colors.white,
                     enableActiveFill: true,
                     controller: vc.otpTEC,
-                    onCompleted: (v) {
-                      debugPrint("Completed");
-                    },
+                    onCompleted: (v) {},
                     onChanged: (value) {},
                     beforeTextPaste: (text) {
                       debugPrint("Allowing to paste $text");
@@ -90,14 +108,25 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "Resend code",
-                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                Padding(
+                  padding: EdgeInsets.only(right: 60.w),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      onTap: () {
+                        de.loginorRegister(context: context);
+                      },
+                      child: Text(
+                        "Resend code",
+                        style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor),
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(height: 40.h),
+                SizedBox(height: 30.h),
                 GetBuilder<OtpController>(builder: (b) {
                   return CustomButton(
                     isLoading: b.isLoading,
@@ -106,29 +135,35 @@ class _OtpScreenState extends State<OtpScreen> {
                     onPressed: b.isLoading
                         ? null
                         : () async {
-                      b.checkOtp(widget.phone);
-                    },
+                            b.checkOtp(widget.phone);
+                          },
                   );
                 }),
                 SizedBox(height: 8.h),
                 Padding(
-                  padding: EdgeInsets.only(top: 16.h), // additional padding for spacing
+                  padding: EdgeInsets.only(top: 16.h),
+                  // additional padding for spacing
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: NumericKeyboard(
                       onKeyboardTap: (val) {
                         if (val == 99) {
                           if (vc.otpTEC.text.isEmpty) return;
-                          vc.otpTEC.text = vc.otpTEC.text.substring(0, vc.otpTEC.text.length - 1);
+                          vc.otpTEC.text = vc.otpTEC.text
+                              .substring(0, vc.otpTEC.text.length - 1);
                         } else {
                           vc.otpTEC.text += val.toString();
                           debugPrint(vc.otpTEC.text);
                         }
                       },
-                      textStyle: TextStyle(fontSize: 22.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                      textStyle: TextStyle(
+                          fontSize: 22.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
                       rightButtonFn: () {
                         if (vc.otpTEC.text.isNotEmpty) {
-                          vc.otpTEC.text = vc.otpTEC.text.substring(0, vc.otpTEC.text.length - 1);
+                          vc.otpTEC.text = vc.otpTEC.text
+                              .substring(0, vc.otpTEC.text.length - 1);
                           vc.update();
                         }
                       },

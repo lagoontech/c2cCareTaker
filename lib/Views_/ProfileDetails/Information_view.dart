@@ -7,7 +7,6 @@ import 'package:care2caretaker/reuse_widgets/custom_textfield.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:care2caretaker/reuse_widgets/sizes.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -100,7 +99,8 @@ class _AccountInformationState extends State<AccountInformation> {
         controller.primaryContactController.text.trim() !=
             controller.profileList?.data?.caretakerInfo?.primaryContactNumber ||
         controller.secondaryContactController.text.trim() !=
-            controller.profileList?.data?.caretakerInfo?.secondaryContactNumber;
+            controller.profileList?.data?.caretakerInfo?.secondaryContactNumber ||
+       controller.selectImage != controller.profileList!.profilePath!+controller.profileList!.data!.profileImage!;
   }
 
 
@@ -152,8 +152,7 @@ class _AccountInformationState extends State<AccountInformation> {
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: SingleChildScrollView(
             child: GetBuilder<ProfileController>(builder: (v) {
-              String fullImageUrl = (v.profileList?.profilePath ?? '') +
-                  (v.profileList?.data?.profileImage ?? '');
+              String fullImageUrl = (v.profileList?.profilePath ?? '') + (v.profileList?.data?.profileImage ?? '');
               return Column(
                 children: [
                   Row(
@@ -202,11 +201,7 @@ class _AccountInformationState extends State<AccountInformation> {
                                     bool isLoading = false;
                                     return GestureDetector(
                                       onTap: () {
-                                        z.selectImage = null;
-                                        z.profileList!.data!.profileImage =
-                                            'default-profile-img.png';
-                                        z.update();
-                                        debugPrint("Photo removed");
+                                        z.deleteProfileImage();
                                       },
                                       child: Text(
                                         "Remove Photo",
@@ -214,8 +209,7 @@ class _AccountInformationState extends State<AccountInformation> {
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: fullImageUrl.endsWith(
-                                                  'default-profile-img.png')
+                                          color: fullImageUrl.endsWith('default-profile-img.png')
                                               ? Colors.black54
                                               : Colors.blue,
                                         ),
