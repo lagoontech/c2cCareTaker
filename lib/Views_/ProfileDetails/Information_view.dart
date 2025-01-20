@@ -118,6 +118,12 @@ class _AccountInformationState extends State<AccountInformation> {
       var data = controller.profileList!.data!.caretakerInfo!;
       return CustomBackground(
         appBar: CustomAppBar(
+          leading: IconButton(
+            onPressed: () {
+              Get.back();
+            },
+            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          ),
           title: 'Profile Information',
           actions: [
             Padding(

@@ -104,6 +104,7 @@ class NotificationController extends GetxController {
     initFirebaseMessaging();
     initLocalNotifications();
     setupInteractedMessage();
+    allNotifications();
   }
 
   // Initialize Firebase Messaging
@@ -195,8 +196,10 @@ class NotificationController extends GetxController {
       // sound: RawResourceAndroidNotificationSound('notification_sound'), // Custom sound
     );
 
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+    DarwinNotificationDetails initializationSettingsIOS = const DarwinNotificationDetails();
+
+    NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics,iOS: initializationSettingsIOS);
 
     await flutterLocalNotificationsPlugin.show(
         0, // Notification ID
@@ -222,11 +225,12 @@ class NotificationController extends GetxController {
   List<AllNotification> listNotification = [];
   String? Count;
 
+
   allNotifications() async {
     loadNotification = true;
     update();
     String? token = await SharedPref().getToken();
-    // try {
+     try {
     var res = await http.get(
       Uri.parse(URls().allNotifications),
       headers: {
@@ -243,9 +247,9 @@ class NotificationController extends GetxController {
     } else {
       debugPrint("message fetch not successfully ");
     }
-    /* } catch (d) {
+     } catch (d) {
       debugPrint(d.toString());
-    }*/
+    }
     loadNotification = false;
     update();
   }

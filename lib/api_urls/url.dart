@@ -1,5 +1,5 @@
 class URls {
-  static String baseUrl = 'https://care2carevital.us';
+  static String baseUrl = 'http://care2carevital.us';
 
   String loginorsignup = '$baseUrl/api/caretaker/login-or-register';
 
@@ -10,6 +10,8 @@ class URls {
   String profileDetailsEdit = '$baseUrl/api/caretaker/caretaker-info/edit';
 
   String careTakerInfo = '$baseUrl/api/caretaker/caretaker/view';
+
+  String patientInfoFetch = '$baseUrl/api/patients/patient/view';
 
   String viewAllCareTakers = '$baseUrl/api/caretaker/caretaker/viewall';
 

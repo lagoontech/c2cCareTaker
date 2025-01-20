@@ -9,20 +9,25 @@ import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../primaryInformation/primaryinformationView.dart';
 import 'controller/patient_request_controller.dart';
 
 class PatientrequestView extends StatelessWidget {
-  PatientrequestView({super.key});
+  PatientrequestView({super.key,this.showBack = false});
 
-  final PatientRequestController controller =
-      Get.put(PatientRequestController());
+  bool ?showBack;
+  final PatientRequestController controller = Get.put(PatientRequestController());
 
   @override
   Widget build(BuildContext context) {
     return CustomBackground(
       appBar: CustomAppBar(
+        leading: showBack!?IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+        ): SizedBox(),
         title: "Request From Patients",
       ),
       child: Padding(
@@ -95,7 +100,7 @@ class CustomPatientRequest extends StatelessWidget {
                               sendTime: res.appointmentEndTime,
                               firstName: data.firstName,
                               lastName: data.lastName,
-                              nationality: data.nationality,
+                              nationality: data.address,
                               appointmentId: res.id,
                               patientId: res.patientId,
                               patientContactNumber: data.primaryContactNumber,
@@ -105,6 +110,7 @@ class CustomPatientRequest extends StatelessWidget {
                               snacks: schedule.patientSnackstime,
                               lunch: schedule.patientLunchtime,
                               BP: schedule.patientBloodsugar,
+                              schedule: schedule,
                             ));
                       },
                       child: Container(
@@ -141,7 +147,7 @@ class CustomPatientRequest extends StatelessWidget {
                             context,
                             controller,
                             index,
-                            doctorState: data.nationality,
+                            doctorState: data.address,
                             sendDate: data.createdAt,
                             doctorDesignation: "Patient",
                             bmi: data.bmi,

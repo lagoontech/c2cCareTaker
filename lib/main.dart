@@ -13,7 +13,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    name: 'main',
+    name: "main",
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Get.put(NotificationController());

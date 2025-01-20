@@ -30,6 +30,12 @@ class DocumentUploadNew extends StatelessWidget {
           ? DocumentViewSkeleton()
           : CustomBackground(
               appBar: CustomAppBar(
+                leading: IconButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+                ),
                 title: 'Medical Records',
               ),
               child: Padding(

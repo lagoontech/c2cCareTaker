@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../../../reuse_widgets/customToast.dart';
 
 class PatientHistoryController extends GetxController {
+
   var selectedPatient = '';
   var selectedHydration = '';
   var selectOral = '';
@@ -43,6 +44,7 @@ class PatientHistoryController extends GetxController {
 
   bool isLoading = false;
 
+  //
   String _timeToString(TimeOfDay? time) {
     if (time == null) return '';
     final now = DateTime.now();
@@ -52,6 +54,7 @@ class PatientHistoryController extends GetxController {
     return '${formattedTime.hour}:${formattedTime.minute.toString().padLeft(2, '0')}';
   }
 
+  //
   Future<void> postPatientHistory({int? appointmentId, int? patientId}) async {
     isLoading = true;
     update();

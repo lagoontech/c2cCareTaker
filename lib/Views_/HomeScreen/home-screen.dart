@@ -1,23 +1,13 @@
-import 'dart:ui';
-
 import 'package:care2caretaker/Views_/HomeScreen/controller/home_controller.dart';
 import 'package:care2caretaker/Views_/PatientRequest/controller/patient_request_controller.dart';
 import 'package:care2caretaker/Views_/Profile/Controller/profileController.dart';
-import 'package:care2caretaker/modals/profilr_info_modal.dart';
-import 'package:custom_rating_bar/custom_rating_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../reuse_widgets/AppColors.dart';
-import '../../reuse_widgets/Custom_AppoinMents.dart';
 import '../../reuse_widgets/appBar.dart';
 import '../../reuse_widgets/customLabel.dart';
 import '../../reuse_widgets/sizes.dart';
@@ -156,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 17.sp),
+                                        fontSize: 14.sp),
                                   ),
                                   kHeight10,
                                   /*     Text(
@@ -232,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       InkWell(
                         onTap: () {
-                          Get.to(() => PatientrequestView());
+                          Get.to(() => PatientrequestView(showBack: true));
                         },
                         child: CustomLabel(
                           text: "See all",
@@ -396,28 +386,28 @@ class CustomCareTakers extends StatelessWidget {
                 "Age : ${age ?? ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                 ),
               ),
               Text(
                 "Gender : ${gender ?? ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                 ),
               ),
               Text(
                 "Appointment Date : ${appointmentDate != null ? DateFormat('MM/dd/yyyy').format(appointmentDate!) : ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                 ),
               ),
               Text(
                 "Time: ${startTime != null ? DateFormat(' hh:mm a').format(startDateTime!) : ''} ${endTime != null ? DateFormat(' hh:mm a').format(endDateTime!) : ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                 ),
               ),
 

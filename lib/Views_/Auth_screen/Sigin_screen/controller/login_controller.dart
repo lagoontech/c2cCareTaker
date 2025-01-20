@@ -9,22 +9,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-
+import 'dart:io';
 import '../../../OtpScreen/otp_screen.dart';
 
 class LoginController extends GetxController {
+
   TextEditingController phoneCT = TextEditingController();
-  FocusNode focusNode = FocusNode();
-  GoogleSignIn googleSignIn = GoogleSignIn();
-  bool isLoading = false;
-  CountryCode? countryCode = CountryCode.fromDialCode('+91');
+  FocusNode focusNode           = FocusNode();
+  GoogleSignIn googleSignIn     = GoogleSignIn();
+  bool isLoading                = false;
+  CountryCode? countryCode      = CountryCode.fromDialCode('+91');
   int? getOtp;
   String? fcmToken;
 
   Future<void> getFcmToken() async {
     try {
       await FirebaseMessaging.instance.deleteToken();
-      fcmToken = await FirebaseMessaging.instance.getToken();
+      bool android = Platform.isAndroid;
+      if(android){
+        fcmToken = await FirebaseMessaging.instance.getToken();
+      }else {
+        fcmToken = await FirebaseMessaging.instance.getToken();
+      }
       print("Fetched FCM Token: $fcmToken");
     } catch (e) {
       print("Error fetching FCM Token: $e");

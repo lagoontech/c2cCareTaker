@@ -22,6 +22,8 @@
 	<true></true>
 	<key>IS_GCM_ENABLED</key>
 	<true></true>
+	<key>FLTEnableImpeller</key>
+    <false />
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>

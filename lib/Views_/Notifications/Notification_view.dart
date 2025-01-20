@@ -1,10 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:iconly/iconly.dart';
-
 import '../../Notification/controller/controller.dart';
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/appBar.dart';
@@ -21,6 +18,11 @@ class NotificationView extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomBackground(
         appBar: CustomAppBar(
+          leading: IconButton(
+              onPressed: () {
+                Get.back();
+              },
+              icon: Icon(Icons.arrow_back, color: AppColors.primaryColor)),
           actions: [
             Padding(
               padding: EdgeInsets.only(
@@ -193,7 +195,7 @@ class CustomNotification extends StatelessWidget {
           ),
         );
       },
-      secondaryBackground: Container(
+      /*secondaryBackground: Container(
         color: AppColors.primaryColor.withOpacity(0.7),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -202,7 +204,7 @@ class CustomNotification extends StatelessWidget {
             SizedBox(width: 20.w),
           ],
         ),
-      ),
+      ),*/
       child: Container(
         height: MediaQuery.of(context).size.height * 0.13,
         width: MediaQuery.of(context).size.width,

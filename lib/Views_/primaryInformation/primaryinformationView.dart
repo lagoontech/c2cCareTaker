@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:care2caretaker/Views_/HomeView/Controller/bottomNav_controller.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
 import 'package:care2caretaker/reuse_widgets/customButton.dart';
 import 'package:care2caretaker/reuse_widgets/customLabel.dart';
-import 'package:care2caretaker/reuse_widgets/customToast.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +11,13 @@ import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
-
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/sizes.dart';
 import '../PatientRequest/controller/patient_request_controller.dart';
+import '../PatientRequest/modal/patientRequest_modal.dart';
 
 class Primaryinformationview extends StatefulWidget {
+
   String? firstName;
   String? lastName;
   String? sex;
@@ -35,6 +36,7 @@ class Primaryinformationview extends StatefulWidget {
   String? sendTime;
   String? toTime;
   double? bmi;
+  PatientSchedules ?schedule;
 
   Primaryinformationview(
       {super.key,
@@ -55,13 +57,16 @@ class Primaryinformationview extends StatefulWidget {
       this.toTime,
       this.sendDate,
       this.patientContactNumber,
-      this.nationality});
+      this.nationality,
+      this.schedule
+      });
 
   @override
   State<Primaryinformationview> createState() => _PrimaryinformationviewState();
 }
 
 class _PrimaryinformationviewState extends State<Primaryinformationview> {
+
   String? selectedValue;
   final BottomNavController bn = Get.put(BottomNavController());
   final PatientRequestController controller =
@@ -119,6 +124,8 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
           );
         }),
         appBar: CustomAppBar(
+          leading: IconButton(
+              onPressed: () => Get.back(), icon: Icon(Icons.arrow_back_ios)),
           title: "Primary Information",
         ),
         child: Padding(
@@ -196,7 +203,29 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 Divider(
                   thickness: 0.2,
                 ),
-                kHeight5,
+                CustomLabel(text: "Past medical history"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: ListView.separated(
+                      separatorBuilder: (context,index){
+                        return kWidth5;
+                      },
+                      scrollDirection: Axis.horizontal,
+                      itemCount: (jsonDecode(widget.schedule!.patientPastmedicalhistory!) as List<dynamic>).length,
+                      itemBuilder: (context,index){
+                        var result = (jsonDecode(widget.schedule!.patientPastmedicalhistory!) as List<dynamic>)[index];
+                        return detailsWidget(context,details: result);
+                      }),
+                ),
+                kHeight10,
+                CustomLabel(text: "Past surgical history"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: detailsWidget(context,details: widget.schedule!.patientPastsurgicalhistory),
+                ),
+                kHeight10,
                 CustomLabel(text: "Personal Details"),
                 kHeight10,
                 Align(
@@ -221,7 +250,85 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                     ),
                   ),
                 ),
-                kHeight5,
+                kHeight10,
+                CustomLabel(text: "Diet Plan"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: ListView.separated(
+                      separatorBuilder: (context,index){
+                        return kWidth5;
+                      },
+                      scrollDirection: Axis.horizontal,
+                      itemCount: (jsonDecode(widget.schedule!.patientDietplan!) as List<dynamic>).length,
+                      itemBuilder: (context,index){
+                        var result = (jsonDecode(widget.schedule!.patientDietplan!) as List<dynamic>)[index];
+                    return detailsWidget(context,details: result);
+                  }),
+                ),
+                kHeight10,
+                CustomLabel(text: "Toileting"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: detailsWidget(context,details: widget.schedule!.patientToileting),
+                ),
+                kHeight10,
+                CustomLabel(text: "Hydration"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: detailsWidget(context,details: widget.schedule!.patientHydration),
+                ),
+                kHeight10,
+                CustomLabel(text: "Walking"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: ListView.separated(
+                      separatorBuilder: (context,index){
+                        return kWidth5;
+                      },
+                      scrollDirection: Axis.horizontal,
+                      itemCount: (jsonDecode(widget.schedule!.patientWalkingtime!) as List<dynamic>).length,
+                      itemBuilder: (context,index){
+                        var result = (jsonDecode(widget.schedule!.patientWalkingtime!) as List<dynamic>)[index];
+                        return detailsWidget(context,details: result);
+                      }),
+                ),
+                kHeight10,
+                CustomLabel(text: "Oral care"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: ListView.separated(
+                      separatorBuilder: (context,index){
+                        return kWidth5;
+                      },
+                      scrollDirection: Axis.horizontal,
+                      itemCount: (jsonDecode(widget.schedule!.patientOralcare!) as List<dynamic>).length,
+                      itemBuilder: (context,index){
+                        var result = (jsonDecode(widget.schedule!.patientOralcare!) as List<dynamic>)[index];
+                        return detailsWidget(context,details: result);
+                      }),
+                ),
+                kHeight10,
+                CustomLabel(text: "Bathing"),
+                kHeight10,
+                SizedBox(
+                  height: 32.h,
+                  child: ListView.separated(
+                      separatorBuilder: (context,index){
+                        return kWidth5;
+                      },
+                      scrollDirection: Axis.horizontal,
+                      itemCount: (jsonDecode(widget.schedule!.patientBathing!) as List<dynamic>).length,
+                      itemBuilder: (context,index){
+                        var result = (jsonDecode(widget.schedule!.patientBathing!) as List<dynamic>)[index];
+                        return detailsWidget(context,details: result);
+                      }),
+                ),
+                kHeight10,
                 CustomLabel(text: "Vital Signs"),
                 kHeight10,
                 Align(
@@ -232,18 +339,18 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         savedDetails(context,
-                            details: "Temperature", timing: "98.6\u2109F"),
+                            details: "Temperature", timing: "${jsonDecode(widget.schedule!.patientVitalsigns!)["temperature"]}\u2109"),
                         kWidth5,
-                        savedDetails(context, details: "Pulse", timing: "80"),
+                        savedDetails(context, details: "Pulse", timing: "${jsonDecode(widget.schedule!.patientVitalsigns!)["heart_rate"]}"),
                         kWidth5,
                         savedDetails(context,
-                            details: "Respiration", timing: "12-14"),
+                            details: "Respiration", timing: "${jsonDecode(widget.schedule!.patientVitalsigns!)["respiratory_rate"]}"),
                         kWidth5,
                       ],
                     ),
                   ),
                 ),
-                kHeight5,
+                kHeight10,
                 CustomLabel(text: "Blood Sugar Level"),
                 kHeight10,
                 Align(
@@ -253,7 +360,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        savedDetails(context, details: "BP", timing: widget.BP),
+                        detailsWidget(context, details: widget.schedule!.patientBloodsugar!+" mg/dL"),
                         kWidth5,
                         /* savedDetails(context, details: "Noon", timing: "70mg"),
                         kWidth5,
@@ -271,6 +378,24 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
         ));
   }
 
+  //
+  detailsWidget(BuildContext context, {String? details}){
+
+    return Container(
+      height: 30.h,
+      padding: EdgeInsets.all(8.r),
+      decoration: const BoxDecoration(
+        color: Color(0xffF5F5F5),
+      ),
+      child: Row(
+        children: [
+          Text(details ?? ''),
+        ],
+      ),
+    );
+  }
+
+  //
   Widget savedDetails(BuildContext context, {String? details, String? timing}) {
     return Container(
       height: 30.h,

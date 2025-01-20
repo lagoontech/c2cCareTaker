@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import '../../../Utils/date_utils.dart';
 import '../../../sharedPref/sharedPref.dart';
 import '../../Appointments/appointmentStaus_view.dart';
 import '../modal/getService_history.dart';
@@ -16,10 +17,20 @@ class PatientRequestController extends GetxController {
   CareTakersList? careTakersListResponse;
   bool isLoading = false;
   List<Datum> approvedList = [];
+  List<Datum> searchedApprovedList = [];
   List<Datum> rejectedList = [];
+  List<Datum> searchedRejectedList = [];
   List<Datum> requestList = [];
   List<Datum> processingList = [];
+  List<Datum> searchedProcessingList = [];
   List<Datum> completedList = [];
+  List<Datum> searchedCompletedList = [];
+
+  DateTime ?selectedDate;
+
+  int currentTab = 0;
+  TextEditingController searchTEC = TextEditingController();
+  String ?displayDate;
 
   loadRequests() async {
     String? token = await SharedPref().getToken();
@@ -99,6 +110,7 @@ class PatientRequestController extends GetxController {
       if (res.statusCode == 200) {
         final jsonResponse = jsonDecode(res.body);
         showCustomToast(message: "Successfully Accepted");
+        Get.back();
         Get.to(() => AppointmentStatusView());
       } else {
         debugPrint('Error: ${res.statusCode}');
@@ -135,6 +147,7 @@ class PatientRequestController extends GetxController {
       if (res.statusCode == 200) {
         final jsonResponse = jsonDecode(res.body);
         showCustomToast(message: "Successfully Rejected");
+        Get.back();
         Get.to(() => AppointmentStatusView());
       } else {
         debugPrint('Error: ${res.statusCode}');
@@ -206,6 +219,84 @@ class PatientRequestController extends GetxController {
     } else {
       throw 'Could not launch $telUri';
     }
+  }
+
+  //
+  //
+  searchAppointments({bool completedOnly = false}){
+
+    if(completedOnly){
+      searchedCompletedList = completedList.where((app)
+      {
+        var hasAppointment = false;
+        if(displayDate==null)
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }else if(displayDate!=null){
+          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }
+        return hasAppointment;
+      }
+      ).toList();
+      update();
+      return;
+    }
+
+    print("searching appointments... in tab-->$currentTab");
+    if(currentTab == 0){
+      searchedApprovedList = approvedList.where((app)
+      {
+        var hasAppointment = false;
+        if(displayDate==null)
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }else if(displayDate!=null){
+          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }
+        return hasAppointment;
+      }
+      ).toList();
+    }
+    if(currentTab == 1){
+      searchedProcessingList = processingList.where((app) {
+        var hasAppointment = false;
+        if(displayDate==null)
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }else if(displayDate!=null){
+          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }
+        return hasAppointment;
+      }
+      ).toList();
+    }
+    if(currentTab == 2){
+      searchedRejectedList = rejectedList.where((app)
+      {
+        var hasAppointment = false;
+        print(displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!));
+        if(displayDate==null)
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
+          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }else if(displayDate!=null){
+          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+        }
+        return hasAppointment;
+      }).toList();
+    }
+    update();
   }
 
   @override

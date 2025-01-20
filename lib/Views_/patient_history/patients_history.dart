@@ -6,11 +6,14 @@ import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:care2caretaker/reuse_widgets/sizes.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide  DateUtils;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import '../../Utils/date_utils.dart';
+import '../../reuse_widgets/AppColors.dart';
+import '../../reuse_widgets/custom_textfield.dart';
 import '../PatientRequest/controller/patient_request_controller.dart';
 
 class PatientsHistory extends StatefulWidget {
@@ -148,6 +151,97 @@ class _PatientsHistoryState extends State<PatientsHistory> {
         physics: BouncingScrollPhysics(),
         child: Column(
           children: [
+
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 2.h,
+                  vertical: 2.h),
+              child: Row(
+                children: [
+
+                  Expanded(
+                    flex: 3,
+                    child: SizedBox(
+                      height: kToolbarHeight * 0.9,
+                      child: customTextField(
+                        context,
+                        onChanged: (v){
+                          controller.searchAppointments(completedOnly: true);
+                        },
+                        hint: "Search appointments",
+                        controller: controller.searchTEC,
+                        borderColor: AppColors.primaryColor,
+                        labelText: "",
+                        prefix: Icon(Icons.search),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(width: 12.w),
+
+                  Expanded(
+                    flex: 2,
+                    child: GestureDetector(
+                      onTap: (){
+                        _selectDate(context);
+                      },
+                      child: Container(
+                        height: kToolbarHeight * 0.9,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.primaryColor),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+
+                            Icon(Icons.calendar_month),
+
+                            SizedBox(width: 4.w),
+
+                            GetBuilder<PatientRequestController>(
+                                builder: (vc) {
+                                  return controller.selectedDate!=null
+                                      ? Text(controller.displayDate.toString(),style: TextStyle(
+                                      fontSize: 12.sp
+                                  ),)
+                                      : Center(child: Text("Select a date",style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: "verdana_regular"
+                                  ),));
+
+                                }
+                            ),
+
+                            SizedBox(width: 2.w),
+
+                            GetBuilder<PatientRequestController>(
+                                builder: (vc) {
+                                  return controller.selectedDate!=null
+                                      ? GestureDetector(
+                                      onTap: (){
+                                        controller.selectedDate = null;
+                                        controller.displayDate = null;
+                                        controller.update();
+                                        controller.searchAppointments(completedOnly: true);
+                                      },
+                                      child: Icon(Icons.cancel_outlined)
+                                  )
+                                      : SizedBox();
+                                }
+                            )
+
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+
+                ],
+              ),
+            ),
             kHeight10,
             GetBuilder<PatientRequestController>(builder: (v) {
               return AnimatedRefresh(
@@ -170,12 +264,19 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: v.completedList.length,
+                          itemCount: v.searchedCompletedList.isEmpty && v.searchTEC.text.isEmpty && v.displayDate==null
+                              ? v.completedList.length
+                              : v.searchedCompletedList.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           // Prevent scrolling in nested ListView
                           itemBuilder: (context, index) {
-                            var data = v.completedList[index];
+                            var data;
+                            if(v.searchedCompletedList.isNotEmpty){
+                              data = v.searchedCompletedList[index];
+                            }else{
+                              data = v.completedList[index];
+                            }
                             var path = v.careTakersListResponse!.profilePath;
                             var url = data.patient!.profileImageUrl;
                             return Padding(
@@ -299,4 +400,41 @@ class _PatientsHistoryState extends State<PatientsHistory> {
       ),
     );
   }
+
+  //
+  Future<void> _selectDate(BuildContext context) async {
+
+    var date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+                primary: Colors.purple,
+                onPrimary: Colors.white,
+                onSurface: Colors.black
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.purple,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if(date!=null){
+      controller.selectedDate = date;
+      controller.displayDate = DateUtils().dateOnlyFormat(date);
+      controller.update();
+      controller.searchAppointments(completedOnly: true);
+    }
+
+  }
+
 }
