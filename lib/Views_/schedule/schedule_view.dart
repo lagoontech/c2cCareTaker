@@ -115,14 +115,19 @@ class WaitingPatients extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: 80.w,
-                    decoration: BoxDecoration(
-                      //border: Border.all(color: Colors.black, width: 0.2),
-                      borderRadius: BorderRadius.circular(3.r),
+                  CircleAvatar(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(60.r),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: 120.w,
+                        decoration: BoxDecoration(
+                          //border: Border.all(color: Colors.black, width: 0.2),
+                          borderRadius: BorderRadius.circular(3.r),
+                        ),
+                        child: Image.network(imgurl ?? '',fit: BoxFit.fitWidth),
+                      ),
                     ),
-                    child: Image.network(imgurl ?? ''),
                   ),
                   kWidth10,
                   Column(

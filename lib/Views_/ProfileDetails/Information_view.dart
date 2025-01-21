@@ -43,8 +43,6 @@ class _AccountInformationState extends State<AccountInformation> {
     controller.primaryContactController.addListener(_onFieldChanged);
     controller.secondaryContactController.addListener(_onFieldChanged);
     controller.costCT.addListener(_onFieldChanged);
-
-
   }
 
   @override
@@ -86,7 +84,8 @@ class _AccountInformationState extends State<AccountInformation> {
         controller.medicalLicenseController.text.trim() !=
             controller.profileList?.data?.caretakerInfo?.medicalLicense ||
         controller.costCT.text.trim() !=
-            controller.profileList?.data?.caretakerInfo?.serviceCharge.toString() ||
+            controller.profileList?.data?.caretakerInfo?.serviceCharge
+                .toString() ||
         controller.locationController.text.trim() !=
             controller.profileList?.data?.caretakerInfo?.location ||
         controller.nationalityController.text.trim() !=
@@ -99,10 +98,12 @@ class _AccountInformationState extends State<AccountInformation> {
         controller.primaryContactController.text.trim() !=
             controller.profileList?.data?.caretakerInfo?.primaryContactNumber ||
         controller.secondaryContactController.text.trim() !=
-            controller.profileList?.data?.caretakerInfo?.secondaryContactNumber ||
-       controller.selectImage != controller.profileList!.profilePath!+controller.profileList!.data!.profileImage!;
+            controller
+                .profileList?.data?.caretakerInfo?.secondaryContactNumber ||
+        controller.selectImage !=
+            controller.profileList!.profilePath! +
+                controller.profileList!.data!.profileImage!;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +159,8 @@ class _AccountInformationState extends State<AccountInformation> {
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: SingleChildScrollView(
             child: GetBuilder<ProfileController>(builder: (v) {
-              String fullImageUrl = (v.profileList?.profilePath ?? '') + (v.profileList?.data?.profileImage ?? '');
+              String fullImageUrl = (v.profileList?.profilePath ?? '') +
+                  (v.profileList?.data?.profileImage ?? '');
               return Column(
                 children: [
                   Row(
@@ -215,7 +217,8 @@ class _AccountInformationState extends State<AccountInformation> {
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: fullImageUrl.endsWith('default-profile-img.png')
+                                          color: fullImageUrl.endsWith(
+                                                  'default-profile-img.png')
                                               ? Colors.black54
                                               : Colors.blue,
                                         ),
@@ -295,9 +298,17 @@ class _AccountInformationState extends State<AccountInformation> {
                     children: [
                       Expanded(
                           flex: 5,
-                          child: customTextField(context,
-                              labelText: "Sex",
-                              controller: controller.sexController)),
+                          child: customDropdown(context,
+                              value: controller.sexController.text,
+                              items: ["Male", "Female", "Other"]
+                                  .map((e) => DropdownMenuItem(
+                                        child: Text(e),
+                                        value: e,
+                                      ))
+                                  .toList(),
+                              labelText: "Sex", onChanged: (v) {
+                            controller.sexController.text = v;
+                          })),
                       kWidth20,
                       Flexible(
                         flex: 5,
@@ -324,7 +335,6 @@ class _AccountInformationState extends State<AccountInformation> {
                   customTextField(
                     context,
                     controller: controller.costCT,
-
                     labelText: "Service Charge \$",
                   ),
                   kHeight15,

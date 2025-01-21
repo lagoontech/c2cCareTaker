@@ -242,11 +242,14 @@ class AppointmentStatusView extends StatelessWidget {
                                   return Padding(
                                     padding: const EdgeInsets.all(7.0),
                                     child: InkWell(
-                                      onTap: () {
-                                        Get.to(() => NewPatientHistory(
+                                      onTap: () async {
+                                        var result = await Get.to(() => NewPatientHistory(
                                               appointmentId: data.id,
                                               patientId: data.patientId,
                                             ));
+                                        if(result!=null && result==1){
+                                          v.loadRequests();
+                                        }
                                       },
                                       child: CustomCareTakers(
                                         name: data.patient!.patientInfo!.firstName,

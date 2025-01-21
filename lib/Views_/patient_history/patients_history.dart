@@ -144,7 +144,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
         leading: IconButton(
             onPressed: () => Get.back(), icon: Icon(Icons.arrow_back_ios)),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.calendar_month))
+          //IconButton(onPressed: () {}, icon: Icon(Icons.calendar_month))
         ],
       ),
       child: SingleChildScrollView(
@@ -434,7 +434,6 @@ class _PatientsHistoryState extends State<PatientsHistory> {
       controller.update();
       controller.searchAppointments(completedOnly: true);
     }
-
   }
 
 }

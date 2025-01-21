@@ -75,6 +75,10 @@ class ScheduleController extends GetxController {
   var dressingSelection = '';
   var walkingTime = '';
   var medidation = '';
+  List<dynamic> selectedOralCareTimings = [];
+  List<dynamic> selectedBathingTimings  = [];
+  List<dynamic> selectedDressingTimings = [];
+  List<dynamic> selectedWalkingTimings = [];
   TextEditingController medicalHistoryCT = TextEditingController();
   TextEditingController toileting = TextEditingController();
   TextEditingController bp = TextEditingController();
@@ -134,26 +138,25 @@ class ScheduleController extends GetxController {
     final Map<String, dynamic> data = {
       "appointment_id": appointmentId,
       "patient_id": patientId,
-      "patient_breakfasttime": breakFast,
+      "patient_breakfasttime": patientSchedules!.patientBreakfasttime,
       "patient_breakfasttime_details": breakFastDetail,
-      "patient_lunchtime": "",
+      "patient_lunchtime": patientSchedules!.patientLunchtime,
       "patient_lunchtime_details": lunchDetail,
-      "patient_snackstime": "",
+      "patient_snackstime": patientSchedules!.patientSnackstime,
       "patient_snackstime_details": snacksDetail,
-      "patient_dinnertime": "",
+      "patient_dinnertime": patientSchedules!.patientDinnertime,
       "patient_dinnertime_details": dinnerDetail,
-      "patient_medications": "",
       "patient_medications_details": {
          "Morning": meditationDetails.firstWhere((element) => element.time=="Morning").medicationDetails!.map((e) => e.text).toList(),
          "Noon": meditationDetails.firstWhere((element) => element.time=="Noon").medicationDetails!.map((e) => e.text).toList(),
          "Evening": meditationDetails.firstWhere((element) => element.time=="Evening").medicationDetails!.map((e) => e.text).toList()
     },
       "patient_hydration": hydrationTEC.text,
-      "patient_oralcare": oralSelection,
-      "patient_bathing": bathingSelection,
-      "patient_dressing": dressingSelection,
+      "patient_oralcare": selectedOralCareTimings,
+      "patient_bathing": selectedBathingTimings,
+      "patient_dressing": selectedDressingTimings,
       "patient_toileting": toileting.text,
-      "patient_walkingtime": walkingTime,
+      "patient_walkingtime": selectedWalkingTimings,
       "patient_vitalsigns": {
          "blood_pressure": bp.text,
          "heart_rate": heartRate.text,
@@ -177,6 +180,7 @@ class ScheduleController extends GetxController {
       if (response.statusCode == 200) {
         print("Data submitted successfully: ${response.body}");
         showCustomToast(message: "Service Status Updated Successfully");
+        Get.back(result: 1);
       } else {
         print("Failed to submit data: ${response.statusCode}");
       }
@@ -207,7 +211,7 @@ class ScheduleController extends GetxController {
     String? patientIDStr = await SharedPref().getId();
 
     var response = await http.get(
-      Uri.parse(URls().patientInfoFetch+"id=$patientID"),
+      Uri.parse(URls().individualPatient+"?patient_id=$patientID"),
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
@@ -226,7 +230,7 @@ class ScheduleController extends GetxController {
         toileting.text = patientSchedules!.patientToileting!;
         temp.text = 120.toString();
         bp.text = patientSchedules!.patientVitalsigns!.bloodPressure!;
-        walkingTime = patientSchedules!.patientWalkingtime!;
+        selectedWalkingTimings = jsonDecode(patientSchedules!.patientWalkingtime!);
         heartRate.text =
             patientSchedules!.patientVitalsigns!.heartRate.toString();
         respiration.text =
@@ -273,19 +277,23 @@ class ScheduleController extends GetxController {
         }
         if (patientSchedules!.patientOralcare != null &&
             patientSchedules!.patientOralcare!.isNotEmpty) {
-          oralSelection = patientSchedules!.patientOralcare!;
+          //oralSelection = patientSchedules!.patientOralcare!;
+          selectedOralCareTimings = jsonDecode(patientSchedules!.patientOralcare!);
           debugPrint(medidation);
           update();
         }
         if (patientSchedules!.patientBathing != null &&
             patientSchedules!.patientBathing!.isNotEmpty) {
-          bathingSelection = patientSchedules!.patientBathing!;
+          //bathingSelection = patientSchedules!.patientBathing!;
+          selectedBathingTimings = jsonDecode(patientSchedules!.patientBathing!);
+
           debugPrint(medidation);
           update();
         }
         if (patientSchedules!.patientDressing != null &&
             patientSchedules!.patientDressing!.isNotEmpty) {
-          dressingSelection = patientSchedules!.patientDressing!;
+          //dressingSelection = patientSchedules!.patientDressing!;
+          selectedDressingTimings = jsonDecode(patientSchedules!.patientDressing!);
           debugPrint(medidation);
           update();
         }

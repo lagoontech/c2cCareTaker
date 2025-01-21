@@ -37,6 +37,7 @@ class ProfileController extends GetxController {
   CaretakerInfo? profileInfo;
   ProfileList? profileList;
 
+  //
   Future<void> selectDob(BuildContext context) async {
     DateTime? pickDob = await showDatePicker(
         context: context,
@@ -80,7 +81,7 @@ class ProfileController extends GetxController {
         "caretaker_id": int.parse(careTakerId!),
         "first_name": firstNameController.text,
         "last_name": lastNameController.text,
-        "sex": sexController.text,
+        "sex": sexController.text.toLowerCase(),
         "age": int.parse(ageController.text),
         "dob": dobController.text,
         "email": emailCT.text,
@@ -132,7 +133,7 @@ class ProfileController extends GetxController {
         "caretaker_id": int.parse(careTakerId!),
         "first_name": firstNameController.text,
         "last_name": lastNameController.text,
-        "sex": sexController.text,
+        "sex": sexController.text.toLowerCase(),
         "age": int.parse(ageController.text),
         "dob": dobController.text,
         "email": emailCT.text,
@@ -195,7 +196,7 @@ class ProfileController extends GetxController {
           profileInfo = profileList!.data!.caretakerInfo;
           firstNameController.text = profileInfo!.firstName ?? '';
           lastNameController.text = profileInfo!.lastName ?? '';
-          sexController.text = profileInfo!.sex ?? '';
+          sexController.text = profileInfo!.sex!.capitalizeFirst ?? '';
           emailCT.text = profileInfo!.email ?? '';
           costCT.text = profileInfo!.serviceCharge ?? "";
           totalPatientsCT.text = profileInfo!.totalPatientsAttended ?? '';
