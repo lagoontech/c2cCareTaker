@@ -1,6 +1,11 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:care2caretaker/Notification/controller/controller.dart';
 import 'package:care2caretaker/Views_/HomeView/home_view.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,8 +22,22 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Get.put(NotificationController());
-//  Get.put(ProfileController());
+  FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
   runApp(const MyApp());
+
+}
+
+//
+@pragma('vm:entry-point')
+Future<void> onBackgroundMessage(RemoteMessage message)async {
+
+  if(kDebugMode){
+    print("Background message: " + "${message.data}");
+  }
+  final SendPort? sendPort = IsolateNameServer.lookupPortByName('requests_loader');
+  if (sendPort != null) {
+    sendPort.send("load");
+  }
 }
 
 class MyApp extends StatelessWidget {

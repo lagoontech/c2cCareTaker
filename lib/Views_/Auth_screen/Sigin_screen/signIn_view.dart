@@ -157,8 +157,8 @@ class LoginScreen extends StatelessWidget {
                         v.update();
                         print(countryCode);
                       },
-                      initialSelection: 'IN',
-                      favorite: ['+91', 'FR'],
+                      initialSelection: 'US',
+                      favorite: ['+1', 'FR'],
                       showCountryOnly: false,
                       showOnlyCountryWhenClosed: false,
                       alignLeft: false,

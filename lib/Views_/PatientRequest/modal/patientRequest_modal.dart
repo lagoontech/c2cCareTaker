@@ -50,6 +50,7 @@ class Datum {
   int? appointmentId;
   int? patientId;
   int? caretakerId;
+  List<DateTime> ?appointmentDates;
   DateTime? appointmentDate;
   String? appointmentStartTime;
   String? appointmentEndTime;
@@ -71,6 +72,7 @@ class Datum {
     this.serviceStatus,
     this.cancelReason,
     this.paymentStatus,
+    this.appointmentDates,
     this.createdAt,
     this.updatedAt,
     this.patient,
@@ -81,6 +83,9 @@ class Datum {
         appointmentId: json['appointment_id'],
         patientId: json["patient_id"],
         caretakerId: json["caretaker_id"],
+        appointmentDates: json['appointment_dates'] == null
+             ? []
+             : List.from(jsonDecode(json['appointment_dates'])).map((e) => DateTime.parse(e)).toList(),
         appointmentDate: json["appointment_date"] == null
             ? null
             : DateTime.parse(json["appointment_date"]),

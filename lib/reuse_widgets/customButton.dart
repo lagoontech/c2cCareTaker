@@ -91,7 +91,7 @@ class _CustomButtonState extends State<CustomButton>
                       widget.icon,
                       color: widget.textColor ?? Colors.white,
                     ),
-                  SizedBox(width: 12.w),
+                  if(widget.icon != null)SizedBox(width: 12.w),
                   Text(
                     widget.text,
                     style: TextStyle(

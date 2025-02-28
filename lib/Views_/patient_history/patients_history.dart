@@ -287,8 +287,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                                 showIcon: false,
                                 status: data.serviceStatus,
                                 name: data.patient!.patientInfo!.firstName!,
-                                date: DateFormat('dd MMM yyyy')
-                                    .format(data.appointmentDate!),
+                                dates: data.appointmentDates,
                                 imgurl: '${path}${url}',
                                 time:
                                     '${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentStartTime!}'))} - ${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentEndTime!}'))}',

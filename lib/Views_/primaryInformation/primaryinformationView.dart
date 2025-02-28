@@ -11,16 +11,17 @@ import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/sizes.dart';
 import '../PatientRequest/controller/patient_request_controller.dart';
 import '../PatientRequest/modal/patientRequest_modal.dart';
 
 class Primaryinformationview extends StatefulWidget {
-
   String? firstName;
   String? lastName;
   String? sex;
+  List<DateTime>? dates;
   int? age;
   String? nationality;
   String? imgUrl;
@@ -36,7 +37,7 @@ class Primaryinformationview extends StatefulWidget {
   String? sendTime;
   String? toTime;
   double? bmi;
-  PatientSchedules ?schedule;
+  PatientSchedules? schedule;
 
   Primaryinformationview(
       {super.key,
@@ -58,15 +59,14 @@ class Primaryinformationview extends StatefulWidget {
       this.sendDate,
       this.patientContactNumber,
       this.nationality,
-      this.schedule
-      });
+      this.schedule,
+      this.dates});
 
   @override
   State<Primaryinformationview> createState() => _PrimaryinformationviewState();
 }
 
 class _PrimaryinformationviewState extends State<Primaryinformationview> {
-
   String? selectedValue;
   final BottomNavController bn = Get.put(BottomNavController());
   final PatientRequestController controller =
@@ -144,6 +144,38 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                     toTime: widget.sendTime,
                     imageUrl: widget.imgUrl),
                 kHeight15,
+                Stack(
+                  children: [
+                    TableCalendar(
+                        focusedDay: widget.dates!.first,
+                        selectedDayPredicate: (day) {
+                          return widget.dates!.any((date) =>
+                              isSameDay(date, day)); // Highlight appointment dates
+                        },
+                        headerStyle: HeaderStyle(
+                            formatButtonVisible: false, titleCentered: true),
+                        calendarStyle: CalendarStyle(
+                          outsideDaysVisible: false,
+                          selectedDecoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        firstDay: widget.dates!.first,
+                        lastDay: DateTime(2050)),
+
+                    Padding(
+                      padding: EdgeInsets.only(top: 32.h),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        child: SizedBox(
+                          height: 200.h,
+                        ),
+                      ),
+                    )
+
+                  ],
+                ),
                 InkWell(
                   onTap: () {
                     controller.launchDialer(widget.patientContactNumber!);
@@ -208,14 +240,19 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 SizedBox(
                   height: 32.h,
                   child: ListView.separated(
-                      separatorBuilder: (context,index){
+                      separatorBuilder: (context, index) {
                         return kWidth5;
                       },
                       scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientPastmedicalhistory!) as List<dynamic>).length,
-                      itemBuilder: (context,index){
-                        var result = (jsonDecode(widget.schedule!.patientPastmedicalhistory!) as List<dynamic>)[index];
-                        return detailsWidget(context,details: result);
+                      itemCount: (jsonDecode(
+                                  widget.schedule!.patientPastmedicalhistory!)
+                              as List<dynamic>)
+                          .length,
+                      itemBuilder: (context, index) {
+                        var result = (jsonDecode(
+                                widget.schedule!.patientPastmedicalhistory!)
+                            as List<dynamic>)[index];
+                        return detailsWidget(context, details: result);
                       }),
                 ),
                 kHeight10,
@@ -223,7 +260,8 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 kHeight10,
                 SizedBox(
                   height: 32.h,
-                  child: detailsWidget(context,details: widget.schedule!.patientPastsurgicalhistory),
+                  child: detailsWidget(context,
+                      details: widget.schedule!.patientPastsurgicalhistory),
                 ),
                 kHeight10,
                 CustomLabel(text: "Personal Details"),
@@ -256,29 +294,35 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 SizedBox(
                   height: 32.h,
                   child: ListView.separated(
-                      separatorBuilder: (context,index){
+                      separatorBuilder: (context, index) {
                         return kWidth5;
                       },
                       scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientDietplan!) as List<dynamic>).length,
-                      itemBuilder: (context,index){
-                        var result = (jsonDecode(widget.schedule!.patientDietplan!) as List<dynamic>)[index];
-                    return detailsWidget(context,details: result);
-                  }),
+                      itemCount: (jsonDecode(widget.schedule!.patientDietplan!)
+                              as List<dynamic>)
+                          .length,
+                      itemBuilder: (context, index) {
+                        var result =
+                            (jsonDecode(widget.schedule!.patientDietplan!)
+                                as List<dynamic>)[index];
+                        return detailsWidget(context, details: result);
+                      }),
                 ),
                 kHeight10,
                 CustomLabel(text: "Toileting"),
                 kHeight10,
                 SizedBox(
                   height: 32.h,
-                  child: detailsWidget(context,details: widget.schedule!.patientToileting),
+                  child: detailsWidget(context,
+                      details: widget.schedule!.patientToileting),
                 ),
                 kHeight10,
                 CustomLabel(text: "Hydration"),
                 kHeight10,
                 SizedBox(
                   height: 32.h,
-                  child: detailsWidget(context,details: widget.schedule!.patientHydration),
+                  child: detailsWidget(context,
+                      details: widget.schedule!.patientHydration),
                 ),
                 kHeight10,
                 CustomLabel(text: "Walking"),
@@ -286,14 +330,19 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 SizedBox(
                   height: 32.h,
                   child: ListView.separated(
-                      separatorBuilder: (context,index){
+                      separatorBuilder: (context, index) {
                         return kWidth5;
                       },
                       scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientWalkingtime!) as List<dynamic>).length,
-                      itemBuilder: (context,index){
-                        var result = (jsonDecode(widget.schedule!.patientWalkingtime!) as List<dynamic>)[index];
-                        return detailsWidget(context,details: result);
+                      itemCount:
+                          (jsonDecode(widget.schedule!.patientWalkingtime!)
+                                  as List<dynamic>)
+                              .length,
+                      itemBuilder: (context, index) {
+                        var result =
+                            (jsonDecode(widget.schedule!.patientWalkingtime!)
+                                as List<dynamic>)[index];
+                        return detailsWidget(context, details: result);
                       }),
                 ),
                 kHeight10,
@@ -302,14 +351,18 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 SizedBox(
                   height: 32.h,
                   child: ListView.separated(
-                      separatorBuilder: (context,index){
+                      separatorBuilder: (context, index) {
                         return kWidth5;
                       },
                       scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientOralcare!) as List<dynamic>).length,
-                      itemBuilder: (context,index){
-                        var result = (jsonDecode(widget.schedule!.patientOralcare!) as List<dynamic>)[index];
-                        return detailsWidget(context,details: result);
+                      itemCount: (jsonDecode(widget.schedule!.patientOralcare!)
+                              as List<dynamic>)
+                          .length,
+                      itemBuilder: (context, index) {
+                        var result =
+                            (jsonDecode(widget.schedule!.patientOralcare!)
+                                as List<dynamic>)[index];
+                        return detailsWidget(context, details: result);
                       }),
                 ),
                 kHeight10,
@@ -318,14 +371,18 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                 SizedBox(
                   height: 32.h,
                   child: ListView.separated(
-                      separatorBuilder: (context,index){
+                      separatorBuilder: (context, index) {
                         return kWidth5;
                       },
                       scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientBathing!) as List<dynamic>).length,
-                      itemBuilder: (context,index){
-                        var result = (jsonDecode(widget.schedule!.patientBathing!) as List<dynamic>)[index];
-                        return detailsWidget(context,details: result);
+                      itemCount: (jsonDecode(widget.schedule!.patientBathing!)
+                              as List<dynamic>)
+                          .length,
+                      itemBuilder: (context, index) {
+                        var result =
+                            (jsonDecode(widget.schedule!.patientBathing!)
+                                as List<dynamic>)[index];
+                        return detailsWidget(context, details: result);
                       }),
                 ),
                 kHeight10,
@@ -339,12 +396,19 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         savedDetails(context,
-                            details: "Temperature", timing: "${jsonDecode(widget.schedule!.patientVitalsigns!)["temperature"]}\u2109"),
-                        kWidth5,
-                        savedDetails(context, details: "Pulse", timing: "${jsonDecode(widget.schedule!.patientVitalsigns!)["heart_rate"]}"),
+                            details: "Temperature",
+                            timing:
+                                "${jsonDecode(widget.schedule!.patientVitalsigns!)["temperature"]}\u2109"),
                         kWidth5,
                         savedDetails(context,
-                            details: "Respiration", timing: "${jsonDecode(widget.schedule!.patientVitalsigns!)["respiratory_rate"]}"),
+                            details: "Pulse",
+                            timing:
+                                "${jsonDecode(widget.schedule!.patientVitalsigns!)["heart_rate"]}"),
+                        kWidth5,
+                        savedDetails(context,
+                            details: "Respiration",
+                            timing:
+                                "${jsonDecode(widget.schedule!.patientVitalsigns!)["respiratory_rate"]}"),
                         kWidth5,
                       ],
                     ),
@@ -360,7 +424,9 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        detailsWidget(context, details: widget.schedule!.patientBloodsugar!+" mg/dL"),
+                        detailsWidget(context,
+                            details:
+                                widget.schedule!.patientBloodsugar! + " mg/dL"),
                         kWidth5,
                         /* savedDetails(context, details: "Noon", timing: "70mg"),
                         kWidth5,
@@ -379,8 +445,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
   }
 
   //
-  detailsWidget(BuildContext context, {String? details}){
-
+  detailsWidget(BuildContext context, {String? details}) {
     return Container(
       height: 30.h,
       padding: EdgeInsets.all(8.r),
@@ -571,22 +636,30 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       Row(
                         children: [
                           Icon(
-                            IconlyBold.calendar, // Icon for Date
+                            IconlyBold.calendar,
                             color: Colors.grey,
                             size: 20.sp,
                           ),
-                          SizedBox(width: 5.w), // Spacing between icon and text
+                          SizedBox(width: 5.w),
                           Text(
-                            "${DateFormat('yyyy-MM-dd').format(sendDate!)}",
+                            DateFormat("MMM dd").format(widget.dates![0]),
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+                          Text(
+                            " To ${DateFormat("MMM dd").format(widget.dates!.last)}",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          )
                         ],
                       ),
-                      SizedBox(height: 5.h), // Spacing between date and time
+                      SizedBox(height: 8.h), // Spacing between date and time
                       Row(
                         children: [
                           Icon(
@@ -597,7 +670,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                           SizedBox(width: 5.w), // Spacing between icon and text
                           Text(
                             sendTime != null
-                                ? "${DateFormat('hh:mm a').format(DateTime.parse('${DateFormat('yyyy-MM-dd').format(sendDate)} $sendTime'))}"
+                                ? "${DateFormat('hh:mm a').format(DateTime.parse('${DateFormat('yyyy-MM-dd').format(widget.dates![0])} $sendTime'))}"
                                 : 'Invalid Time',
                             // Replace with actual time variable
                             style: TextStyle(
@@ -610,7 +683,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                           Text("-"), SizedBox(width: 2.w),
                           Text(
                             toTime != null
-                                ? "${DateFormat('hh:mm a').format(DateTime.parse('${DateFormat('yyyy-MM-dd').format(sendDate)} $toTime'))}"
+                                ? "${DateFormat('hh:mm a').format(DateTime.parse('${DateFormat('yyyy-MM-dd').format(widget.dates!.last)} $toTime'))}"
                                 : 'Invalid Time',
                             // Replace with actual time variable
                             style: TextStyle(

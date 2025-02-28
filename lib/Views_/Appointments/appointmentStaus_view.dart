@@ -1,21 +1,23 @@
 import 'package:animated_refresh/animated_refresh.dart';
 import 'package:care2caretaker/Views_/HomeScreen/home-screen.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
-import 'package:care2caretaker/reuse_widgets/Custom_AppoinMents.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
-import 'package:flutter/material.dart' hide RefreshIndicatorTriggerMode , DateUtils;
+import 'package:flutter/material.dart'
+    hide RefreshIndicatorTriggerMode, DateUtils;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-
 import '../../Utils/date_utils.dart';
 import '../../reuse_widgets/custom_textfield.dart';
 import '../PatientRequest/controller/patient_request_controller.dart';
 import '../patient_history/newPattientHistory.dart';
 
 class AppointmentStatusView extends StatelessWidget {
-  AppointmentStatusView({super.key});
+  AppointmentStatusView({super.key, this.fromAppointmentPage = false});
+
+  bool? fromAppointmentPage;
+  bool? listLoaded = false;
 
   final PatientRequestController controller =
       Get.put(PatientRequestController());
@@ -32,13 +34,26 @@ class AppointmentStatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    if(!listLoaded! && fromAppointmentPage!){
+      controller.loadRequests();
+      listLoaded = true;
+    }
+
     return DefaultTabController(
       length: 3,
       child: CustomBackground(
         appBar: CustomAppBar(
+          leading: fromAppointmentPage!
+              ? IconButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  icon: Icon(Icons.arrow_back_ios))
+              : SizedBox(),
           title: "Appointments",
           bottom: TabBar(
-            onTap: (v){
+            onTap: (v) {
               controller.currentTab = v;
               controller.searchAppointments();
             },
@@ -51,23 +66,18 @@ class AppointmentStatusView extends StatelessWidget {
         ),
         child: Column(
           children: [
-
             SizedBox(height: 8.h),
-
             Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.h,
-                  vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 2.h),
               child: Row(
                 children: [
-
                   Expanded(
                     flex: 3,
                     child: SizedBox(
                       height: kToolbarHeight * 0.9,
                       child: customTextField(
                         context,
-                        onChanged: (v){
+                        onChanged: (v) {
                           controller.searchAppointments();
                         },
                         hint: "Search appointments",
@@ -78,13 +88,11 @@ class AppointmentStatusView extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   SizedBox(width: 12.w),
-
                   Expanded(
                     flex: 2,
                     child: GestureDetector(
-                      onTap: (){
+                      onTap: () {
                         _selectDate(context);
                       },
                       child: Container(
@@ -96,55 +104,45 @@ class AppointmentStatusView extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-
                             Icon(Icons.calendar_month),
-
                             SizedBox(width: 4.w),
-
-                            GetBuilder<PatientRequestController>(
-                                builder: (vc) {
-                                  return controller.selectedDate!=null
-                                      ? Text(controller.displayDate.toString(),style: TextStyle(
-                                      fontSize: 12.sp
-                                  ),)
-                                      : Center(child: Text("Select a date",style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: "verdana_regular"
-                                  ),));
-
-                                }
-                            ),
-
+                            GetBuilder<PatientRequestController>(builder: (vc) {
+                              return controller.selectedDate != null
+                                  ? Text(
+                                      controller.displayDate.toString(),
+                                      style: TextStyle(fontSize: 12.sp),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                      "Select a date",
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                          fontFamily: "verdana_regular"),
+                                    ));
+                            }),
                             SizedBox(width: 2.w),
-
-                            GetBuilder<PatientRequestController>(
-                                builder: (vc) {
-                                  return controller.selectedDate!=null
-                                      ? GestureDetector(
-                                      onTap: (){
+                            GetBuilder<PatientRequestController>(builder: (vc) {
+                              return controller.selectedDate != null
+                                  ? GestureDetector(
+                                      onTap: () {
                                         controller.selectedDate = null;
                                         controller.displayDate = null;
                                         controller.update();
                                         controller.searchAppointments();
                                       },
-                                      child: Icon(Icons.cancel_outlined)
-                                  )
-                                      : SizedBox();
-                                }
-                            )
-
+                                      child: Icon(Icons.cancel_outlined))
+                                  : SizedBox();
+                            })
                           ],
                         ),
                       ),
                     ),
                   )
-
                 ],
               ),
             ),
-
             Expanded(
               child: TabBarView(
                 children: [
@@ -166,29 +164,34 @@ class AppointmentStatusView extends StatelessWidget {
                             ? SingleChildScrollView(
                                 physics: AlwaysScrollableScrollPhysics(),
                                 child: Container(
-                                  height: MediaQuery.of(context).size.height * 0.8,
-                                  child:
-                                      Center(child: Text('No approved appointments')),
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.8,
+                                  child: Center(
+                                      child: Text('No approved appointments')),
                                 ),
                               )
                             : ListView.builder(
-                                itemCount: v.searchedApprovedList.isEmpty && v.displayDate == null && v.searchTEC.text.isEmpty
+                                itemCount: v.searchedApprovedList.isEmpty &&
+                                        v.displayDate == null &&
+                                        v.searchTEC.text.isEmpty
                                     ? v.approvedList.length
                                     : v.searchedApprovedList.length,
                                 itemBuilder: (context, index) {
                                   var data;
-                                  if(v.searchedApprovedList.isNotEmpty){
+                                  if (v.searchedApprovedList.isNotEmpty) {
                                     data = v.searchedApprovedList[index];
-                                  }else{
+                                  } else {
                                     data = v.approvedList[index];
                                   }
                                   String? path =
                                       '${v.careTakersListResponse!.profilePath}';
-                                  String? url = '${data.patient!.profileImageUrl}';
+                                  String? url =
+                                      '${data.patient!.profileImageUrl}';
                                   return Padding(
                                     padding: const EdgeInsets.all(7.0),
                                     child: CustomCareTakers(
-                                      name: data.patient!.patientInfo!.firstName,
+                                      name:
+                                          data.patient!.patientInfo!.firstName,
                                       gender: data.patient!.patientInfo!.sex,
                                       age: data.patient!.patientInfo!.age,
                                       imageUrl: "${path}${url}",
@@ -220,39 +223,47 @@ class AppointmentStatusView extends StatelessWidget {
                             ? SingleChildScrollView(
                                 physics: AlwaysScrollableScrollPhysics(),
                                 child: Container(
-                                  height: MediaQuery.of(context).size.height * 0.8,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.8,
                                   child: Center(
-                                      child: Text('No processing appointments')),
+                                      child:
+                                          Text('No processing appointments')),
                                 ),
                               )
                             : ListView.builder(
-                                itemCount: v.searchedProcessingList.isEmpty && v.displayDate == null && v.searchTEC.text.isEmpty
+                                itemCount: v.searchedProcessingList.isEmpty &&
+                                        v.displayDate == null &&
+                                        v.searchTEC.text.isEmpty
                                     ? v.processingList.length
                                     : v.searchedProcessingList.length,
                                 itemBuilder: (context, index) {
                                   var data;
-                                  if(v.searchedProcessingList.isNotEmpty){
+                                  if (v.searchedProcessingList.isNotEmpty) {
                                     data = v.searchedProcessingList[index];
-                                  }else{
+                                  } else {
                                     data = v.processingList[index];
                                   }
                                   String? path =
                                       '${v.careTakersListResponse!.profilePath}';
-                                  String? url = '${data.patient!.profileImageUrl}';
+                                  String? url =
+                                      '${data.patient!.profileImageUrl}';
                                   return Padding(
                                     padding: const EdgeInsets.all(7.0),
                                     child: InkWell(
                                       onTap: () async {
-                                        var result = await Get.to(() => NewPatientHistory(
-                                              appointmentId: data.id,
-                                              patientId: data.patientId,
-                                            ));
-                                        if(result!=null && result==1){
+                                        var result = await Get.to(
+                                            () => NewPatientHistory(
+                                                  appointmentId: data.id,
+                                                  patientId: data.patientId,
+                                              appointmentDates: data.appointmentDates,
+                                                ));
+                                        if (result != null && result == 1) {
                                           v.loadRequests();
                                         }
                                       },
                                       child: CustomCareTakers(
-                                        name: data.patient!.patientInfo!.firstName,
+                                        name: data
+                                            .patient!.patientInfo!.firstName,
                                         gender: data.patient!.patientInfo!.sex,
                                         age: data.patient!.patientInfo!.age,
                                         imageUrl: "${path}${url}",
@@ -285,28 +296,34 @@ class AppointmentStatusView extends StatelessWidget {
                             ? SingleChildScrollView(
                                 physics: AlwaysScrollableScrollPhysics(),
                                 child: Container(
-                                  height: MediaQuery.of(context).size.height * 0.8,
-                                  child:
-                                      Center(child: Text('No rejected appointments')),
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.8,
+                                  child: Center(
+                                      child: Text('No rejected appointments')),
                                 ),
                               )
                             : ListView.builder(
-                                itemCount: v.searchedRejectedList.isEmpty && v.displayDate == null && v.searchTEC.text.isEmpty
+                                itemCount: v.searchedRejectedList.isEmpty &&
+                                        v.displayDate == null &&
+                                        v.searchTEC.text.isEmpty
                                     ? v.rejectedList.length
                                     : v.searchedRejectedList.length,
                                 itemBuilder: (context, index) {
                                   var data;
-                                  if(v.searchedRejectedList.isNotEmpty){
+                                  if (v.searchedRejectedList.isNotEmpty) {
                                     data = v.searchedRejectedList[index];
-                                  } else{
+                                  } else {
                                     data = v.rejectedList[index];
                                   }
-                                  String? path = '${v.careTakersListResponse!.profilePath}';
-                                  String? url = '${data.patient!.profileImageUrl}';
+                                  String? path =
+                                      '${v.careTakersListResponse!.profilePath}';
+                                  String? url =
+                                      '${data.patient!.profileImageUrl}';
                                   return Padding(
                                     padding: const EdgeInsets.all(7.0),
                                     child: CustomCareTakers(
-                                      name: data.patient!.patientInfo!.firstName,
+                                      name:
+                                          data.patient!.patientInfo!.firstName,
                                       gender: data.patient!.patientInfo!.sex,
                                       age: data.patient!.patientInfo!.age,
                                       imageUrl: "${path}${url}",
@@ -331,7 +348,6 @@ class AppointmentStatusView extends StatelessWidget {
 
   //
   Future<void> _selectDate(BuildContext context) async {
-
     var date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -343,8 +359,7 @@ class AppointmentStatusView extends StatelessWidget {
             colorScheme: ColorScheme.light(
                 primary: Colors.purple,
                 onPrimary: Colors.white,
-                onSurface: Colors.black
-            ),
+                onSurface: Colors.black),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.purple,
@@ -356,12 +371,11 @@ class AppointmentStatusView extends StatelessWidget {
       },
     );
 
-    if(date!=null){
+    if (date != null) {
       controller.selectedDate = date;
       controller.displayDate = DateUtils().dateOnlyFormat(date);
       controller.update();
       controller.searchAppointments();
     }
-
   }
 }

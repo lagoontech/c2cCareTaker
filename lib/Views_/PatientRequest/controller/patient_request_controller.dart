@@ -1,12 +1,12 @@
 import 'dart:convert';
+import 'dart:isolate';
+import 'dart:ui';
 import 'package:care2caretaker/api_urls/url.dart';
 import 'package:care2caretaker/reuse_widgets/customToast.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-import '../../../Utils/date_utils.dart';
 import '../../../sharedPref/sharedPref.dart';
 import '../../Appointments/appointmentStaus_view.dart';
 import '../modal/getService_history.dart';
@@ -32,7 +32,9 @@ class PatientRequestController extends GetxController {
   TextEditingController searchTEC = TextEditingController();
   String ?displayDate;
 
+  //
   loadRequests() async {
+
     String? token = await SharedPref().getToken();
     if (token == null) {
       print('Token not found');
@@ -56,11 +58,6 @@ class PatientRequestController extends GetxController {
         approvedList.assignAll(caretakersList
             .where((item) => item.serviceStatus == 'approved')
             .toList());
-        /*   rejectedList.assignAll(caretakersList
-            .where((item) =>
-                item.serviceStatus == 'rejected' ||
-                item.serviceStatus == 'cancelled')
-            .toList());*/
         requestList.assignAll(caretakersList
             .where((item) => item.serviceStatus == 'requested')
             .toList());
@@ -85,6 +82,7 @@ class PatientRequestController extends GetxController {
   bool isRejecting = false;
   bool isAccepting = false;
 
+  //
   acceptRequestApi({
     int? appointmentId,
     int? patientId,
@@ -111,7 +109,7 @@ class PatientRequestController extends GetxController {
         final jsonResponse = jsonDecode(res.body);
         showCustomToast(message: "Successfully Accepted");
         Get.back();
-        Get.to(() => AppointmentStatusView());
+        Get.to(() => AppointmentStatusView(fromAppointmentPage: true));
       } else {
         debugPrint('Error: ${res.statusCode}');
       }
@@ -120,8 +118,10 @@ class PatientRequestController extends GetxController {
     }
     isAccepting = false;
     update();
+
   }
 
+  //
   rejectRequestApi({
     int? appointmentId,
     int? patientId,
@@ -148,7 +148,7 @@ class PatientRequestController extends GetxController {
         final jsonResponse = jsonDecode(res.body);
         showCustomToast(message: "Successfully Rejected");
         Get.back();
-        Get.to(() => AppointmentStatusView());
+        Get.to(() => AppointmentStatusView(fromAppointmentPage: true));
       } else {
         debugPrint('Error: ${res.statusCode}');
       }
@@ -159,6 +159,7 @@ class PatientRequestController extends GetxController {
     update();
   }
 
+  //
   loadRejectList() async {
     try {
       String? token = await SharedPref().getToken();
@@ -182,6 +183,7 @@ class PatientRequestController extends GetxController {
 
   ServiceHistory? serviceHistory;
 
+  //
   loadGetHistory({int? appointmentId, int? patientId}) async {
     try {
       String? token = await SharedPref().getToken();
@@ -208,6 +210,7 @@ class PatientRequestController extends GetxController {
     }
   }
 
+  //
   Future<void> launchDialer(String phoneNumber) async {
     final Uri telUri = Uri(
       scheme: 'tel',
@@ -222,7 +225,6 @@ class PatientRequestController extends GetxController {
   }
 
   //
-  //
   searchAppointments({bool completedOnly = false}){
 
     if(completedOnly){
@@ -233,10 +235,17 @@ class PatientRequestController extends GetxController {
           hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
               searchTEC.text.toLowerCase());
         else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
-        }else if(displayDate!=null){
-          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+          bool has = false;
+          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
+          hasAppointment = has;
+        } else if(displayDate!=null){
+          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
         }
         return hasAppointment;
       }
@@ -254,10 +263,17 @@ class PatientRequestController extends GetxController {
           hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
               searchTEC.text.toLowerCase());
         else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
-        }else if(displayDate!=null){
-          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+          bool has = false;
+          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
+          hasAppointment = has;
+        } else if(displayDate!=null){
+          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
         }
         return hasAppointment;
       }
@@ -270,10 +286,17 @@ class PatientRequestController extends GetxController {
           hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
               searchTEC.text.toLowerCase());
         else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
-        }else if(displayDate!=null){
-          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+          bool has = false;
+          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
+          hasAppointment = has;
+        } else if(displayDate!=null){
+          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
         }
         return hasAppointment;
       }
@@ -283,15 +306,21 @@ class PatientRequestController extends GetxController {
       searchedRejectedList = rejectedList.where((app)
       {
         var hasAppointment = false;
-        print(displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!));
         if(displayDate==null)
           hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
               searchTEC.text.toLowerCase());
         else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase()) && displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
-        }else if(displayDate!=null){
-          hasAppointment = displayDate == DateUtils().dateOnlyFormat(app.appointmentDate!);
+          bool has = false;
+          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
+              searchTEC.text.toLowerCase());
+          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
+          hasAppointment = has;
+        } else if(displayDate!=null){
+          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
+              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
+              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
         }
         return hasAppointment;
       }).toList();
@@ -299,31 +328,29 @@ class PatientRequestController extends GetxController {
     update();
   }
 
+  ReceivePort _receivePort = ReceivePort();
+
+  //
+  listenForRequests(){
+
+    IsolateNameServer.registerPortWithName(
+        _receivePort.sendPort, 'requests_loader');
+
+    // Listen for messages from the isolate
+    _receivePort.listen((message) {
+      loadRequests();
+    });
+
+  }
+
   @override
   void onInit() {
-    // TODO: implement onInit
     loadRequests();
     loadRejectList();
+    listenForRequests();
     super.onInit();
   }
 }
 
 //
 
-/*{
-"success": true,
-"status": 200,
-"type": "success",
-"data": {
-"id": 1,
-"patient_id": 3,
-"caretaker_id": 1,
-"appointment_date": "2024-10-25",
-"appointment_start_time": "14:00:00",
-"appointment_end_time": "15:00:00",
-"service_status": "rejected",
-"payment_status": "pending",
-"created_at": "2024-10-21T08:30:53.000000Z",
-"updated_at": "2024-10-22T15:49:42.000000Z"
-}
-}*/

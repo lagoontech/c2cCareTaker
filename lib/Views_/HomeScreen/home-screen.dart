@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   kHeight10,
                   GetBuilder<PatientRequestController>(builder: (v) {
-                    return ListView.builder(
+                    return v.processingList.isNotEmpty?ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: v.processingList.length > 4
@@ -256,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                                   '${path}${res.patient!.profileImageUrl}',
                             ),
                           );
-                        });
+                        }) : Text("No current appointments");
                   }),
                   /*     kHeight10,
                   Row(

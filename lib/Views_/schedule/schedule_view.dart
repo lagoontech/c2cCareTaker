@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleView extends StatefulWidget {
@@ -45,7 +46,7 @@ class _ScheduleViewState extends State<ScheduleView> {
               kHeight10,
               CustomLabel(text: "Waiting Patients"),
               kHeight5,
-              WaitingPatients(
+              /*WaitingPatients(
                 name: 'Akash Asokan ',
                 date: '09 AUG 2024',
                 imgurl: "assets/images/Rectangle 4482.png",
@@ -64,7 +65,7 @@ class _ScheduleViewState extends State<ScheduleView> {
                 date: '09 AUG 2024',
                 imgurl: "assets/images/Rectangle 4481.png",
                 time: "Monday 8:00AM - 9:00AM",
-              ),
+              ),*/
               kHeight10,
             ],
           ).paddingSymmetric(horizontal: 10.w),
@@ -74,7 +75,7 @@ class _ScheduleViewState extends State<ScheduleView> {
 
 class WaitingPatients extends StatelessWidget {
   final String? name;
-  final String? date;
+  List<DateTime> ?dates;
   final String? time;
   String? status;
   int?appoinId;
@@ -86,7 +87,7 @@ class WaitingPatients extends StatelessWidget {
 
   WaitingPatients({
     this.name,
-    this.date,
+    this.dates,
     this.imgurl,
     this.time,
     this.patientId,
@@ -139,10 +140,17 @@ class WaitingPatients extends StatelessWidget {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17.sp),
                       ),
-                      Text(
-                        date ?? '',
-                        style:
-                            TextStyle(fontSize: 13.sp, color: Color(0xffB9B9B9)),
+                      Row(
+                        children: [
+                          Text(
+                            DateFormat("MMM dd").format(dates![0]) ?? '',
+                            style:
+                                TextStyle(fontSize: 13.sp, color: Color(0xffB9B9B9)),
+                          ),
+                          dates!.length>1
+                              ?Text(" To ${DateFormat("MMM dd").format(dates!.last)}",style:
+                          TextStyle(fontSize: 13.sp, color: Color(0xffB9B9B9))):SizedBox(),
+                        ],
                       ),
                       Text(
                         time ?? '',

@@ -95,6 +95,7 @@ class CustomPatientRequest extends StatelessWidget {
                               bmi: data.bmi,
                               age: data.age,
                               toTime: res.appointmentStartTime,
+                              dates: res.appointmentDates,
                               sex: data.sex,
                               sendDate: res.appointmentDate,
                               sendTime: res.appointmentEndTime,

@@ -82,7 +82,9 @@ class NotificationController extends GetxController {
   }
 }
 */
+import 'package:care2caretaker/Views_/PatientRequest/controller/patient_request_controller.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -120,6 +122,15 @@ class NotificationController extends GetxController {
 
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+
+      try{
+        PatientRequestController controller = Get.find<PatientRequestController>();
+        controller.loadRequests();
+      }catch(e){
+        if(kDebugMode){
+          print("Foreground request loading error-->${e.toString()}");
+        }
+      }
       print(
           'Received a message in the foreground: ${message.notification?.body}');
 
