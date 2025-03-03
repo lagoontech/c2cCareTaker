@@ -163,7 +163,7 @@ class ScheduleController extends GetxController {
          "respiratory_rate": respiration.text,
          "temperature": temp.text,
       },
-      "patient_bloodsugar": bloodSugarTEC.text
+      "patient_bloodsugar": bloodSugarTEC.text,
     };
 
     try {

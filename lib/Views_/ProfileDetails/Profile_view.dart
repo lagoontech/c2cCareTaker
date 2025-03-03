@@ -92,7 +92,7 @@ class ProfileDetails extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(height: 5),
-                                Text(
+                                v.profileList!.data!=null && v.profileList!.data!.caretakerInfo!=null?Text(
                                   '${v.profileList!.data!.caretakerInfo!.firstName!} ${v.profileList!.data!.caretakerInfo!.lastName!}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -101,7 +101,7 @@ class ProfileDetails extends StatelessWidget {
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
                                   ),
-                                ),
+                                ) : SizedBox(),
                                 SizedBox(height: 4),
                                 Text(
                                   "Am Care Taker",

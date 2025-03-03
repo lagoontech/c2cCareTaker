@@ -65,9 +65,6 @@ class _AccountInformationState extends State<AccountInformation> {
   }
 
   void _onFieldChanged() {
-    setState(() {
-      _hasChanges = _hasFormChanged();
-    });
   }
 
   bool _hasFormChanged() {

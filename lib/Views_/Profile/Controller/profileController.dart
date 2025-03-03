@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -54,7 +55,6 @@ class ProfileController extends GetxController {
   }
 
   // calculate age when select the dob
-
   int calculateAge(DateTime birthDate) {
     DateTime today = DateTime.now();
     int age = today.year - birthDate.year;
@@ -66,11 +66,30 @@ class ProfileController extends GetxController {
   }
 
   //indicate details fill Completed
-
   void onUserDetailsCompleted() {
     SharedPref().setRegisterComplete(true);
   }
 
+  //
+  void setInitialValues() {
+    firstNameController.text = "John";
+    lastNameController.text = "Doe";
+    sexController.text = "Male";
+    ageController.text = "30";
+    dobController.text = "1993-05-15";
+    emailCT.text = "john.doe@example.com";
+    costCT.text = "50";
+    totalPatientsCT.text = "100";
+    medicalLicenseController.text = "ML12345";
+    locationController.text = "New York";
+    nationalityController.text = "American";
+    addressController.text = "123 Main St";
+    yearOfExperienceController.text = "5";
+    primaryContactController.text = "1234567890";
+    secondaryContactController.text = "9876543210";
+  }
+
+  //
   insertCaretakerProfileDetails() async {
     isLoading = true;
     update();
@@ -108,6 +127,11 @@ class ProfileController extends GetxController {
       );
       if (res.statusCode == 200) {
         onUserDetailsCompleted();
+        try{
+          await Get.delete<ProfileController>();
+        }catch(e){
+          print(e);
+        }
         Get.to(() => HomeView());
         debugPrint("Successfully Insert care Taker Details");
       } else {
@@ -122,6 +146,7 @@ class ProfileController extends GetxController {
     update();
   }
 
+  //
   updateCaretakerProfileDetails() async {
     isLoading = true;
     update();
@@ -174,6 +199,7 @@ class ProfileController extends GetxController {
 
   bool fetchLoading = false;
 
+  //
   fetchCareTakerDetails() async {
     fetchLoading = true;
     update();
@@ -229,6 +255,7 @@ class ProfileController extends GetxController {
     update();
   }
 
+  //
   Future<void> getCurrentLocation() async {
     isLocation = true;
     update();
@@ -280,6 +307,7 @@ class ProfileController extends GetxController {
   ImagePicker imagePicker = ImagePicker();
   bool uploadLoading = false;
 
+  //
   pickImage(ImageSource imageSource, BuildContext context) async {
     XFile? image = await imagePicker.pickImage(source: imageSource);
     if (image != null) {
@@ -292,6 +320,7 @@ class ProfileController extends GetxController {
     Navigator.pop(context);
   }
 
+  //
   profileImageUpload() async {
     if (selectImage == null) {
       debugPrint("No image selected for upload");
@@ -357,6 +386,9 @@ class ProfileController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     fetchCareTakerDetails();
+    if(kDebugMode){
+      setInitialValues();
+    }
     super.onInit();
   }
 }

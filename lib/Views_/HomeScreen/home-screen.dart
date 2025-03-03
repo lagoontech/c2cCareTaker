@@ -60,7 +60,9 @@ class _HomePageState extends State<HomePage> {
           (hc.profileList!.data!.profileImage!);
       return Scaffold(
         appBar: HomeAppBar(
-          username: data!.firstName!,
+          username: data!=null
+              ? data.firstName!
+              : "",
           subtitle: 'How is your Health?',
           avatarUrl: full,
         ),

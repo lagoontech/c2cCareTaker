@@ -9,13 +9,11 @@ import 'package:care2caretaker/reuse_widgets/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../reuse_widgets/customChips.dart';
 import '../../reuse_widgets/customradio.dart';
-import '../schedule/controller/schedule_controller.dart';
 import 'controller/PatientHistoryController.dart';
-import 'customDrop.dart';
-import 'customTimepickl.dart';
 
 class NewPatientHistory extends StatefulWidget {
   int? appointmentId;
@@ -30,14 +28,15 @@ class NewPatientHistory extends StatefulWidget {
 }
 
 class _NewPatientHistoryState extends State<NewPatientHistory> {
-  final PatientHistoryController controller =
+  final PatientHistoryController sc =
       Get.put(PatientHistoryController());
-  final sc = Get.put(ScheduleController());
+  //final scheduleController = Get.put(ScheduleController());
 
   @override
   void initState() {
     super.initState();
     sc.setInitialMedication();
+    print("patient id-->${widget.patientId}");
     if (sc.patientID == null) {
       sc.patientID = widget.patientId;
       sc.fetchPrimaryInformationApi();
@@ -57,53 +56,56 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
               title: "Update Service Status",
               actions: [
                 IconButton(
-                    onPressed: () async{
+                    onPressed: () async {
                       await showModalBottomSheet(
                           useSafeArea: true,
                           isScrollControlled: true,
                           context: context,
                           builder: (BuildContext context) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height *0.7,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-
-                              Text("Appointment Dates",style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),),
-
-                              kHeight15,
-
-                              TableCalendar(
-                                  focusedDay: widget.appointmentDates!.first,
-                                  selectedDayPredicate: (day) {
-                                    return widget.appointmentDates!.any((date) =>
-                                        isSameDay(date, day)); // Highlight appointment dates
-                                  },
-                                  headerStyle: HeaderStyle(
-                                      formatButtonVisible: false, titleCentered: true),
-                                  calendarStyle: CalendarStyle(
-                                    outsideDaysVisible: false,
-                                    selectedDecoration: BoxDecoration(
-                                      color: AppColors.primaryColor,
-                                      shape: BoxShape.circle,
+                            return SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Appointment Dates",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
                                     ),
                                   ),
-                                  firstDay: widget.appointmentDates!.first,
-                                  lastDay: DateTime(2050)),
-
-                              CustomButton(
-                                text: "Close",onPressed: (){
-                                Get.back();
-                              },)
-
-                            ],
-                          ),
-                        );
-                      });
+                                  kHeight15,
+                                  TableCalendar(
+                                      focusedDay:
+                                          widget.appointmentDates!.first,
+                                      selectedDayPredicate: (day) {
+                                        return widget.appointmentDates!.any(
+                                            (date) => isSameDay(date,
+                                                day)); // Highlight appointment dates
+                                      },
+                                      headerStyle: HeaderStyle(
+                                          formatButtonVisible: false,
+                                          titleCentered: true),
+                                      calendarStyle: CalendarStyle(
+                                        outsideDaysVisible: false,
+                                        selectedDecoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      firstDay: widget.appointmentDates!.first,
+                                      lastDay: DateTime(2050)),
+                                  CustomButton(
+                                    text: "Close",
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                  )
+                                ],
+                              ),
+                            );
+                          });
                     },
                     icon: Icon(Icons.calendar_month))
               ],
@@ -111,12 +113,50 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: GetBuilder<ScheduleController>(builder: (v) {
+                child: GetBuilder<PatientHistoryController>(builder: (v) {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 18.w),
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
+                          CustomLabel(
+                            text: "Appointment Date",
+                            color: AppColors.primaryColor,
+                          ),
+                          kHeight10,
+                          DropdownButtonFormField(
+                              items: widget.appointmentDates!
+                                  .map((e) => DropdownMenuItem(
+                                        child: Text(
+                                            DateFormat("MMM dd").format(e)),
+                                        value: e,
+                                      ))
+                                  .toList(),
+                              decoration: InputDecoration(
+                                  isDense: true,
+                                  border: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade500,
+                                          width: 1),
+                                      borderRadius:
+                                          BorderRadius.circular(12.r)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade500,
+                                          width: 1),
+                                      borderRadius:
+                                          BorderRadius.circular(12.r)),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade500,
+                                          width: 1),
+                                      borderRadius:
+                                          BorderRadius.circular(12.r))),
+                              onChanged: (v) {
+                                sc.selectedDate = v;
+                                sc.getSessionDetails();
+                              }),
+                          kHeight15,
                           CustomLabel(
                             text: "Food Timing",
                             color: AppColors.primaryColor,
@@ -129,7 +169,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                               Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: GetBuilder<ScheduleController>(
+                                  child: GetBuilder<PatientHistoryController>(
                                     init: sc,
                                     builder: (v) {
                                       String? selectedBreakfastTime = v
@@ -197,7 +237,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                               Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: GetBuilder<ScheduleController>(
+                                  child: GetBuilder<PatientHistoryController>(
                                       builder: (v) {
                                     String? selectedBreakfastTime =
                                         v.patientSchedules?.patientLunchtime;
@@ -258,7 +298,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                               Expanded(
                                 child: SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
-                                    child: GetBuilder<ScheduleController>(
+                                    child: GetBuilder<PatientHistoryController>(
                                       builder: (v) {
                                         String selectedSnackTime = v
                                                     .patientSchedules
@@ -339,7 +379,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                               Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: GetBuilder<ScheduleController>(
+                                  child: GetBuilder<PatientHistoryController>(
                                       builder: (v) {
                                     String? selectedBreakfastTime =
                                         v.patientSchedules?.patientDinnertime;
@@ -402,7 +442,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Oral Care"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return Row(
                               children: [
                                 Expanded(
@@ -470,7 +510,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Bathing"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return Row(
                               children: [
                                 Expanded(
@@ -538,7 +578,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Medication"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return Row(
                               children: [
                                 Expanded(
@@ -593,7 +633,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                               ],
                             );
                           }),
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return sc.selectedMedication != null
                                 ? Column(
                                     children: [
@@ -666,7 +706,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Dressing"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return Row(
                               children: [
                                 Expanded(
@@ -736,7 +776,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Toileting"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return TextField(
                               controller: v.toileting,
                               decoration: InputDecoration(
@@ -764,7 +804,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Walking"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return Row(
                               children: [
                                 Expanded(
@@ -845,7 +885,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight15,
                           CustomLabel(text: "Blood Sugar"),
                           kHeight10,
-                          GetBuilder<ScheduleController>(builder: (v) {
+                          GetBuilder<PatientHistoryController>(builder: (v) {
                             return customTextField(context,
                                 controller: sc.bloodSugarTEC,
                                 labelText: "Blood Sugar");
@@ -864,35 +904,52 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
             ),
           ),
           Positioned(
-            bottom: 16.0,
+            bottom: 5,
             left: 0,
             right: 0,
-            child: Center(
-                child: CustomButton(
-              isLoading: controller.isLoading,
-              text: "Submit",
-              onPressed: () {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.noHeader,
-                  animType: AnimType.rightSlide,
-                  title: 'Are You Sure ',
-                  desc: ' Once Submit service status will be completed',
-                  btnCancelOnPress: () {
-                    Get.back();
-                  },
-                  btnOkOnPress: () async {
-                    controller.isLoading = true;
-                    controller.update();
-                    sc.postPatientHistory(
-                        appointmentId: widget.appointmentId,
-                        patientId: widget.patientId);
-                    controller.isLoading = false;
-                    controller.update();
-                  },
-                )..show();
-              },
-            )),
+            child: Container(
+              color: Colors.white,
+              height: kToolbarHeight,
+              child: Center(
+                  child: Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      isLoading: sc.isLoading,
+                      text: "Update",
+                      onPressed: () {},
+                    ),
+                  ),
+                  Expanded(
+                    child: CustomButton(
+                      isLoading: sc.isLoading,
+                      text: "Submit",
+                      onPressed: () {
+                        AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.noHeader,
+                          animType: AnimType.rightSlide,
+                          title: 'Are You Sure ',
+                          desc: ' Once Submit service status will be completed',
+                          btnCancelOnPress: () {
+                            Get.back();
+                          },
+                          btnOkOnPress: () async {
+                            sc.isLoading = true;
+                            sc.update();
+                            sc.postPatientHistory(
+                                appointmentId: widget.appointmentId,
+                                patientId: widget.patientId);
+                            sc.isLoading = false;
+                            sc.update();
+                          },
+                        )..show();
+                      },
+                    ),
+                  ),
+                ],
+              )),
+            ),
           ),
         ],
       ),

@@ -66,16 +66,16 @@ class ProfileView extends StatelessWidget {
                         SizedBox(height: 5.h),
                         GetBuilder<ProfileController>(builder: (o) {
                           return customTextField(context,
-                              labelText: "First Name",
+                              labelText: "First Name *",
                               controller: o.firstNameController);
                         }),
                         SizedBox(height: 15.h),
                         customTextField(context,
-                            labelText: "Last Name",
+                            labelText: "Last Name *",
                             controller: v.lastNameController),
                         SizedBox(height: 15.h),
                         customTextField(context,
-                            labelText: "E-mail", controller: v.emailCT),
+                            labelText: "E-mail *", controller: v.emailCT),
                         SizedBox(height: 15.h),
                         GetBuilder<ProfileController>(builder: (v) {
                           return customTextField(
@@ -89,7 +89,7 @@ class ProfileView extends StatelessWidget {
                                   color: AppColors.primaryColor,
                                 )),
                             controller: v.dobController,
-                            labelText: "Date of Birth",
+                            labelText: "Date of Birth *",
                           );
                         }),
                         kHeight20,
@@ -97,15 +97,24 @@ class ProfileView extends StatelessWidget {
                           children: [
                             Expanded(
                                 flex: 5,
-                                child: customTextField(context,
-                                    labelText: "Sex",
-                                    controller: v.sexController)),
+                                child: customDropdown(context,
+                                    value: null,
+                                    items: ["Male", "Female", "Other"]
+                                        .map((e) => DropdownMenuItem(
+                                      child: Text(e),
+                                      value: e,
+                                    ))
+                                        .toList(),
+                                    labelText: "Sex *", onChanged: (val) {
+                                      v.sexController.text = val;
+                                      print(v.sexController.text);
+                                    })),
                             kWidth20,
                             Flexible(
                               flex: 5,
                               child: customTextField(context,
                                   readOnly: true,
-                                  labelText: "Age",
+                                  labelText: "Age *",
                                   controller: v.ageController),
                             ),
                           ],
@@ -159,7 +168,7 @@ class ProfileView extends StatelessWidget {
                         customTextField(
                           context,
                           controller: v.medicalLicenseController,
-                          labelText: "Medical License",
+                          labelText: "Medical License *",
                         ),
                         kHeight20,
                         customTextField(
@@ -214,20 +223,20 @@ class ProfileView extends StatelessWidget {
                         customTextField(
                           context,
                           controller: v.costCT,
-                          labelText: "My Cost",
+                          labelText: "Service Charge *",
                         ),
                         kHeight20,
                         customTextField(
                           context,
-                          controller: TextEditingController(
-                              text: '${v.totalPatientsCT.text}+Patients'),
-                          labelText: "Total Patients Attended",
+                          controller: v.totalPatientsCT,
+                          labelText: "Total Patients Attended *",
                         ),
                         kHeight20,
                         customTextField(
                           context,
+                          textInputType: TextInputType.phone,
                           controller: v.primaryContactController,
-                          labelText: "Primary Contact Number",
+                          labelText: "Primary Contact Number *",
                         ),
                         kHeight20,
                         customTextField(

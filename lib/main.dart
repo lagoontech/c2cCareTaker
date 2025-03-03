@@ -1,6 +1,5 @@
 import 'dart:isolate';
 import 'dart:ui';
-
 import 'package:care2caretaker/Notification/controller/controller.dart';
 import 'package:care2caretaker/Views_/HomeView/home_view.dart';
 import 'package:firebase_core/firebase_core.dart';
