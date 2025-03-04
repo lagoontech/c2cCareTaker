@@ -1,11 +1,13 @@
 import 'dart:convert';
-
+import 'dart:developer';
+import 'package:care2caretaker/Views_/patient_history/Models/service_status_model.dart';
 import 'package:care2caretaker/api_urls/url.dart';
 import 'package:care2caretaker/sharedPref/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:intl/intl.dart';
+import '../../PatientRequest/modal/getService_history.dart';
 import '../../Profile/modal/profile_model.dart';
 import '../../../reuse_widgets/customToast.dart';
 import '../../schedule/modal/medication_model.dart';
@@ -57,6 +59,8 @@ class PatientHistoryController extends GetxController {
   String lunchDetail     = "";
   String snacksDetail    = "";
   String dinnerDetail    = "";
+
+  bool loadingServiceHistory = false;
 
   final List<String> breakFast = [
     '06:00 AM',
@@ -121,6 +125,14 @@ class PatientHistoryController extends GetxController {
   bool isLoading = false;
 
   //
+
+  @override
+  void onInit(){
+    super.onInit();
+    //getServiceStatus();
+  }
+
+  //
   getSessionDetails() async{
 
     try{
@@ -156,7 +168,79 @@ class PatientHistoryController extends GetxController {
   ProfileList? profile;
   PatientSchedules? patientSchedules;
   int? patientID;
+  int ?appointmentId;
+  bool completeService = false;
+  List<ServiceStatusModel> statuses = [];
+  bool isServiceComplete = false;
+
   //
+  getServiceStatus({int ?appointmentId,int ?patientId}) async{
+
+    patientID = patientId;
+    this.appointmentId = appointmentId;
+
+    try{
+      var result = await http.get(
+          Uri.parse(URls().ServiceStatus+"?appointment_id=$appointmentId&patient_id=$patientId"),
+          headers: {
+            "Authorization": "Bearer ${await SharedPref().getToken()}",
+          }
+      );
+      if(result.statusCode == 200){
+        var jsonResponse = jsonDecode(result.body);
+        statuses = (jsonResponse["data"]["service_status_list"] as List).map((e){
+          return ServiceStatusModel.fromJson(e);
+        }).toList();
+      }
+      checkStatus();
+      completeServiceStatus();
+    }catch(e){
+      print(e);
+    }
+
+  }
+
+  //
+  completeServiceStatus() async{
+
+    for(int i=0;i<statuses.length;i++){
+      if(statuses[i].status == 0){
+        return;
+      }
+    }
+    try{
+      var result = await http.post(Uri.parse(URls().completeService),
+      headers: {
+        "Authorization": "Bearer ${await SharedPref().getToken()}",
+        "Content-Type": "application/json",
+      },body: jsonEncode({
+        "patient_id": patientID,
+        "appointment_id": appointmentId,
+          }));
+      if(result.statusCode == 200){
+        print("Service completed");
+      }
+    }catch(e){
+      print("Error completing service");
+    }
+
+  }
+
+  //
+  checkStatus(){
+
+    if(selectedDate!=null){
+      statuses.forEach((element) {
+        if(DateFormat("MMM dd").format(DateTime.parse(element.serviceDate!)) == DateFormat("MMM dd").format(selectedDate!)){
+          isServiceComplete = element.status == 1 ? true : false;
+        }
+      });
+    }
+    print("Service complete-->$isServiceComplete");
+    update();
+
+  }
+
   //
   Future<void> fetchPrimaryInformationApi() async {
     try {
@@ -176,12 +260,20 @@ class PatientHistoryController extends GetxController {
         profile = ProfileList.fromJson(jsonResponse);
         update();
         if (profile!.data != null && profile!.data!.patientSchedules != null) {
+          breakfastField.text = "";
+          lunchField.text = "";
+          snacksField.text = "";
+          dinnerField.text = "";
+          breakFastDetail = "";
+          lunchDetail = "";
+          snacksDetail = "";
+          dinnerDetail = "";
           patientSchedules = profile!.data!.patientSchedules!;
           pastSurgicalCT.text =
               patientSchedules!.patientPastsurgicalhistory!.toString();
           activityCT.text = patientSchedules!.patientActivitytype!;
           toileting.text = patientSchedules!.patientToileting!;
-          temp.text = 120.toString();
+          temp.text = patientSchedules!.patientVitalsigns!.temperature ?? "";
           bp.text = patientSchedules!.patientVitalsigns!.bloodPressure!;
           selectedWalkingTimings = jsonDecode(patientSchedules!.patientWalkingtime!);
           heartRate.text =
@@ -291,6 +383,165 @@ class PatientHistoryController extends GetxController {
     } catch (e) {
       debugPrint("Error: $e");
     }
+    update();
+  }
+
+  //
+  ServiceHistory? serviceHistory;
+
+  //
+  loadGetHistory({int? appointmentId, int? patientId}) async {
+
+    loadingServiceHistory = true;
+    update();
+    try{
+      String? token = await SharedPref().getToken();
+      final uri = Uri.parse(URls().ServiceHistory).replace(queryParameters: {
+        "appointment_id": appointmentId?.toString(),
+        "patient_id": patientId?.toString(),
+        "appointment_date": selectedDate.toString()
+      });
+
+      var res = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (res.statusCode == 200) {
+        var data = json.decode(res.body);
+        profile = ProfileList.fromJson(data);
+        if (profile!.data != null && profile!.data!.patientSchedules != null) {
+          patientSchedules = profile!.data!.patientSchedules!;
+          pastSurgicalCT.text =
+              patientSchedules!.patientPastsurgicalhistory ?? "";
+          breakfastField.text = patientSchedules!.patientBreakfast!;
+          lunchField.text = patientSchedules!.patientLunch ?? "";
+          snacksField.text = patientSchedules!.patientSnacks ?? "";
+          dinnerField.text = patientSchedules!.patientDinner ?? "";
+          lunchDetail = patientSchedules!.patientLunch ?? "";
+          snacksDetail = patientSchedules!.patientSnacks ?? "";
+          dinnerDetail = patientSchedules!.patientDinner ?? "";
+          breakFastDetail = patientSchedules!.patientBreakfast ?? "";
+          print(breakFastDetail);
+          activityCT.text = patientSchedules!.patientActivitytype ?? "";
+          toileting.text = patientSchedules!.patientToileting ?? "";
+          temp.text = patientSchedules!.patientVitalsigns!.temperature ?? "";
+          bp.text = patientSchedules!.patientVitalsigns!.bloodPressure!;
+          selectedWalkingTimings = jsonDecode(patientSchedules!.patientWalkingtime!);
+          print(selectedWalkingTimings);
+          heartRate.text =
+              patientSchedules!.patientVitalsigns!.heartRate.toString();
+          respiration.text =
+          patientSchedules!.patientVitalsigns!.respiratoryRate!;
+
+          ///
+          if (patientSchedules!.patientBreakfasttime != null &&
+              patientSchedules!.patientBreakfasttime!.isNotEmpty) {
+            filters.clear();
+            filters.add(patientSchedules!.patientBreakfasttime!);
+            update();
+          }
+
+          if (patientSchedules!.patientMedications != null &&
+              patientSchedules!.patientMedications!.isNotEmpty) {
+            medidation = "Morning";
+            meditationDetails = [
+              MedicationModel(time: "Morning",medicationDetails: []),
+              MedicationModel(time: "Noon",medicationDetails: []),
+              MedicationModel(time: "Evening",medicationDetails: []),
+            ];
+            var medicationValues = jsonDecode(patientSchedules!.patientMedications!);
+            medicationValues.keys.forEach((time) {
+              List<dynamic> ?details = medicationValues[time];
+              if(time == "Morning"){
+                details!.forEach((element) {
+                  meditationDetails[0].medicationDetails!.add(TextEditingController(text:element.toString()));
+                });
+              }
+              if(time == "Noon"){
+                details!.forEach((element) {
+                  meditationDetails[1].medicationDetails!.add(TextEditingController(text:element.toString()));
+                });
+              }
+              if(time == "Evening"){
+                details!.forEach((element) {
+                  meditationDetails[2].medicationDetails!.add(TextEditingController(text:element.toString()));
+                });
+              }
+            });
+            selectedMedication = medidation;
+            debugPrint(medidation);
+            update();
+          }
+          if (patientSchedules!.patientOralcare != null &&
+              patientSchedules!.patientOralcare!.isNotEmpty) {
+            //oralSelection = patientSchedules!.patientOralcare!;
+            selectedOralCareTimings = jsonDecode(patientSchedules!.patientOralcare!);
+            debugPrint(medidation);
+            update();
+          }
+          if (patientSchedules!.patientBathing != null &&
+              patientSchedules!.patientBathing!.isNotEmpty) {
+            //bathingSelection = patientSchedules!.patientBathing!;
+            selectedBathingTimings = jsonDecode(patientSchedules!.patientBathing!);
+
+            debugPrint(medidation);
+            update();
+          }
+          if (patientSchedules!.patientDressing != null &&
+              patientSchedules!.patientDressing!.isNotEmpty) {
+            //dressingSelection = patientSchedules!.patientDressing!;
+            selectedDressingTimings = jsonDecode(patientSchedules!.patientDressing!);
+            debugPrint(medidation);
+            update();
+          }
+
+          if (patientSchedules!.patientLunchtime != null &&
+              patientSchedules!.patientLunchtime!.isNotEmpty) {
+            lunchFilters.clear();
+            lunchFilters.add(patientSchedules!.patientLunchtime!);
+            update();
+          }
+          if (patientSchedules!.patientHydration != null &&
+              patientSchedules!.patientHydration!.isNotEmpty) {
+            hydrationTEC.text = patientSchedules!.patientHydration!;
+            update();
+          }
+
+          if (patientSchedules!.patientSnackstime != null &&
+              patientSchedules!.patientSnackstime!.isNotEmpty) {
+            snacks.clear();
+            snacks.add(patientSchedules!.patientSnackstime!);
+            update();
+          }
+
+          if (patientSchedules!.patientDinnertime != null &&
+              patientSchedules!.patientDinnertime!.isNotEmpty) {
+            dinner.clear();
+            dinner.add(patientSchedules!.patientDinnertime!);
+            update();
+          }
+          if (patientSchedules!.patientBloodsugar != null &&
+              patientSchedules!.patientBloodsugar!.isNotEmpty) {
+            bloodSugarTEC.text = patientSchedules!.patientBloodsugar!;
+            update();
+          }
+          checkStatus();
+          update();
+        } else {
+          debugPrint("No patient schedules found.");
+        }
+      } else {
+        print('Failed to load history: ${res.statusCode}');
+        fetchPrimaryInformationApi();
+        isServiceComplete = false;
+      }}catch(e){
+      debugPrint('Error: $e');
+    }
+    loadingServiceHistory = false;
+    update();
   }
 
   //
@@ -327,7 +578,8 @@ class PatientHistoryController extends GetxController {
         "temperature": temp.text,
       },
       "patient_bloodsugar": bloodSugarTEC.text,
-      "appointment_date": selectedDate.toString()
+      "appointment_date": selectedDate.toString(),
+      "service_status": completeService ? 1:0
     };
 
     try {
@@ -345,6 +597,7 @@ class PatientHistoryController extends GetxController {
         print("Data submitted successfully: ${response.body}");
         showCustomToast(message: "Service Status Updated Successfully");
         Get.back(result: 1);
+        getServiceStatus(patientId: patientId,appointmentId: appointmentId);
       } else {
         print("Failed to submit data: ${response.statusCode}");
       }

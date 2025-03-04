@@ -269,7 +269,6 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                               : v.searchedCompletedList.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          // Prevent scrolling in nested ListView
                           itemBuilder: (context, index) {
                             var data;
                             if(v.searchedCompletedList.isNotEmpty){
@@ -282,8 +281,8 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: WaitingPatients(
-                                patientId: data.id,
-                                appoinId: data.patientId,
+                                patientId: data.patientId,
+                                appoinId: data.id,
                                 showIcon: false,
                                 status: data.serviceStatus,
                                 name: data.patient!.patientInfo!.firstName!,
@@ -291,103 +290,6 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                                 imgurl: '${path}${url}',
                                 time:
                                     '${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentStartTime!}'))} - ${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentEndTime!}'))}',
-                                onTapDialog: () async {
-                                  try {
-                                    await controller.loadGetHistory(
-                                      patientId: data.patientId,
-                                      appointmentId: data.id,
-                                    );
-                                    if (controller.serviceHistory?.data !=
-                                        null) {
-                                      final patientInfo = controller
-                                          .serviceHistory!
-                                          .data!
-                                          .patient!
-                                          .patientInfo;
-                                      final detailsdata = controller
-                                          .serviceHistory!
-                                          .data; // Accessing detailed data
-
-                                      // Extracting detailed properties
-                                      String? breakfast = detailsdata!
-                                          .patientBreakfasttime; // Ensure this is nullable
-
-                                      String? patientBreakfasttime =
-                                          detailsdata.patientBreakfasttime;
-                                      String? patientBreakfasttimeDetails =
-                                          detailsdata
-                                              .patientBreakfasttimeDetails;
-                                      String? patientLunchtime =
-                                          detailsdata.patientLunchtime;
-                                      String? patientLunchtimeDetails =
-                                          detailsdata.patientLunchtimeDetails;
-                                      String? patientSnackstime =
-                                          detailsdata.patientSnackstime;
-                                      String? patientSnackstimeDetails =
-                                          detailsdata.patientSnackstimeDetails;
-                                      String? patientDinnertime =
-                                          detailsdata.patientDinnertime;
-                                      String? patientDinnertimeDetails =
-                                          detailsdata.patientDinnertimeDetails;
-                                      String? patientMedications =
-                                          detailsdata.patientMedications;
-                                      String? patientMedicationsDetails =
-                                          detailsdata.patientMedicationsDetails;
-                                      String? patientHydration =
-                                          detailsdata.patientHydration;
-                                      String? patientOralcare =
-                                          detailsdata.patientOralcare;
-                                      String? patientBathing =
-                                          detailsdata.patientBathing;
-                                      String? patientDressing =
-                                          detailsdata.patientDressing;
-                                      String? patientToileting =
-                                          detailsdata.patientToileting;
-                                      String? patientWalkingtime =
-                                          detailsdata.patientWalkingtime;
-                                      String? patientVitalsigns =
-                                          detailsdata.patientVitalsigns;
-                                      String? patientBloodsugar =
-                                          detailsdata.patientBloodsugar;
-
-                                      // Calling the dlialog function with all parameters
-                                      showPatientDetailsDialog(
-                                        context,
-                                        patientInfo!.firstName!,
-                                        DateFormat('dd MMM yyyy').format(
-                                            controller.serviceHistory!.data!
-                                                .appointment!.appointmentDate!),
-                                        '${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentStartTime!}'))} - ${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentEndTime!}'))}',
-                                        '${path}${url}',
-                                        data.serviceStatus ?? '',
-                                        breakfast,
-                                        // Ensure this is provided
-                                        patientBreakfasttime,
-                                        patientBreakfasttimeDetails,
-                                        patientLunchtime,
-                                        patientLunchtimeDetails,
-                                        patientSnackstime,
-                                        patientSnackstimeDetails,
-                                        patientDinnertime,
-                                        patientDinnertimeDetails,
-                                        patientMedications,
-                                        patientMedicationsDetails,
-                                        patientHydration,
-                                        patientOralcare,
-                                        patientBathing,
-                                        patientDressing,
-                                        patientToileting,
-                                        patientWalkingtime,
-                                        patientVitalsigns,
-                                        patientBloodsugar,
-                                      );
-                                    }
-                                  } catch (e) {
-                                    Get.snackbar('Error',
-                                        'Failed to load patient history',
-                                        snackPosition: SnackPosition.BOTTOM);
-                                  }
-                                },
                               ),
                             );
                           },

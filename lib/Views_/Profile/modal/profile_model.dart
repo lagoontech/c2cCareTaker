@@ -361,9 +361,13 @@ class PatientSchedules {
   List<String>? patientPastmedicalhistory; // Change to List<String>
   String? patientPastsurgicalhistory; // This is already a String
   String? patientBreakfasttime;
+  String? patientBreakfast;
   String? patientSnackstime;
+  String? patientSnacks;
   String? patientLunchtime;
+  String? patientLunch;
   String? patientDinnertime;
+  String? patientDinner;
   String? patientMedications;
   String? patientHydration;
   String? patientOralcare;
@@ -375,6 +379,7 @@ class PatientSchedules {
   String? patientBloodsugar;
   DateTime? createdAt;
   DateTime? updatedAt;
+  bool ?serviceStatus;
 
   PatientSchedules({
     this.id,
@@ -396,6 +401,11 @@ class PatientSchedules {
     this.patientWalkingtime,
     this.patientVitalsigns,
     this.patientBloodsugar,
+    this.patientBreakfast,
+    this.patientLunch,
+    this.patientDinner,
+    this.patientSnacks,
+    this.serviceStatus,
     this.createdAt,
     this.updatedAt,
   });
@@ -416,17 +426,22 @@ class PatientSchedules {
       patientSnackstime: json['patient_snackstime'],
       patientLunchtime: json["patient_lunchtime"],
       patientDinnertime: json["patient_dinnertime"],
-      patientMedications: json["patient_medications"],
+      patientMedications: json["patient_medications_details"] ?? json["patient_medications"],
       patientHydration: json["patient_hydration"],
       patientOralcare: json["patient_oralcare"],
       patientBathing: json["patient_bathing"],
       patientDressing: json["patient_dressing"],
       patientToileting: json["patient_toileting"],
+      patientBreakfast: json["patient_breakfasttime_details"] ?? "",
+      patientLunch: json["patient_lunchtime_details"] ?? "",
+      patientSnacks: json["patient_snackstime_details"] ?? "",
+      patientDinner: json["patient_dinnertime_details"] ?? "",
       patientWalkingtime: json["patient_walkingtime"],
       patientVitalsigns: json['patient_vitalsigns'] != null
           ? PatientVitalSigns.fromJson(jsonDecode(json['patient_vitalsigns']))
           : null,
       patientBloodsugar: json["patient_bloodsugar"],
+      serviceStatus: json["service_status"] == 1 ? true : false,
       createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
       updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
     );

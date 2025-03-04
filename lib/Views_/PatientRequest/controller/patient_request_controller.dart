@@ -202,6 +202,7 @@ class PatientRequestController extends GetxController {
       if (res.statusCode == 200) {
         var data = json.decode(res.body);
         serviceHistory = ServiceHistory.fromJson(data);
+
       } else {
         print('Failed to load history: ${res.statusCode}');
       }

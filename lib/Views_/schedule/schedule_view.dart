@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Views_/patient_history/Patient%20History/completed_appointment_details.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
 import 'package:care2caretaker/reuse_widgets/customLabel.dart';
@@ -106,7 +107,9 @@ class WaitingPatients extends StatelessWidget {
       type: MaterialType.card,
       elevation: 2,
       child: InkWell(
-        onTap: onTapDialog,
+        onTap: (){
+          Get.to(()=> CompletedAppointmentDetails(appointmentDates: dates,appointmentId: appoinId,patientId: patientId,));
+        },
         child: Container(
           padding: EdgeInsets.all(6.r),
           height: 80.h,
