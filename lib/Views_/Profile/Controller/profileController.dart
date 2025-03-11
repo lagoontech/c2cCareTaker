@@ -185,10 +185,13 @@ class ProfileController extends GetxController {
       if (res.statusCode == 200) {
         onUserDetailsCompleted();
         Get.to(() => HomeView());
+        showCustomToast(
+            message: "Profile updated successfully",
+            backgroundColor: Colors.green
+        );
         update();
-        debugPrint("Successfully update care Taker Details");
       } else {
-        debugPrint("Not Successfully update care Taker Details");
+
       }
     } catch (e) {
       debugPrint(e.toString());

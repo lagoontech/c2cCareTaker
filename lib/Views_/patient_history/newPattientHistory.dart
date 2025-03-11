@@ -58,7 +58,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
               leading: IconButton(
                   onPressed: () => Get.back(),
                   icon: Icon(Icons.arrow_back_ios)),
-              title: "Update Service Status",
+              title: "Service Status",
               actions: [
                 IconButton(
                     onPressed: () async {
@@ -92,7 +92,6 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                     ),
                                     calendarBuilders: CalendarBuilders(
                                       defaultBuilder: (context, date, _) {
-                                        print(DateFormat("MMM dd").format(date));
                                         bool isAppointmentDate = false;
                                         widget.appointmentDates!.forEach((element) {
                                           if(DateFormat("MMM dd").format(element) == DateFormat("MMM dd").format(date)){
@@ -168,6 +167,9 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                   .toList(),
                               decoration: InputDecoration(
                                   isDense: true,
+                                  prefixIcon: v.isServiceComplete
+                                      ? Icon(Icons.check,color: Colors.green)
+                                      : Icon(Icons.pending),
                                   border: OutlineInputBorder(
                                       borderSide: BorderSide(
                                           color: Colors.grey.shade500,
@@ -245,7 +247,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                                         v.filters.clear();
                                                         v.patientSchedules
                                                                 ?.patientBreakfasttime =
-                                                            null;
+                                                            time;
                                                         v.filters.add(time);
                                                         v.update();
                                                       } else {
@@ -733,7 +735,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                                     );
                                                   }),
                                               kHeight15,
-                                              CustomButton(
+                                              sc.isServiceComplete?SizedBox():CustomButton(
                                                   onPressed: () {
                                                     sc.meditationDetails
                                                         .firstWhere((element) =>
@@ -998,25 +1000,13 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           isLoading: sc.isLoading,
                           text: "Save",
                           onPressed: () {
-                            AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.noHeader,
-                              animType: AnimType.rightSlide,
-                              title: 'Are You Sure ',
-                              desc: ' Once Submit service status will be completed',
-                              btnCancelOnPress: () {
-
-                              },
-                              btnOkOnPress: () async {
-                                sc.isLoading = true;
-                                sc.update();
-                                sc.postPatientHistory(
-                                    appointmentId: widget.appointmentId,
-                                    patientId: widget.patientId);
-                                sc.isLoading = false;
-                                sc.update();
-                              },
-                            )..show();
+                            sc.isLoading = true;
+                            sc.update();
+                            sc.postPatientHistory(
+                                appointmentId: widget.appointmentId,
+                                patientId: widget.patientId);
+                            sc.isLoading = false;
+                            sc.update();
                           },
                         ),
                       ),

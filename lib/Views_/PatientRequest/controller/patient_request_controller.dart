@@ -33,7 +33,7 @@ class PatientRequestController extends GetxController {
   String ?displayDate;
 
   //
-  loadRequests() async {
+  Future<void> loadRequests() async {
 
     String? token = await SharedPref().getToken();
     if (token == null) {
@@ -334,11 +334,13 @@ class PatientRequestController extends GetxController {
   //
   listenForRequests(){
 
+    print("listening for notifs");
     IsolateNameServer.registerPortWithName(
         _receivePort.sendPort, 'requests_loader');
 
     // Listen for messages from the isolate
     _receivePort.listen((message) {
+      print("receive port message -->$message");
       loadRequests();
     });
 

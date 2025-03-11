@@ -6,29 +6,24 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../reuse_widgets/AppColors.dart';
-import '../../../reuse_widgets/customButton.dart';
-import '../../../reuse_widgets/customChips.dart';
-import '../../../reuse_widgets/customLabel.dart';
-import '../../../reuse_widgets/custom_textfield.dart';
-import '../../../reuse_widgets/customradio.dart';
 import '../../../reuse_widgets/image_background.dart';
-import '../../../reuse_widgets/sizes.dart';
 
 class CompletedAppointmentDetails extends StatelessWidget {
-   CompletedAppointmentDetails({super.key,this.appointmentDates,this.appointmentId,this.patientId});
+  CompletedAppointmentDetails({super.key, this.appointmentDates, this.appointmentId, this.patientId});
 
-   List<DateTime> ?appointmentDates;
-   int ?appointmentId;
-   int ?patientId;
-   
-   CompletedAppointmentDetailsController sc = Get.put(CompletedAppointmentDetailsController());
+  List<DateTime>? appointmentDates;
+  int? appointmentId;
+  int? patientId;
+
+  CompletedAppointmentDetailsController sc = Get.put(CompletedAppointmentDetailsController());
 
   @override
   Widget build(BuildContext context) {
-    if(sc.patientSchedules==null){
+    if(sc.patientSchedules == null){
       sc.selectedDate = appointmentDates![0];
-      sc.loadGetHistory(patientId: patientId,appointmentId: appointmentId);
+      sc.loadGetHistory(patientId: patientId, appointmentId: appointmentId);
     }
+
     return Material(
       child: Stack(
         children: [
@@ -37,875 +32,586 @@ class CompletedAppointmentDetails extends StatelessWidget {
               leading: IconButton(
                   onPressed: () => Get.back(),
                   icon: Icon(Icons.arrow_back_ios)),
-              title: "Update Service Status",
+              title: "Service Report",
               actions: [
                 IconButton(
-                    onPressed: () async {
-                      await showModalBottomSheet(
-                          useSafeArea: true,
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.7,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Appointment Dates",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  kHeight15,
-                                  TableCalendar(
-                                    focusedDay: appointmentDates!.first,
-                                    headerStyle: HeaderStyle(
-                                      formatButtonVisible: false,
-                                      titleCentered: true,
-                                    ),
-                                    calendarStyle: CalendarStyle(
-                                      outsideDaysVisible: false,
-                                    ),
-                                    calendarBuilders: CalendarBuilders(
-                                      defaultBuilder: (context, date, _) {
-                                        bool isAppointmentDate = false;
-                                        appointmentDates!.forEach((element) {
-                                          if(DateFormat("MMM dd").format(element) == DateFormat("MMM dd").format(date)){
-                                            isAppointmentDate = true;
-                                          }
-                                        });
-                                        Color ?cellColor;
-                                        if (isAppointmentDate) {
-                                          cellColor = Colors.green;
-                                        } else if (isAppointmentDate) {
-                                          cellColor = AppColors.primaryColor;
-                                        }
-
-                                        return Container(
-                                          margin: EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: cellColor ?? Colors.transparent,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            '${date.day}',
-                                            style: TextStyle(color: isAppointmentDate==1?Colors.white:Colors.black),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    firstDay: appointmentDates!.first,
-                                    lastDay: DateTime(2050),
-                                  ),
-                                  CustomButton(
-                                    text: "Close",
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-                                  )
-                                ],
-                              ),
-                            );
-                          });
+                    onPressed: () {
+                      // Share or export report functionality could go here
                     },
-                    icon: Icon(Icons.calendar_month))
+                    icon: Icon(Icons.share))
               ],
             ),
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 18.w),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          CustomLabel(
-                            text: "Appointment Date",
-                            color: AppColors.primaryColor,
-                          ),
-                          kHeight10,
-                          DropdownButtonFormField(
-                              value: sc.selectedDate,
-                              items: appointmentDates!
-                                  .map((e) => DropdownMenuItem(
-                                child: Text(
-                                    DateFormat("MMM dd").format(e)),
-                                value: e,
-                              ))
-                                  .toList(),
-                              decoration: InputDecoration(
-                                  isDense: true,
-                                  border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade500,
-                                          width: 1),
-                                      borderRadius:
-                                      BorderRadius.circular(12.r)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade500,
-                                          width: 1),
-                                      borderRadius:
-                                      BorderRadius.circular(12.r)),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade500,
-                                          width: 1),
-                                      borderRadius:
-                                      BorderRadius.circular(12.r))),
-                              onChanged: (v) {
-                                sc.selectedDate = v;
-                                sc.loadGetHistory(appointmentId: appointmentId,patientId: patientId);
-                              }),
-                          kHeight15,
-                          GetBuilder<CompletedAppointmentDetailsController>(
-                              builder: (vc) {
-                                return vc.loadingServiceHistory
-                                    ? CircularProgressIndicator(color: AppColors.primaryColor):Column(
-                                  children: [
-                                    CustomLabel(
-                                      text: "Food Timing",
-                                      color: AppColors.primaryColor,
+                padding: EdgeInsets.all(16.0),
+                child: GetBuilder<CompletedAppointmentDetailsController>(
+                  builder: (v) {
+                    return v.loadingServiceHistory
+                        ? Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+                        : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Date and Patient Info Card
+                        GestureDetector(
+                          onTap: (){
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  insetPadding: EdgeInsets.zero,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: MediaQuery.of(context).size.width * 0.7, // Adjust width
+                                      maxHeight: 400, // Adjust height to fit calendar
                                     ),
-                                    kHeight15,
-                                    CustomLabel(text: "Break Fast"),
-                                    kHeight10,
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: GetBuilder<CompletedAppointmentDetailsController>(
-                                              init: sc,
-                                              builder: (v) {
-                                                String? selectedBreakfastTime = v
-                                                    .patientSchedules
-                                                    ?.patientBreakfasttime;
-                                                String? formattedSelectedBreakfastTime;
-                                                if (selectedBreakfastTime != null) {
-                                                  final timeParts =
-                                                  selectedBreakfastTime.split(':');
-                                                  final hour = int.parse(timeParts[0]);
-                                                  final minute = timeParts[1];
-                                                  formattedSelectedBreakfastTime =
-                                                      (hour % 12)
-                                                          .toString()
-                                                          .padLeft(2, '0') +
-                                                          '.' +
-                                                          minute +
-                                                          (hour < 12 ? ' AM' : ' PM');
-                                                }
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: TableCalendar(
+                                        calendarBuilders: CalendarBuilders(
+                                          selectedBuilder: (context,date,d1){
+                                            return Container(
+                                              margin: EdgeInsets.all(4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                '${date.day}',
+                                                style: TextStyle(color: Colors.white),
+                                              ),
+                                            );
+                                          },
+                                          defaultBuilder: (context, date, _) {
+                                            bool isAppointmentDate = false;
+                                            print(DateFormat("MMM dd").format(date));
+                                            appointmentDates!.forEach((element) {
+                                              if(DateFormat("MMM dd").format(element) == DateFormat("MMM dd").format(date)){
+                                                isAppointmentDate = true;
+                                              }
+                                            });
+                                            Color ?cellColor;
+                                            if (isAppointmentDate && DateFormat("MMM dd").format(sc.selectedDate!) == DateFormat("MMM dd").format(date)) {
+                                              cellColor = Colors.green;
+                                            } else if (isAppointmentDate) {
+                                              cellColor = AppColors.primaryColor;
+                                            }
 
-                                                return Wrap(
-                                                  spacing: 8.0,
-                                                  children:
-                                                  v.breakFast.map((String time) {
-                                                    bool isSelected = time ==
-                                                        formattedSelectedBreakfastTime ||
-                                                        v.filters.contains(time);
-                                                    return CustomChip(
-                                                      label: time,
-                                                      isSelected: isSelected,
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          v.filters.clear();
-                                                          v.patientSchedules
-                                                              ?.patientBreakfasttime =
-                                                          null;
-                                                          v.filters.add(time);
-                                                          v.update();
-                                                        } else {
-                                                          v.filters.remove(time);
-                                                        }
-                                                        // Update the controller and UI
-                                                        v.update();
-                                                      },
-                                                    );
-                                                  }).toList(),
-                                                );
-                                              },
+                                            return Container(
+                                              margin: EdgeInsets.all(4),
+                                              decoration: BoxDecoration(
+                                                color: cellColor ?? Colors.transparent,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                '${date.day}',
+                                                style: TextStyle(color: isAppointmentDate?Colors.white:Colors.black),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        selectedDayPredicate: (v){
+                                          return isSameDay(v,sc.selectedDate);
+                                        },
+                                        headerStyle: HeaderStyle(
+                                          formatButtonVisible: false,
+                                          titleCentered: true,
+                                        ),
+                                        onDaySelected: (v, d) {
+                                          sc.selectedDate = v;
+                                          sc.loadGetHistory(
+                                              appointmentId: appointmentId, patientId: patientId);
+                                          Get.back();
+                                        },
+                                        focusedDay: appointmentDates![0],
+                                        firstDay: appointmentDates![0],
+                                        lastDay: DateTime(2050),
+                                        currentDay: sc.selectedDate,
+                                        calendarStyle: CalendarStyle(
+                                          outsideDaysVisible: false,
+                                        ),
+                                        /*selectedDayPredicate: (day) {
+                                          return appointmentDates!.any((date) => isSameDay(date, day));
+                                        },*/
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+
+                          },
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Appointment Date",
+                                            style: TextStyle(
+                                              color: Colors.grey.shade600,
+                                              fontSize: 14.sp,
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    kHeight15,
-                                    customTextField(
-                                        context,
-                                        controller: sc.breakfastField,
-                                        labelText: "Breakfast Detail",
-                                        hint: "Enter breakfast detail", onChanged: (v) {
-                                      sc.breakFastDetail = v!;
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Lunch"),
-                                    kHeight15,
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: GetBuilder<CompletedAppointmentDetailsController>(
-                                                builder: (v) {
-                                                  String? selectedBreakfastTime =
-                                                      v.patientSchedules?.patientLunchtime;
-                                                  String? formattedSelectedBreakfastTime;
-                                                  if (selectedBreakfastTime != null) {
-                                                    final timeParts =
-                                                    selectedBreakfastTime.split(':');
-                                                    final hour = int.parse(timeParts[0]);
-                                                    final minute = timeParts[1];
-                                                    formattedSelectedBreakfastTime =
-                                                        (hour % 12)
-                                                            .toString()
-                                                            .padLeft(2, '0') +
-                                                            '.' +
-                                                            minute +
-                                                            (hour < 12 ? ' AM' : ' PM');
-                                                  }
-                                                  return Wrap(
-                                                    spacing: 8.0,
-                                                    children: v.lunchList.map((String name) {
-                                                      bool isSelected = name ==
-                                                          formattedSelectedBreakfastTime ||
-                                                          v.lunchFilters.contains(name);
-                                                      return CustomChip(
-                                                        label: name,
-                                                        isSelected: isSelected,
-                                                        onSelected: (bool selected) {
-                                                        },
-                                                      );
-                                                    }).toList(),
-                                                  );
-                                                }),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    kHeight10,
-                                    customTextField(context,
-                                        controller: sc.lunchField,
-                                        labelText: "Lunch Detail",
-                                        hint: "Enter lunch detail", onChanged: (v) {
-                                          sc.lunchDetail = v!;
-                                        }),
-                                    kHeight15,
-                                    CustomLabel(text: "Snacks"),
-                                    kHeight10,
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: GetBuilder<CompletedAppointmentDetailsController>(
-                                                builder: (v) {
-                                                  String selectedSnackTime = v
-                                                      .patientSchedules
-                                                      ?.patientSnackstime
-                                                      ?.isNotEmpty ==
-                                                      true
-                                                      ? v.patientSchedules!
-                                                      .patientSnackstime!
-                                                      : "06:00";
-
-                                                  String formattedSelectedSnackTime =
-                                                      "06:00";
-                                                  if (selectedSnackTime.contains(':')) {
-                                                    final timeParts =
-                                                    selectedSnackTime.split(':');
-                                                    if (timeParts.length == 2) {
-                                                      final hour =
-                                                          int.tryParse(timeParts[0]) ?? 0;
-                                                      final minute = timeParts[1];
-                                                      formattedSelectedSnackTime =
-                                                          (hour % 12 == 0
-                                                              ? 12
-                                                              : hour % 12)
-                                                              .toString()
-                                                              .padLeft(2, '0') +
-                                                              '.' +
-                                                              minute +
-                                                              (hour < 12 ? ' AM' : ' PM');
-                                                    }
-                                                  }
-
-                                                  return Wrap(
-                                                    spacing: 8.0,
-                                                    children:
-                                                    v.snackList.map((String name) {
-                                                      bool isSelected = name ==
-                                                          formattedSelectedSnackTime ||
-                                                          v.snacks.contains(name);
-                                                      return CustomChip(
-                                                        label: name,
-                                                        isSelected: isSelected,
-                                                        onSelected: (bool selected) {
-                                                          // Safely update snacks list
-                                                          if (selected) {
-                                                            v.snacks.clear();
-                                                            v.snacks.add(name);
-                                                            v.patientSchedules!
-                                                                .patientSnackstime =
-                                                                name; // Update snack time
-                                                            v.update(); // Rebuild GetX state
-                                                          } else {
-                                                            v.snacks.remove(name);
-                                                            v.patientSchedules!
-                                                                .patientSnackstime =
-                                                                name; // Clear snack time
-                                                            v.update();
-                                                          }
-                                                        },
-                                                      );
-                                                    }).toList(),
-                                                  );
-                                                },
-                                              )),
-                                        ),
-                                      ],
-                                    ),
-                                    kHeight10,
-                                    customTextField(context,
-                                        controller: sc.snacksField,
-                                        labelText: "Snack Detail",
-                                        hint: "Enter snack detail", onChanged: (v) {
-                                          sc.snacksDetail = v!;
-                                        }),
-                                    kHeight15,
-                                    CustomLabel(text: "Dinner"),
-                                    kHeight10,
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: GetBuilder<CompletedAppointmentDetailsController>(
-                                                builder: (v) {
-                                                  String? selectedBreakfastTime =
-                                                      v.patientSchedules?.patientDinnertime;
-                                                  String? formattedSelectedBreakfastTime;
-                                                  if (selectedBreakfastTime != null) {
-                                                    final timeParts =
-                                                    selectedBreakfastTime.split(':');
-                                                    final hour = int.parse(timeParts[0]);
-                                                    final minute = timeParts[1];
-                                                    formattedSelectedBreakfastTime =
-                                                        (hour % 12)
-                                                            .toString()
-                                                            .padLeft(2, '0') +
-                                                            '.' +
-                                                            minute +
-                                                            (hour < 12 ? ' AM' : ' PM');
-                                                  }
-                                                  return Wrap(
-                                                    spacing: 8.0,
-                                                    children:
-                                                    sc.dinnerList.map((String name) {
-                                                      bool isSelected = name ==
-                                                          formattedSelectedBreakfastTime ||
-                                                          v.dinner.contains(name);
-                                                      return CustomChip(
-                                                        label: name,
-                                                        isSelected: isSelected,
-                                                        onSelected: (bool selected) {
-
-                                                        },
-                                                      );
-                                                    }).toList(),
-                                                  );
-                                                }),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    kHeight10,
-                                    customTextField(context,
-                                        controller: sc.dinnerField,
-                                        labelText: "Dinner Detail",
-                                        hint: "Enter dinner detail", onChanged: (v) {
-                                          sc.dinnerDetail = v!;
-                                        }),
-                                    kHeight15,
-                                    CustomLabel(text: "Hydration(Water)"),
-                                    kHeight10,
-                                    customTextField(context,
-                                        controller: sc.hydrationTEC,
-                                        labelText: "Hydration"),
-                                    kHeight15,
-                                    CustomLabel(text: "Oral Care"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return Row(
-                                        children: [
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                                scrollDirection: Axis.horizontal,
-                                                child: Wrap(
-                                                  children: [
-                                                    CustomChip(
-                                                      label: "Morning",
-                                                      isSelected: sc
-                                                          .selectedOralCareTimings
-                                                          .contains("Morning"),
-                                                      onSelected: (bool selected) {
-                                                        print(selected);
-                                                        if (selected) {
-                                                          sc.selectedOralCareTimings
-                                                              .add("Morning");
-                                                        } else {
-                                                          sc.selectedOralCareTimings
-                                                              .remove("Morning");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Noon",
-                                                      isSelected: sc
-                                                          .selectedOralCareTimings
-                                                          .contains("Noon"),
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          sc.selectedOralCareTimings
-                                                              .add("Noon");
-                                                        } else {
-                                                          sc.selectedOralCareTimings
-                                                              .remove("Noon");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Evening",
-                                                      isSelected: sc
-                                                          .selectedOralCareTimings
-                                                          .contains("Evening"),
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          sc.selectedOralCareTimings
-                                                              .add("Evening");
-                                                        } else {
-                                                          sc.selectedOralCareTimings
-                                                              .remove("Evening");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                  ],
-                                                )),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            DateFormat("MMMM dd, yyyy").format(sc.selectedDate!),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18.sp,
+                                            ),
                                           ),
                                         ],
-                                      );
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Bathing"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return Row(
+                                      ),
+                                      Row(
                                         children: [
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                                scrollDirection: Axis.horizontal,
-                                                child: Wrap(
-                                                  children: [
-                                                    CustomChip(
-                                                      label: "Morning",
-                                                      isSelected: sc
-                                                          .selectedBathingTimings
-                                                          .contains("Morning"),
-                                                      onSelected: (bool selected) {
-                                                        print(selected);
-                                                        if (selected) {
-                                                          sc.selectedBathingTimings
-                                                              .add("Morning");
-                                                        } else {
-                                                          sc.selectedBathingTimings
-                                                              .remove("Morning");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Noon",
-                                                      isSelected: sc
-                                                          .selectedBathingTimings
-                                                          .contains("Noon"),
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          sc.selectedBathingTimings
-                                                              .add("Noon");
-                                                        } else {
-                                                          sc.selectedBathingTimings
-                                                              .remove("Noon");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Evening",
-                                                      isSelected: sc
-                                                          .selectedBathingTimings
-                                                          .contains("Evening"),
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          sc.selectedBathingTimings
-                                                              .add("Evening");
-                                                        } else {
-                                                          sc.selectedBathingTimings
-                                                              .remove("Evening");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                  ],
-                                                )),
+                                          Icon(
+                                            Icons.calendar_month_outlined,
+                                            color: AppColors.primaryColor,
+                                          ),
+                                          Icon(
+                                            Icons.arrow_drop_down,
+                                            color: AppColors.primaryColor,
                                           ),
                                         ],
-                                      );
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Medication"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return Row(
-                                        children: [
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                                scrollDirection: Axis.horizontal,
-                                                child: Wrap(
-                                                  children: [
-                                                    CustomRadioButton(
-                                                      selectedColor:
-                                                      AppColors.primaryColor,
-                                                      unselectedColor: Colors.white,
-                                                      value: 'Morning',
-                                                      groupValue: sc.medidation,
-                                                      label: 'Morning',
-                                                      onChanged: (value) {
-                                                        sc.medidation = value!;
-                                                        sc.selectedMedication = "Morning";
-                                                        sc.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomRadioButton(
-                                                      selectedColor:
-                                                      AppColors.primaryColor,
-                                                      unselectedColor: Colors.white,
-                                                      value: 'Noon',
-                                                      groupValue: sc.medidation,
-                                                      label: 'Noon',
-                                                      onChanged: (value) {
-                                                        sc.medidation = value!;
-                                                        sc.selectedMedication = "Noon";
-                                                        sc.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomRadioButton(
-                                                      selectedColor:
-                                                      AppColors.primaryColor,
-                                                      unselectedColor: Colors.white,
-                                                      value: 'Evening',
-                                                      groupValue: sc.medidation,
-                                                      label: 'Evening',
-                                                      onChanged: (value) {
-                                                        sc.medidation = value!;
-                                                        sc.selectedMedication = "Evening";
-                                                        sc.update();
-                                                      },
-                                                    ),
-                                                  ],
-                                                )),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return sc.selectedMedication != null
-                                          ? Column(
-                                        children: [
-                                          kHeight15,
-                                          ListView.builder(
-                                              itemCount: sc.meditationDetails
-                                                  .firstWhere((element) =>
-                                              element.time ==
-                                                  sc.selectedMedication!)
-                                                  .medicationDetails!
-                                                  .length,
-                                              shrinkWrap: true,
-                                              physics:
-                                              NeverScrollableScrollPhysics(),
-                                              itemBuilder: (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                  EdgeInsets.only(top: 16.h),
-                                                  child: Row(
-                                                    children: [
-                                                      Expanded(
-                                                        flex: 3,
-                                                        child: customTextField(
-                                                            context,
-                                                            controller: sc
-                                                                .meditationDetails
-                                                                .firstWhere((element) =>
-                                                            element.time ==
-                                                                sc.selectedMedication!)
-                                                                .medicationDetails![index],
-                                                            hint: "Enter details",
-                                                            labelText: "${sc.selectedMedication!} medication ${index + 1}"),
-                                                      ),
-                                                      Expanded(
-                                                          flex: 1,
-                                                          child: IconButton(
-                                                            onPressed: () {
-                                                              sc.meditationDetails
-                                                                  .firstWhere((element) =>
-                                                              element
-                                                                  .time ==
-                                                                  sc.selectedMedication!)
-                                                                  .medicationDetails!
-                                                                  .removeAt(index);
-                                                              sc.update();
-                                                            },
-                                                            icon:
-                                                            Icon(Icons.remove),
-                                                          )),
-                                                    ],
-                                                  ),
-                                                );
-                                              }),
-                                          kHeight15,
-                                          CustomButton(
-                                              onPressed: () {
-                                                sc.meditationDetails
-                                                    .firstWhere((element) =>
-                                                element.time ==
-                                                    sc.selectedMedication!)
-                                                    .medicationDetails!
-                                                    .add(TextEditingController());
-                                                sc.update();
-                                              },
-                                              text: "Add medication detail"),
-                                        ],
-                                      )
-                                          : SizedBox();
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Dressing"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return Row(
-                                        children: [
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                                scrollDirection: Axis.horizontal,
-                                                child: Wrap(
-                                                  children: [
-                                                    CustomChip(
-                                                      label: "Morning",
-                                                      isSelected: sc
-                                                          .selectedDressingTimings
-                                                          .contains("Morning"),
-                                                      onSelected: (bool selected) {
-                                                        print(selected);
-                                                        if (selected) {
-                                                          sc.selectedDressingTimings
-                                                              .add("Morning");
-                                                        } else {
-                                                          sc.selectedDressingTimings
-                                                              .remove("Morning");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Noon",
-                                                      isSelected: sc
-                                                          .selectedDressingTimings
-                                                          .contains("Noon"),
-                                                      onSelected: (bool selected) {
-                                                        print(selected);
-                                                        if (selected) {
-                                                          sc.selectedDressingTimings
-                                                              .add("Noon");
-                                                        } else {
-                                                          sc.selectedDressingTimings
-                                                              .remove("Noon");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Evening",
-                                                      isSelected: sc
-                                                          .selectedDressingTimings
-                                                          .contains("Evening"),
-                                                      onSelected: (bool selected) {
-                                                        print(selected);
-                                                        if (selected) {
-                                                          sc.selectedDressingTimings
-                                                              .add("Evening");
-                                                        } else {
-                                                          sc.selectedDressingTimings
-                                                              .remove("Evening");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                  ],
-                                                )),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Toileting"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return TextField(
-                                        controller: v.toileting,
-                                        decoration: InputDecoration(
-                                          //filled: true,
-                                          focusColor: Colors.white,
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black, width: 0.3),
-                                            borderRadius: BorderRadius.circular(8.r),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black, width: 0.3),
-                                            borderRadius: BorderRadius.circular(8.r),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.black, width: 0.3),
-                                            borderRadius: BorderRadius.circular(8.r),
-                                          ),
-                                          hintStyle: const TextStyle(color: Colors.grey),
-                                        ),
-                                      );
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Walking"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return Row(
-                                        children: [
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                                scrollDirection: Axis.horizontal,
-                                                child: Wrap(
-                                                  children: [
-                                                    CustomChip(
-                                                      label: "Morning",
-                                                      isSelected: sc
-                                                          .selectedWalkingTimings
-                                                          .contains("Morning"),
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          sc.selectedWalkingTimings
-                                                              .add("Morning");
-                                                        } else {
-                                                          sc.selectedWalkingTimings
-                                                              .remove("Morning");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                    kWidth10,
-                                                    CustomChip(
-                                                      label: "Evening",
-                                                      isSelected: sc
-                                                          .selectedWalkingTimings
-                                                          .contains("Evening"),
-                                                      onSelected: (bool selected) {
-                                                        if (selected) {
-                                                          sc.selectedWalkingTimings
-                                                              .add("Evening");
-                                                        } else {
-                                                          sc.selectedWalkingTimings
-                                                              .remove("Evening");
-                                                        }
-                                                        v.update();
-                                                      },
-                                                    ),
-                                                  ],
-                                                )),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                    kHeight15,
-                                    CustomLabel(text: "Baseline Vital Signs"),
-                                    kHeight10,
-                                    Column(
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Expanded(
-                                                child: customTextField(context,
-                                                    controller: sc.temp,
-                                                    labelText: "Temperature")),
-                                            kWidth10,
-                                            Expanded(
-                                                child: customTextField(context,
-                                                    labelText: "Pulse",
-                                                    controller: sc.heartRate)),
-                                            kWidth10,
-                                            Expanded(
-                                                child: customTextField(context,
-                                                    controller: sc.respiration,
-                                                    labelText: "Respirations")),
-                                            kWidth10,
-                                            Expanded(
-                                                child: customTextField(context,
-                                                    controller: sc.bp, labelText: "BP")),
-                                          ],
-                                        ),
-                                        SizedBox(height: 10),
-                                      ],
-                                    ),
-                                    kHeight15,
-                                    CustomLabel(text: "Blood Sugar"),
-                                    kHeight10,
-                                    GetBuilder<CompletedAppointmentDetailsController>(builder: (v) {
-                                      return customTextField(context,
-                                          controller: sc.bloodSugarTEC,
-                                          labelText: "Blood Sugar");
-                                    }),
-                                  ],
-                                );
-                              }
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          kHeight10,
-                          kHeight15,
-                          kHeight15,
-                          kHeight15,
-                          kHeight15,
-                        ],
-                      ),
-                    ),
-                  );
-                }),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Vital Signs Section
+                        _buildSectionHeader("Baseline Vital Signs"),
+                        SizedBox(height: 8),
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildVitalInfo(Icons.thermostat, "Temp", "${sc.temp.text}°F", Colors.orange),
+                                _buildVitalInfo(Icons.favorite, "Pulse", "${sc.heartRate.text} bpm", Colors.red),
+                                _buildVitalInfo(Icons.air, "Resp", "${sc.respiration.text}", Colors.blue),
+                                _buildVitalInfo(Icons.speed, "BP", "${sc.bp.text}", Colors.green),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Blood Sugar Section
+                        _buildSectionHeader("Blood Sugar"),
+                        SizedBox(height: 8),
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.bloodtype, color: Colors.red),
+                                SizedBox(width: 10),
+                                Text(
+                                  "${sc.bloodSugarTEC.text} mg/dL",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Food and Nutrition Section
+                        _buildSectionHeader("Food and Nutrition"),
+                        SizedBox(height: 8),
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildMealRow("Breakfast", sc.filters.isNotEmpty ? sc.filters.first :
+                                _formatTime(sc.patientSchedules?.patientBreakfasttime), sc.breakfastField.text),
+                                Divider(),
+                                _buildMealRow("Lunch", sc.lunchFilters.isNotEmpty ? sc.lunchFilters.first :
+                                _formatTime(sc.patientSchedules?.patientLunchtime), sc.lunchField.text),
+                                Divider(),
+                                _buildMealRow("Snacks", sc.snacks.isNotEmpty ? sc.snacks.first :
+                                _formatTime(sc.patientSchedules?.patientSnackstime), sc.snacksField.text),
+                                Divider(),
+                                _buildMealRow("Dinner", sc.dinner.isNotEmpty ? sc.dinner.first :
+                                _formatTime(sc.patientSchedules?.patientDinnertime), sc.dinnerField.text),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Hydration Section
+                        _buildSectionHeader("Hydration"),
+                        SizedBox(height: 8),
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.water_drop, color: Colors.blue),
+                                SizedBox(width: 10),
+                                Text(
+                                  "${sc.hydrationTEC.text}",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Daily Care Activities Section
+                        _buildSectionHeader("Daily Care Activities"),
+                        SizedBox(height: 8),
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildActivityRow("Oral Care", sc.selectedOralCareTimings.join(", ")),
+                                Divider(),
+                                _buildActivityRow("Bathing", sc.selectedBathingTimings.join(", ")),
+                                Divider(),
+                                _buildActivityRow("Dressing", sc.selectedDressingTimings.join(", ")),
+                                Divider(),
+                                _buildActivityRow("Walking", sc.selectedWalkingTimings.join(", ")),
+                                Divider(),
+                                _buildActivityRow("Toileting", sc.toileting.text),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Medication Section
+                        _buildSectionHeader("Medication"),
+                        SizedBox(height: 8),
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Time: ${sc.selectedMedication ?? "N/A"}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                sc.selectedMedication != null
+                                    ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: sc.meditationDetails
+                                      .firstWhere((element) =>
+                                  element.time == sc.selectedMedication!)
+                                      .medicationDetails!
+                                      .map((controller) => Padding(
+                                    padding: EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.medication, color: AppColors.primaryColor, size: 18),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          controller.text.isEmpty ? "Not specified" : controller.text,
+                                          style: TextStyle(fontSize: 14.sp),
+                                        ),
+                                      ],
+                                    ),
+                                  ))
+                                      .toList(),
+                                )
+                                    : Text(
+                                  "No medication recorded",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Time: ${"Noon" ?? "N/A"}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                sc.selectedMedication != null
+                                    ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: sc.meditationDetails
+                                      .firstWhere((element) =>
+                                  element.time == "Noon")
+                                      .medicationDetails!
+                                      .map((controller) => Padding(
+                                    padding: EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.medication, color: AppColors.primaryColor, size: 18),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          controller.text.isEmpty ? "Not specified" : controller.text,
+                                          style: TextStyle(fontSize: 14.sp),
+                                        ),
+                                      ],
+                                    ),
+                                  ))
+                                      .toList(),
+                                )
+                                    : Text(
+                                  "No medication recorded",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Time: ${"Evening" ?? "N/A"}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                sc.selectedMedication != null
+                                    ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: sc.meditationDetails
+                                      .firstWhere((element) =>
+                                  element.time == "Evening"!)
+                                      .medicationDetails!
+                                      .map((controller) => Padding(
+                                    padding: EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.medication, color: AppColors.primaryColor, size: 18),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          controller.text.isEmpty ? "Not specified" : controller.text,
+                                          style: TextStyle(fontSize: 14.sp),
+                                        ),
+                                      ],
+                                    ),
+                                  ))
+                                      .toList(),
+                                )
+                                    : Text(
+                                  "No medication recorded",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 40),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Row(
+      children: [
+        Container(
+          height: 24,
+          width: 4,
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVitalInfo(IconData icon, String label, String value, Color color) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 12.sp,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16.sp,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMealRow(String mealType, String? time, String details) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                mealType,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
+              ),
+              Text(
+                time ?? "Not recorded",
+                style: TextStyle(
+                  color: AppColors.primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 6),
+          Text(
+            details.isEmpty ? "No details recorded" : details,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 14.sp,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityRow(String activity, String timing) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            activity,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16.sp,
+            ),
+          ),
+          Text(
+            timing.isEmpty ? "Not recorded" : timing,
+            style: TextStyle(
+              color: AppColors.primaryColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _formatTime(String? timeString) {
+    if (timeString == null || timeString.isEmpty) return null;
+
+    try {
+      final timeParts = timeString.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts[1];
+      return (hour % 12 == 0 ? 12 : hour % 12).toString().padLeft(2, '0') +
+          '.' + minute + (hour < 12 ? ' AM' : ' PM');
+    } catch (e) {
+      return timeString;
+    }
   }
 }

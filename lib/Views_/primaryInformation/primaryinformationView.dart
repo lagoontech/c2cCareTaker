@@ -130,316 +130,329 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.r),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                carTakerList(context,
-                    doctorName: '${widget.firstName}${widget.lastName}',
-                    doctorState: widget.nationality,
-                    //genderIcon: widget.sex,
-                    sendTime: widget.toTime,
-                    sendDate: widget.sendDate,
-                    age: widget.age,
-                    bmi: widget.bmi,
-                    toTime: widget.sendTime,
-                    imageUrl: widget.imgUrl),
-                kHeight15,
-                Stack(
-                  children: [
-                    TableCalendar(
-                        focusedDay: widget.dates!.first,
-                        selectedDayPredicate: (day) {
-                          return widget.dates!.any((date) =>
-                              isSameDay(date, day)); // Highlight appointment dates
-                        },
-                        headerStyle: HeaderStyle(
-                            formatButtonVisible: false, titleCentered: true),
-                        calendarStyle: CalendarStyle(
-                          outsideDaysVisible: false,
-                          selectedDecoration: BoxDecoration(
-                            color: AppColors.primaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        firstDay: widget.dates!.first,
-                        lastDay: DateTime(2050)),
+          child: NestedScrollView(
+            body: CustomScrollView(
+              slivers: [
 
-                    Padding(
-                      padding: EdgeInsets.only(top: 32.h),
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
+                SliverList(delegate: SliverChildListDelegate([
+
+                  carTakerList(context,
+                      doctorName: '${widget.firstName}${widget.lastName}',
+                      doctorState: widget.nationality,
+                      //genderIcon: widget.sex,
+                      sendTime: widget.toTime,
+                      sendDate: widget.sendDate,
+                      age: widget.age,
+                      bmi: widget.bmi,
+                      toTime: widget.sendTime,
+                      imageUrl: widget.imgUrl),
+                  kHeight15,
+
+                  Stack(
+                    children: [
+                      TableCalendar(
+                          availableGestures: AvailableGestures.none,
+                          focusedDay: widget.dates!.first,
+                          selectedDayPredicate: (day) {
+                            return widget.dates!.any((date) =>
+                                isSameDay(date, day)); // Highlight appointment dates
+                          },
+                          headerStyle: HeaderStyle(
+                              formatButtonVisible: false, titleCentered: true),
+                          calendarStyle: CalendarStyle(
+                            outsideDaysVisible: false,
+                            selectedDecoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          firstDay: widget.dates!.first,
+                          lastDay: DateTime(2050)),
+
+                      Padding(
+                        padding: EdgeInsets.only(top: 32.h),
                         child: SizedBox(
                           height: 200.h,
                         ),
-                      ),
-                    )
+                      )
 
-                  ],
-                ),
-                InkWell(
-                  onTap: () {
-                    controller.launchDialer(widget.patientContactNumber!);
-                  },
-                  child: Container(
-                    height: 35.h,
-                    width: 150.h,
-                    decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(23.r)),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 2.r, vertical: 5.r),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.message_outlined,
-                              size: 15.sp,
+                    ],
+                  ),
+
+                  Column(
+                    children: [
+
+                      InkWell(
+                        onTap: () {
+                          controller.launchDialer(widget.patientContactNumber!);
+                        },
+                        child: Container(
+                          height: 35.h,
+                          width: 150.h,
+                          decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              borderRadius: BorderRadius.circular(23.r)),
+                          child: Padding(
+                            padding:
+                            EdgeInsets.symmetric(horizontal: 2.r, vertical: 5.r),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    Icons.message_outlined,
+                                    size: 15.sp,
+                                  ),
+                                ),
+                                kWidth5,
+                                Text(
+                                  "Contact Patient",
+                                  style: TextStyle(color: Colors.white),
+                                )
+                              ],
                             ),
                           ),
-                          kWidth5,
-                          Text(
-                            "Contact Patient",
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                kHeight15,
-                CustomLabel(text: "About"),
-                kHeight5,
-                ReadMoreText(
-                    style: TextStyle(),
-                    trimLines: 2,
-                    lessStyle: TextStyle(
-                      color: AppColors.primaryColor,
-                    ),
-                    moreStyle: TextStyle(
-                      color: AppColors.primaryColor,
-                    ),
-                    trimMode: TrimMode.Line,
-                    "It seems like you've entered readmore text nwithout completing the request. Could you please provide more details or clarify your query so I can assist you better?"),
-                Divider(
-                  thickness: 0.2,
-                ),
-                DocsCustom(
-                  radiusSize: 26,
-                  heading: "Experience Certificates",
-                  message: "Add your career info",
-                  icons: EneftyIcons.hospital_bold,
-                  iconColor: Colors.orange,
-                ),
-                Divider(
-                  thickness: 0.2,
-                ),
-                CustomLabel(text: "Past medical history"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return kWidth5;
-                      },
-                      scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(
-                                  widget.schedule!.patientPastmedicalhistory!)
-                              as List<dynamic>)
-                          .length,
-                      itemBuilder: (context, index) {
-                        var result = (jsonDecode(
+                      kHeight15,
+                      CustomLabel(text: "About"),
+                      kHeight5,
+                      ReadMoreText(
+                          style: TextStyle(),
+                          trimLines: 2,
+                          lessStyle: TextStyle(
+                            color: AppColors.primaryColor,
+                          ),
+                          moreStyle: TextStyle(
+                            color: AppColors.primaryColor,
+                          ),
+                          trimMode: TrimMode.Line,
+                          "It seems like you've entered readmore text nwithout completing the request. Could you please provide more details or clarify your query so I can assist you better?"),
+                      Divider(
+                        thickness: 0.2,
+                      ),
+                      DocsCustom(
+                        radiusSize: 26,
+                        heading: "Experience Certificates",
+                        message: "Add your career info",
+                        icons: EneftyIcons.hospital_bold,
+                        iconColor: Colors.orange,
+                      ),
+                      Divider(
+                        thickness: 0.2,
+                      ),
+                      CustomLabel(text: "Past medical history"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: ListView.separated(
+                            separatorBuilder: (context, index) {
+                              return kWidth5;
+                            },
+                            scrollDirection: Axis.horizontal,
+                            itemCount: (jsonDecode(
                                 widget.schedule!.patientPastmedicalhistory!)
-                            as List<dynamic>)[index];
-                        return detailsWidget(context, details: result);
-                      }),
-                ),
-                kHeight10,
-                CustomLabel(text: "Past surgical history"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: detailsWidget(context,
-                      details: widget.schedule!.patientPastsurgicalhistory),
-                ),
-                kHeight10,
-                CustomLabel(text: "Personal Details"),
-                kHeight10,
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        savedDetails(context,
-                            details: "BreakFast", timing: widget.breakfast),
-                        kWidth5,
-                        savedDetails(context,
-                            details: "lunch", timing: widget.lunch),
-                        kWidth5,
-                        savedDetails(context,
-                            details: "Snacks", timing: widget.snacks),
-                        kWidth5,
-                        savedDetails(context,
-                            details: "Dinner", timing: widget.dinner),
-                      ],
-                    ),
-                  ),
-                ),
-                kHeight10,
-                CustomLabel(text: "Diet Plan"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return kWidth5;
-                      },
-                      scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientDietplan!)
-                              as List<dynamic>)
-                          .length,
-                      itemBuilder: (context, index) {
-                        var result =
-                            (jsonDecode(widget.schedule!.patientDietplan!)
-                                as List<dynamic>)[index];
-                        return detailsWidget(context, details: result);
-                      }),
-                ),
-                kHeight10,
-                CustomLabel(text: "Toileting"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: detailsWidget(context,
-                      details: widget.schedule!.patientToileting),
-                ),
-                kHeight10,
-                CustomLabel(text: "Hydration"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: detailsWidget(context,
-                      details: widget.schedule!.patientHydration),
-                ),
-                kHeight10,
-                CustomLabel(text: "Walking"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return kWidth5;
-                      },
-                      scrollDirection: Axis.horizontal,
-                      itemCount:
-                          (jsonDecode(widget.schedule!.patientWalkingtime!)
-                                  as List<dynamic>)
-                              .length,
-                      itemBuilder: (context, index) {
-                        var result =
+                            as List<dynamic>)
+                                .length,
+                            itemBuilder: (context, index) {
+                              var result = (jsonDecode(
+                                  widget.schedule!.patientPastmedicalhistory!)
+                              as List<dynamic>)[index];
+                              return detailsWidget(context, details: result);
+                            }),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Past surgical history"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: detailsWidget(context,
+                            details: widget.schedule!.patientPastsurgicalhistory),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Personal Details"),
+                      kHeight10,
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              savedDetails(context,
+                                  details: "BreakFast", timing: widget.breakfast),
+                              kWidth5,
+                              savedDetails(context,
+                                  details: "lunch", timing: widget.lunch),
+                              kWidth5,
+                              savedDetails(context,
+                                  details: "Snacks", timing: widget.snacks),
+                              kWidth5,
+                              savedDetails(context,
+                                  details: "Dinner", timing: widget.dinner),
+                            ],
+                          ),
+                        ),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Diet Plan"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: ListView.separated(
+                            separatorBuilder: (context, index) {
+                              return kWidth5;
+                            },
+                            scrollDirection: Axis.horizontal,
+                            itemCount: (jsonDecode(widget.schedule!.patientDietplan!)
+                            as List<dynamic>)
+                                .length,
+                            itemBuilder: (context, index) {
+                              var result =
+                              (jsonDecode(widget.schedule!.patientDietplan!)
+                              as List<dynamic>)[index];
+                              return detailsWidget(context, details: result);
+                            }),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Toileting"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: detailsWidget(context,
+                            details: widget.schedule!.patientToileting),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Hydration"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: detailsWidget(context,
+                            details: widget.schedule!.patientHydration),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Walking"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: ListView.separated(
+                            separatorBuilder: (context, index) {
+                              return kWidth5;
+                            },
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
                             (jsonDecode(widget.schedule!.patientWalkingtime!)
-                                as List<dynamic>)[index];
-                        return detailsWidget(context, details: result);
-                      }),
-                ),
-                kHeight10,
-                CustomLabel(text: "Oral care"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return kWidth5;
-                      },
-                      scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientOralcare!)
-                              as List<dynamic>)
-                          .length,
-                      itemBuilder: (context, index) {
-                        var result =
-                            (jsonDecode(widget.schedule!.patientOralcare!)
-                                as List<dynamic>)[index];
-                        return detailsWidget(context, details: result);
-                      }),
-                ),
-                kHeight10,
-                CustomLabel(text: "Bathing"),
-                kHeight10,
-                SizedBox(
-                  height: 32.h,
-                  child: ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return kWidth5;
-                      },
-                      scrollDirection: Axis.horizontal,
-                      itemCount: (jsonDecode(widget.schedule!.patientBathing!)
-                              as List<dynamic>)
-                          .length,
-                      itemBuilder: (context, index) {
-                        var result =
-                            (jsonDecode(widget.schedule!.patientBathing!)
-                                as List<dynamic>)[index];
-                        return detailsWidget(context, details: result);
-                      }),
-                ),
-                kHeight10,
-                CustomLabel(text: "Vital Signs"),
-                kHeight10,
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        savedDetails(context,
-                            details: "Temperature",
-                            timing:
-                                "${jsonDecode(widget.schedule!.patientVitalsigns!)["temperature"]}\u2109"),
-                        kWidth5,
-                        savedDetails(context,
-                            details: "Pulse",
-                            timing:
-                                "${jsonDecode(widget.schedule!.patientVitalsigns!)["heart_rate"]}"),
-                        kWidth5,
-                        savedDetails(context,
-                            details: "Respiration",
-                            timing:
-                                "${jsonDecode(widget.schedule!.patientVitalsigns!)["respiratory_rate"]}"),
-                        kWidth5,
-                      ],
-                    ),
-                  ),
-                ),
-                kHeight10,
-                CustomLabel(text: "Blood Sugar Level"),
-                kHeight10,
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        detailsWidget(context,
-                            details:
-                                widget.schedule!.patientBloodsugar! + " mg/dL"),
-                        kWidth5,
-                        /* savedDetails(context, details: "Noon", timing: "70mg"),
-                        kWidth5,
-                        savedDetails(context,
-                            details: "Evening", timing: "70mg"),
-                        kWidth5,*/
-                      ],
-                    ),
-                  ),
-                ),
-                kHeight10,
+                            as List<dynamic>)
+                                .length,
+                            itemBuilder: (context, index) {
+                              var result =
+                              (jsonDecode(widget.schedule!.patientWalkingtime!)
+                              as List<dynamic>)[index];
+                              return detailsWidget(context, details: result);
+                            }),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Oral care"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: ListView.separated(
+                            separatorBuilder: (context, index) {
+                              return kWidth5;
+                            },
+                            scrollDirection: Axis.horizontal,
+                            itemCount: (jsonDecode(widget.schedule!.patientOralcare!)
+                            as List<dynamic>)
+                                .length,
+                            itemBuilder: (context, index) {
+                              var result =
+                              (jsonDecode(widget.schedule!.patientOralcare!)
+                              as List<dynamic>)[index];
+                              return detailsWidget(context, details: result);
+                            }),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Bathing"),
+                      kHeight10,
+                      SizedBox(
+                        height: 32.h,
+                        child: ListView.separated(
+                            separatorBuilder: (context, index) {
+                              return kWidth5;
+                            },
+                            scrollDirection: Axis.horizontal,
+                            itemCount: (jsonDecode(widget.schedule!.patientBathing!)
+                            as List<dynamic>)
+                                .length,
+                            itemBuilder: (context, index) {
+                              var result =
+                              (jsonDecode(widget.schedule!.patientBathing!)
+                              as List<dynamic>)[index];
+                              return detailsWidget(context, details: result);
+                            }),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Vital Signs"),
+                      kHeight10,
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              savedDetails(context,
+                                  details: "Temperature",
+                                  timing:
+                                  "${jsonDecode(widget.schedule!.patientVitalsigns!)["temperature"]}\u2109"),
+                              kWidth5,
+                              savedDetails(context,
+                                  details: "Pulse",
+                                  timing:
+                                  "${jsonDecode(widget.schedule!.patientVitalsigns!)["heart_rate"]}"),
+                              kWidth5,
+                              savedDetails(context,
+                                  details: "Respiration",
+                                  timing:
+                                  "${jsonDecode(widget.schedule!.patientVitalsigns!)["respiratory_rate"]}"),
+                              kWidth5,
+                            ],
+                          ),
+                        ),
+                      ),
+                      kHeight10,
+                      CustomLabel(text: "Blood Sugar Level"),
+                      kHeight10,
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              detailsWidget(context,
+                                  details:
+                                  widget.schedule!.patientBloodsugar! + " mg/dL"),
+                              kWidth5,
+                              /* savedDetails(context, details: "Noon", timing: "70mg"),
+                          kWidth5,
+                          savedDetails(context,
+                              details: "Evening", timing: "70mg"),
+                          kWidth5,*/
+                            ],
+                          ),
+                        ),
+                      ),
+                      kHeight10,
+                    ],
+                  )
+
+                ]))
+
               ],
-            ),
+            ), headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+              return [];
+          },
           ),
         ));
   }

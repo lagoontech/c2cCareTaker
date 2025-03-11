@@ -60,9 +60,7 @@ class _HomePageState extends State<HomePage> {
           (hc.profileList!.data!.profileImage!);
       return Scaffold(
         appBar: HomeAppBar(
-          username: data!=null
-              ? data.firstName!
-              : "",
+          username: data != null ? data.firstName! : "",
           subtitle: 'How is your Health?',
           avatarUrl: full,
         ),
@@ -236,29 +234,35 @@ class _HomePageState extends State<HomePage> {
                   ),
                   kHeight10,
                   GetBuilder<PatientRequestController>(builder: (v) {
-                    return v.processingList.isNotEmpty?ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: v.processingList.length > 4
-                            ? 4
-                            : v.processingList.length,
-                        itemBuilder: (BuildContext context, index) {
-                          var res = v.processingList[index];
-                          var path = v.careTakersListResponse!.profilePath;
-                          var data = res.patient!.patientInfo;
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 3.h),
-                            child: CustomCareTakers(
-                              name: '${data!.firstName} ${data.lastName}' ?? '',
-                              age: data.age,
-                              appointmentDate: res.appointmentDate,
-                              gender: data.sex,
-                              //initial: 2,
-                              imageUrl:
-                                  '${path}${res.patient!.profileImageUrl}',
-                            ),
-                          );
-                        }) : Text("No current appointments");
+                    return v.processingList.isNotEmpty
+                        ? ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: v.processingList.length > 4
+                                ? 4
+                                : v.processingList.length,
+                            itemBuilder: (BuildContext context, index) {
+                              var res = v.processingList[index];
+                              var path = v.careTakersListResponse!.profilePath;
+                              var data = res.patient!.patientInfo;
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 3.h),
+                                child: CustomCareTakers(
+                                  name: '${data!.firstName} ${data.lastName}' ??
+                                      '',
+                                  age: data.age,
+                                  appointmentDate: res.appointmentDate,
+                                  appointmentDates: res.appointmentDates,
+                                  startTime: res.appointmentStartTime,
+                                  endTime: res.appointmentEndTime,
+                                  gender: data.sex,
+                                  //initial: 2,
+                                  imageUrl:
+                                      '${path}${res.patient!.profileImageUrl}',
+                                ),
+                              );
+                            })
+                        : Text("No current appointments");
                   }),
                   /*     kHeight10,
                   Row(
@@ -306,6 +310,7 @@ class CustomCareTakers extends StatelessWidget {
   String? gender;
 
   DateTime? appointmentDate;
+  List<DateTime>? appointmentDates;
   String? startTime;
   String? endTime;
   double? height;
@@ -322,7 +327,8 @@ class CustomCareTakers extends StatelessWidget {
       this.onPressed,
       this.startTime,
       this.endTime,
-      this.appointmentDate});
+      this.appointmentDate,
+      this.appointmentDates});
 
   @override
   Widget build(BuildContext context) {
@@ -392,21 +398,36 @@ class CustomCareTakers extends StatelessWidget {
                 ),
               ),
               Text(
-                "Gender : ${gender ?? ''}",
+                "Gender : ${gender!.capitalize ?? ''}",
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 14.sp,
                 ),
               ),
-              Text(
-                "Appointment Date : ${appointmentDate != null ? DateFormat('MM/dd/yyyy').format(appointmentDate!) : ''}",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                ),
+              Row(
+                children: [
+                  Text(
+                    DateFormat("MMM dd").format(appointmentDates![0]),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  appointmentDates!.length > 1
+                      ? Text(
+                    " To ${DateFormat("MMM dd").format(appointmentDates!.last)}",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ) : SizedBox(),
+                ],
               ),
+
               Text(
-                "Time: ${startTime != null ? DateFormat(' hh:mm a').format(startDateTime!) : ''} ${endTime != null ? DateFormat(' hh:mm a').format(endDateTime!) : ''}",
+                "${startTime != null ? DateFormat('h:mm a').format(startDateTime!) : ''} To ${endTime != null ? DateFormat('h:mm a').format(endDateTime!) : ''}",
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 14.sp,

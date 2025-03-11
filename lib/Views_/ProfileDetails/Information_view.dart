@@ -127,11 +127,9 @@ class _AccountInformationState extends State<AccountInformation> {
             Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: TextButton(
-                  onPressed: _hasChanges
-                      ? () {
+                  onPressed:  () {
                           controller.updateCaretakerProfileDetails();
-                        }
-                      : null,
+                        },
                   child: controller.isLoading
                       ? SizedBox(
                           height: 20,
@@ -144,9 +142,7 @@ class _AccountInformationState extends State<AccountInformation> {
                       : Text(
                           "Update",
                           style: TextStyle(
-                            color: _hasChanges
-                                ? AppColors.primaryColor
-                                : Colors.grey,
+                            color:  AppColors.primaryColor
                           ),
                         ),
                 )),

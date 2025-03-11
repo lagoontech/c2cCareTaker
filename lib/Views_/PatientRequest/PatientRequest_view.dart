@@ -16,7 +16,6 @@ class PatientrequestView extends StatelessWidget {
   PatientrequestView({super.key,this.showBack = false});
 
   bool ?showBack;
-  final PatientRequestController controller = Get.put(PatientRequestController());
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +31,16 @@ class PatientrequestView extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 15.r),
-        child: CustomPatientRequest(controller: controller),
+        child: CustomPatientRequest(),
       ),
     );
   }
 }
 
 class CustomPatientRequest extends StatelessWidget {
-  CustomPatientRequest({super.key, required this.controller});
+  CustomPatientRequest({super.key});
 
-  final PatientRequestController controller;
+  PatientRequestController controller = Get.put(PatientRequestController());
   final ProfileController profileController = Get.put(ProfileController());
 
   @override
