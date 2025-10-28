@@ -169,6 +169,13 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                           controller.searchAppointments(completedOnly: true);
                         },
                         hint: "Search appointments",
+                        maxLines: 1,
+                        hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "verdana_regular"
+                        ),
                         controller: controller.searchTEC,
                         borderColor: AppColors.primaryColor,
                         labelText: "",
@@ -195,7 +202,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
 
-                            Icon(Icons.calendar_month),
+                            Icon(Icons.calendar_month,size: 16.sp,),
 
                             SizedBox(width: 4.w),
 
@@ -207,7 +214,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                                   ),)
                                       : Center(child: Text("Select a date",style: TextStyle(
                                       color: Colors.grey,
-                                      fontSize: 16,
+                                      fontSize: 14.sp,
                                       fontWeight: FontWeight.w400,
                                       fontFamily: "verdana_regular"
                                   ),));

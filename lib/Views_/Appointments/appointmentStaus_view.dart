@@ -80,10 +80,16 @@ class AppointmentStatusView extends StatelessWidget {
                       height: kToolbarHeight * 0.9,
                       child: customTextField(
                         context,
+                        maxLines: 1,
                         onChanged: (v) {
                           controller.searchAppointments();
                         },
                         hint: "Search appointments",
+                        hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "verdana_regular"),
                         controller: controller.searchTEC,
                         borderColor: AppColors.primaryColor,
                         labelText: "",
@@ -107,7 +113,7 @@ class AppointmentStatusView extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.calendar_month),
+                            Icon(Icons.calendar_month,size: 16.sp),
                             SizedBox(width: 4.w),
                             GetBuilder<PatientRequestController>(builder: (vc) {
                               return controller.selectedDate != null
@@ -120,7 +126,7 @@ class AppointmentStatusView extends StatelessWidget {
                                       "Select a date",
                                       style: TextStyle(
                                           color: Colors.grey,
-                                          fontSize: 16,
+                                          fontSize: 14.sp,
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "verdana_regular"),
                                     ));

@@ -16,12 +16,17 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try{
   await Firebase.initializeApp(
     name: "main",
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Get.put(NotificationController());
-  FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
+  FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);} on Exception catch (e) {
+    if(kDebugMode){
+      print("Firebase initialization error: $e");
+    }
+  }
   runApp(const MyApp());
 
 }
