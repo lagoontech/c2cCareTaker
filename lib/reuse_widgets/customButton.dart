@@ -96,7 +96,7 @@ class _CustomButtonState extends State<CustomButton>
                     widget.text,
                     style: TextStyle(
                       color: widget.textColor ?? Colors.white,
-                      fontSize: widget.fontSize,
+                      fontSize: widget.fontSize ?? 14.sp,
                     ),
                   ),
                 ],

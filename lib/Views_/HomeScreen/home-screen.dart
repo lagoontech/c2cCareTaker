@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 14.sp),
+                                        fontSize: 12.sp),
                                   ),
                                   kHeight10,
                                   /*     Text(
@@ -362,19 +362,25 @@ class CustomCareTakers extends StatelessWidget {
       padding: EdgeInsets.all(6.r),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(40),
-            // Adjust the radius as needed
-            child: Container(
-              //   height: MediaQuery.of(context).size.height*0.20,
-              width: 80.w,
+          Container(
+            //   height: MediaQuery.of(context).size.height*0.20,
+            width: 80.w,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
               color: AppColors.primaryColor,
-              child: Image.network(
-                height: MediaQuery.of(context).size.height * 0.10,
-                width: MediaQuery.of(context).size.width * 0.18,
-                fit: BoxFit.cover,
-                imageUrl ?? '',
-              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Image.network(
+              height: MediaQuery.of(context).size.height * 0.12,
+              width: MediaQuery.of(context).size.width * 0.2,
+              fit: BoxFit.cover,
+              imageUrl ?? '',
+              errorBuilder: (b,c,s){
+                return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.10,
+                    width: MediaQuery.of(context).size.width * 0.18,
+                    child: Icon(Icons.person,size: 26.sp,));
+              },
             ),
           ),
           kWidth10,
@@ -386,7 +392,7 @@ class CustomCareTakers extends StatelessWidget {
                 name ?? '',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -394,14 +400,14 @@ class CustomCareTakers extends StatelessWidget {
                 "Age : ${age ?? ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
               Text(
-                "Gender : ${gender!.capitalize ?? ''}",
+                "Gender : ${gender?.capitalize ?? ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
               Row(
@@ -410,7 +416,7 @@ class CustomCareTakers extends StatelessWidget {
                     DateFormat("MMM dd").format(appointmentDates![0]),
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -419,7 +425,7 @@ class CustomCareTakers extends StatelessWidget {
                     " To ${DateFormat("MMM dd").format(appointmentDates!.last)}",
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ) : SizedBox(),
@@ -430,7 +436,7 @@ class CustomCareTakers extends StatelessWidget {
                 "${startTime != null ? DateFormat('h:mm a').format(startDateTime!) : ''} To ${endTime != null ? DateFormat('h:mm a').format(endDateTime!) : ''}",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
 

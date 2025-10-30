@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Utils/screen_utils.dart';
 import 'package:care2caretaker/Views_/patient_history/Patient%20History/completed_appointment_details.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
@@ -112,27 +113,45 @@ class WaitingPatients extends StatelessWidget {
         },
         child: Container(
           padding: EdgeInsets.all(6.r),
-          height: 80.h,
+          height: isiPadLayout(context)?100.h:80.h,
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(),
           child: Stack(
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(60.r),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: 120.w,
-                        decoration: BoxDecoration(
-                          //border: Border.all(color: Colors.black, width: 0.2),
-                          borderRadius: BorderRadius.circular(3.r),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(60.r), // Rounded image shape
+                    child: Container(
+                      height: MediaQuery.of(context).size.width * 0.10,
+                      width: MediaQuery.of(context).size.width * 0.1,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black.withOpacity(0.2), width: 0.5),
+                        borderRadius: BorderRadius.circular(60.r),
+                        color: Colors.grey.shade200, // subtle background placeholder
+                      ),
+                      child: Image.network(
+                        imgurl ?? '',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.person,
+                          size: 26.sp,
+                          color: Colors.grey.shade600,
                         ),
-                        child: Image.network(imgurl ?? '',fit: BoxFit.fitWidth),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: SizedBox(
+                              width: 20.w,
+                              height: 20.w,
+                              child: const CircularProgressIndicator(strokeWidth: 1.8),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
+
                   kWidth10,
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

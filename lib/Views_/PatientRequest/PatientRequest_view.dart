@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Utils/screen_utils.dart';
 import 'package:care2caretaker/Views_/Profile/Controller/profileController.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
@@ -40,127 +41,124 @@ class PatientrequestView extends StatelessWidget {
 class CustomPatientRequest extends StatelessWidget {
   CustomPatientRequest({super.key});
 
-  PatientRequestController controller = Get.put(PatientRequestController());
+  final PatientRequestController controller = Get.put(PatientRequestController());
   final ProfileController profileController = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () async {
-        await controller.loadRequests();
-      },
+      onRefresh: () async => await controller.loadRequests(),
       child: GetBuilder<PatientRequestController>(builder: (v) {
-        if (v.isLoading) {
-          return ShimmerLoaderShimmer();
-        }
+        if (v.isLoading) return const ShimmerLoaderShimmer();
 
         if (v.requestList.isEmpty) {
           return ListView(
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              Center(child: Text("No Requests Found")),
+              SizedBox(height: 50.h),
+              Center(
+                child: Text(
+                  "No Requests Found",
+                  style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                ),
+              ),
             ],
           );
         }
 
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: AlwaysScrollableScrollPhysics(),
+        return ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(vertical: 8.h),
           itemCount: v.requestList.length,
-          itemBuilder: (BuildContext context, int index) {
+          separatorBuilder: (_, __) => SizedBox(height: 10.h),
+          itemBuilder: (context, index) {
             var res = v.requestList[index];
-            var path = v.careTakersListResponse!.profilePath;
-            var data = res.patient!.patientInfo;
-            var schedule = res.patient!.patientSchedules;
+            var data = res.patient?.patientInfo;
+            var schedule = res.patient?.patientSchedules;
+            var path = v.careTakersListResponse?.profilePath ?? '';
 
             if (data == null) {
               return const Center(child: Text('No patient data available'));
             }
 
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: 3.h),
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.20,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Stack(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.to(() => Primaryinformationview(
-                              bmi: data.bmi,
-                              age: data.age,
-                              toTime: res.appointmentStartTime,
-                              dates: res.appointmentDates,
-                              sex: data.sex,
-                              sendDate: res.appointmentDate,
-                              sendTime: res.appointmentEndTime,
-                              firstName: data.firstName,
-                              lastName: data.lastName,
-                              nationality: data.address,
-                              appointmentId: res.id,
-                              patientId: res.patientId,
-                              patientContactNumber: data.primaryContactNumber,
-                              imgUrl: '${path}${res.patient!.profileImageUrl}',
-                              breakfast: schedule!.patientBreakfasttime,
-                              dinner: schedule.patientDinnertime,
-                              snacks: schedule.patientSnackstime,
-                              lunch: schedule.patientLunchtime,
-                              BP: schedule.patientBloodsugar,
-                              schedule: schedule,
-                            ));
-                      },
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.20,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12.r),
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: const Offset(2, 2),
+                  ),
+                ],
+                border: Border.all(color: Colors.grey.shade200, width: 0.8),
+              ),
+              child: Column(
+                children: [
+                  // Patient Info
+                  carTakerList(
+                    context,
+                    controller,
+                    index,
+                    doctorName: '${data.firstName} ${data.lastName}',
+                    doctorDesignation: "Patient",
+                    doctorState: data.address,
+                    imageUrl: '$path${res.patient!.profileImageUrl}',
+                    age: data.age,
+                    bmi: data.bmi,
+                    sendTime: data.createdAt,
+                    sendDate: data.createdAt,
+                  ),
+
+                  const Divider(thickness: 0.3),
+
+                  // Footer button
+                  InkWell(
+                    onTap: () {
+                      Get.to(() => Primaryinformationview(
+                        bmi: data.bmi,
+                        age: data.age,
+                        toTime: res.appointmentStartTime,
+                        dates: res.appointmentDates,
+                        sex: data.sex,
+                        sendDate: res.appointmentDate,
+                        sendTime: res.appointmentEndTime,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        nationality: data.address,
+                        appointmentId: res.id,
+                        patientId: res.patientId,
+                        patientContactNumber: data.primaryContactNumber,
+                        imgUrl: '$path${res.patient!.profileImageUrl}',
+                        breakfast: schedule?.patientBreakfasttime,
+                        dinner: schedule?.patientDinnertime,
+                        snacks: schedule?.patientSnackstime,
+                        lunch: schedule?.patientLunchtime,
+                        BP: schedule?.patientBloodsugar,
+                        schedule: schedule,
+                      ));
+                    },
+                    child: Container(
+                      height: 45.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(14.r),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Text(
-                              "View Request",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "View Request",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
                         ),
                       ),
                     ),
-                    Positioned(
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.16,
-                        width: MediaQuery.of(context).size.width * 0.96,
-                        decoration: BoxDecoration(
-                          color: const Color(0xffF6F4F4),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child:
-                            GetBuilder<PatientRequestController>(builder: (v) {
-                          return carTakerList(
-                            context,
-                            controller,
-                            index,
-                            doctorState: data.address,
-                            sendDate: data.createdAt,
-                            doctorDesignation: "Patient",
-                            bmi: data.bmi,
-                            sendTime: data.createdAt,
-                            imageUrl: '${path}${res.patient!.profileImageUrl}',
-                            age: data.age,
-                            doctorName: '${data.firstName} ${data.lastName}',
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },
@@ -170,220 +168,96 @@ class CustomPatientRequest extends StatelessWidget {
   }
 }
 
-Widget carTakerList(
-    BuildContext context, PatientRequestController controllerd, int? index,
-    {String? name,
-    String? doctorName,
-    String? doctorDesignation,
-    String? doctorState,
-    int? age,
-    double? bmi,
-    DateTime? sendTime,
-    DateTime? sendDate,
-    String? imageUrl}) {
-  return Container(
-    padding: EdgeInsets.all(10.r),
-    height: MediaQuery.of(context).size.height * 0.14,
-    // Adjusted height
-    width: MediaQuery.of(context).size.width,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12.r),
-      border: Border.all(
-        color: Colors.white,
-      ),
-    ),
-    child: Column(
-      children: [
-        Container(
-          height: MediaQuery.of(context).size.height * 0.10,
-          width: MediaQuery.of(context).size.width,
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 28.r,
-                backgroundImage: NetworkImage(imageUrl ?? ''),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                flex: 8,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          doctorName ?? '',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(width: 5.w),
-                        // Add spacing between text and icon
-                        Image.asset(
-                          "assets/images/verified_tick.png",
-                          fit: BoxFit.cover,
-                          height: 17.h,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      doctorDesignation ?? '',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      doctorState ?? '',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Icon(
-                    controllerd.caretakersList[index!].patient!.patientInfo!
-                                .sex ==
-                            "male"
-                        ? Icons.male
-                        : Icons.female,
-                    // Conditional icon based on gender
-                    size: 33.sp,
-                    color: controllerd.caretakersList[index].patient!
-                                .patientInfo!.sex ==
-                            "male"
-                        ? Colors.blueAccent
-                        : Colors
-                            .pinkAccent, // Conditional color based on gender
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        const Divider(
-          thickness: 0.2,
-        ),
-        /* Container(
-          padding: EdgeInsets.zero,
-          height: MediaQuery.of(context).size.height * 0.09, // Adjusted height
-          width: MediaQuery.of(context).size.width,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          IconlyBold.user_2, // Icon for Age
-                          color: Colors.grey,
-                          size: 20.sp,
-                        ),
-                        SizedBox(width: 4.w), // Spacing between icon and text
-                        Text(
-                          "Age: $age", // Replace with actual age variable
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    kHeight10,
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.fitness_center, // Icon for BMI
-                          color: Colors.grey,
-                          size: 20.sp,
-                        ),
-                        SizedBox(width: 5.w), // Spacing between icon and text
-                        Text(
-                          "BMI: $bmi", // Replace with actual BMI variable
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
 
-              // Right Side: Requested Time
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          IconlyBold.calendar, // Icon for Date
-                          color: Colors.grey,
-                          size: 20.sp,
-                        ),
-                        SizedBox(width: 5.w), // Spacing between icon and text
-                        Text(
-                          "${DateFormat('yyyy-MM-dd').format(sendDate!)}",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+Widget carTakerList(
+    BuildContext context,
+    PatientRequestController controller,
+    int index, {
+      String? doctorName,
+      String? doctorDesignation,
+      String? doctorState,
+      int? age,
+      double? bmi,
+      DateTime? sendTime,
+      DateTime? sendDate,
+      String? imageUrl,
+    }) {
+  final isiPad = isiPadLayout(context);
+
+  return Padding(
+    padding: EdgeInsets.all(12.r),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CircleAvatar(
+          radius: isiPad ? 40.r : 30.r,
+          backgroundImage: NetworkImage(imageUrl ?? ''),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          flex: 4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      doctorName ?? '',
+                      style: TextStyle(
+                        fontSize: isiPad ? 18.sp : 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 5.h), // Spacing between date and time
-                    Row(
-                      children: [
-                        Icon(
-                          IconlyBold.time_circle, // Icon for Requested Time
-                          color: Colors.grey,
-                          size: 20.sp,
-                        ),
-                        SizedBox(width: 5.w), // Spacing between icon and text
-                        Text(
-                          "${DateFormat('hh:mm a').format(sendTime!)}",
-                          // Replace with actual time variable
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
+                  SizedBox(width: 6.w),
+                  Image.asset(
+                    "assets/images/verified_tick.png",
+                    height: 16.h,
+                  ),
+                ],
+              ),
+              Text(
+                doctorDesignation ?? '',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: Colors.grey[700],
                 ),
-              )
+              ),
+              Text(
+                doctorState ?? '',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: Colors.grey,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
-        )*/
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              controller.caretakersList[index].patient!.patientInfo!.sex == "male"
+                  ? Icons.male
+                  : Icons.female,
+              size: 34.sp,
+              color:
+              controller.caretakersList[index].patient!.patientInfo!.sex == "male"
+                  ? Colors.blueAccent
+                  : Colors.pinkAccent,
+            ),
+          ],
+        ),
       ],
     ),
   );
 }
+
 
 Widget Circleso(BuildContext context, {IconData? icon, String? name}) {
   return Column(

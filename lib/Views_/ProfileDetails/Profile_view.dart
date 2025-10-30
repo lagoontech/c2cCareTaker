@@ -65,50 +65,50 @@ class ProfileDetails extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                        padding: EdgeInsets.only(left: 8.w),
                         child: CircleAvatar(
-                          radius: 20, // The size of the CircleAvatar
+                          radius: 20.r, // The size of the CircleAvatar
                           child: ClipOval(
                             child: CachedNetworkImage(
                               imageUrl: '${v.profileList!.profilePath}${v.profileList!.data!.profileImage!}',
                               fit: BoxFit.cover,
-                              width: 40,
-                              height: 40,
+                              width: 40.w,
+                              height: 40.h,
                               placeholder: (context, url) =>
-                                  CircularProgressIndicator(),
+                                  const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
+                                  const Icon(Icons.error),
                             ),
                           ),
                         ),
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
                           child: Container(
                             height: MediaQuery.of(context).size.height * 0.10,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(height: 5),
+                                SizedBox(height: 5.h),
                                 v.profileList!.data!=null && v.profileList!.data!.caretakerInfo!=null?Text(
                                   '${v.profileList!.data!.caretakerInfo!.firstName!} ${v.profileList!.data!.caretakerInfo!.lastName!}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
                                   ),
                                 ) : SizedBox(),
-                                SizedBox(height: 4),
+                                SizedBox(height: 4.h),
                                 Text(
                                   "Am Care Taker",
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                     color: Colors.black54,
                                   ),
                                 ),
@@ -264,7 +264,7 @@ class ProfileDetailsCustom extends StatelessWidget {
           kWidth10,
           Expanded(
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.07,
+              height: MediaQuery.of(context).size.height * 0.1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,

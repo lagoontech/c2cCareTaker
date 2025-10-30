@@ -188,14 +188,14 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                         },
                         child: Container(
                           height: 35.h,
-                          width: 150.h,
                           decoration: BoxDecoration(
                               color: AppColors.primaryColor,
                               borderRadius: BorderRadius.circular(23.r)),
                           child: Padding(
                             padding:
-                            EdgeInsets.symmetric(horizontal: 2.r, vertical: 5.r),
+                            EdgeInsets.symmetric(horizontal: 4.r, vertical: 5.r),
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 CircleAvatar(
                                   backgroundColor: Colors.white,
@@ -432,7 +432,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                             children: [
                               detailsWidget(context,
                                   details:
-                                  widget.schedule!.patientBloodsugar! + " mg/dL"),
+                                  widget.schedule!.patientBloodsugar ?? "" + " mg/dL"),
                               kWidth5,
                               /* savedDetails(context, details: "Noon", timing: "70mg"),
                           kWidth5,
@@ -772,7 +772,7 @@ class DocsCustom extends StatelessWidget {
             padding: const EdgeInsets.only(left: 8.0),
             child: CircleAvatar(
               backgroundColor: circleColor ?? Colors.grey.withOpacity(0.1),
-              radius: radiusSize ?? 22,
+              radius: radiusSize ?? 22.r,
               child: Icon(
                 icons,
                 color: iconColor ?? Colors.black,
@@ -792,7 +792,7 @@ class DocsCustom extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),

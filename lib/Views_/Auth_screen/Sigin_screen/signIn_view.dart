@@ -84,14 +84,14 @@ class _MobileEmailState extends State<MobileEmail> {
                 ),
               ),
               kHeight20,
-              InkWell(
+              /*InkWell(
                 onTap: () {},
                 child: Center(
                     child: SvgPicture.asset(
                   "assets/images/svg/signin_with_google.svg",
                   height: 30.h,
                 )),
-              )
+              )*/
             ],
           ))
         ],

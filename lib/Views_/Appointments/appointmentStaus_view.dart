@@ -202,15 +202,15 @@ class AppointmentStatusView extends StatelessWidget {
                                             String? path =
                                                 '${v.careTakersListResponse!.profilePath}';
                                             String? url =
-                                                '${data.patient!.profileImageUrl}';
+                                                '${data.patient?.profileImageUrl}';
                                             return Padding(
                                               padding: const EdgeInsets.all(7.0),
                                               child: CustomCareTakers(
-                                                name: data.patient!.patientInfo!
+                                                name: data.patient?.patientInfo!
                                                     .firstName,
                                                 gender:
-                                                    data.patient!.patientInfo!.sex,
-                                                age: data.patient!.patientInfo!.age,
+                                                    data.patient?.patientInfo!.sex,
+                                                age: data.patient?.patientInfo!.age,
                                                 imageUrl: "${path}${url}",
                                                 appointmentDates: data.appointmentDates,
                                                 appointmentDate:

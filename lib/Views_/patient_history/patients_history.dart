@@ -284,7 +284,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                               data = v.completedList[index];
                             }
                             var path = v.careTakersListResponse!.profilePath;
-                            var url = data.patient!.profileImageUrl;
+                            var url = data.patient?.profileImageUrl;
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: WaitingPatients(
@@ -292,7 +292,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                                 appoinId: data.id,
                                 showIcon: false,
                                 status: data.serviceStatus,
-                                name: data.patient!.patientInfo!.firstName!,
+                                name: data.patient?.patientInfo!.firstName!,
                                 dates: data.appointmentDates,
                                 imgurl: '${path}${url}',
                                 time:
