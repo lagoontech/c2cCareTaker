@@ -2,37 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-Widget customTextField(BuildContext context,
-    {TextInputType? textInputType,
-      Widget? prefix,
-      String hint = "",
-      double? borderRadius = 8,
-      Color? borderColor,
-      Color? fillColor,
-      double? height,
-      double?width,
-      Widget? suffix,
-      bool autofocus = false,
-      bool obscureText = false,
-      bool readOnly = false,
-      Color? color,
-      Function()? onTap,
-      EdgeInsetsGeometry? contentPadding,
-      TextCapitalization? textCapitalization,
-      TextEditingController? controller,
-      List<TextInputFormatter>? inputFormatters,
-      String? Function(String?)? validator,
-      Function(String?)? onSaved,
-      Function(String?)? onChanged,
-      TextInputAction? textInputAction,
-      int? maxLength,
-      int? maxLines,
-      String? labelText,
-      String? errorText,
-      TextStyle? labelStyle,
-      TextStyle? hintStyle,
-      TextStyle? textStyle,
-    }) {
+Widget customTextField(
+  BuildContext context, {
+  TextInputType? textInputType,
+  Widget? prefix,
+  String hint = "",
+  double? borderRadius = 8,
+  Color? borderColor,
+  Color? fillColor,
+  double? height,
+  double? width,
+  Widget? suffix,
+  bool autofocus = false,
+  bool obscureText = false,
+  bool readOnly = false,
+  Color? color,
+  Function()? onTap,
+  TextAlign textAlign = TextAlign.start,
+  EdgeInsetsGeometry? contentPadding,
+  TextCapitalization? textCapitalization,
+  TextEditingController? controller,
+  List<TextInputFormatter>? inputFormatters,
+  String? Function(String?)? validator,
+  Function(String?)? onSaved,
+  Function(String?)? onChanged,
+  TextInputAction? textInputAction,
+  int? maxLength,
+  int? maxLines,
+  String? labelText,
+  String? errorText,
+  TextStyle? labelStyle,
+  TextStyle? hintStyle,
+  TextStyle? textStyle,
+  double? fontSize,
+}) {
   return Container(
     height: height,
     width: width,
@@ -47,12 +50,14 @@ Widget customTextField(BuildContext context,
       obscureText: obscureText,
       maxLength: maxLength,
       maxLines: maxLines,
+      textAlign: textAlign,
       inputFormatters: inputFormatters,
       controller: controller,
       validator: validator,
       autovalidateMode: AutovalidateMode.always,
       keyboardType: textInputType ?? TextInputType.text,
-      style: textStyle ??  TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: textStyle ??
+          TextStyle(fontSize: fontSize ?? 15.sp, color: Colors.black),
       textCapitalization: textCapitalization ?? TextCapitalization.words,
       onSaved: onSaved,
       decoration: InputDecoration(
@@ -61,27 +66,53 @@ Widget customTextField(BuildContext context,
             borderSide: BorderSide(color: Colors.grey, width: 0.3)),
         isDense: true,
         filled: true,
-        contentPadding: contentPadding ?? EdgeInsets.symmetric(vertical: 13.h, horizontal: 10.w),
+        contentPadding: contentPadding ??
+            EdgeInsets.symmetric(vertical: 13.h, horizontal: 10.w),
         fillColor: fillColor ?? Colors.white.withOpacity(0.2),
         counterText: "",
-        prefixIcon: prefix ,
-        suffixIcon: suffix,
+        prefixIcon: prefix != null
+            ? Padding(
+                padding: EdgeInsets.only(left: 12.w, right: 8.w),
+                child: IconTheme(
+                  data: IconThemeData(size: 20.sp, color: Colors.grey.shade600),
+                  child: prefix,
+                ),
+              )
+            : null,
+        suffixIcon: suffix != null
+            ? Padding(
+                padding: EdgeInsets.only(left: 8.w, right: 12.w),
+                child: IconTheme(
+                  data: IconThemeData(size: 20.sp, color: Colors.grey.shade600),
+                  child: suffix,
+                ),
+              )
+            : null,
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 0,
+          minHeight: 0,
+        ),
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: 0,
+          minHeight: 0,
+        ),
         hintText: hint,
         errorText: errorText,
-        hintStyle: hintStyle ?? TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            fontFamily: "verdana_regular"
-        ),
+        hintStyle: hintStyle ??
+            TextStyle(
+              color: Colors.grey,
+              fontSize: fontSize ?? 16.sp,
+              fontWeight: FontWeight.w400,
+            ),
         labelText: labelText ?? 'Email/Mobile',
-        labelStyle: labelStyle ?? TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            fontFamily: "verdana_regular"
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always, // Always show the label
+        labelStyle: labelStyle ??
+            TextStyle(
+              color: Colors.black,
+              fontSize: fontSize ?? 16.sp,
+              fontWeight: FontWeight.w400,
+            ),
+        floatingLabelBehavior:
+            FloatingLabelBehavior.always, // Always show the label
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius ?? 10.0),
           borderSide: BorderSide(
@@ -110,36 +141,35 @@ Widget customTextField(BuildContext context,
 
 Widget customDropdown(BuildContext context,
     {TextInputType? textInputType,
-      Widget? prefix,
-      String hint = "",
-      double? borderRadius = 8,
-      Color? borderColor,
-      Color? fillColor,
-      double? height,
-      Widget? suffix,
-      bool autofocus = false,
-      bool obscureText = false,
-      bool readOnly = false,
-      Color? color,
-      Function()? onTap,
-      EdgeInsetsGeometry? contentPadding,
-      TextCapitalization? textCapitalization,
-      TextEditingController? controller,
-      List<TextInputFormatter>? inputFormatters,
-      String? Function(String?)? validator,
-      Function(String?)? onSaved,
-      TextInputAction? textInputAction,
-      int? maxLength,
-      int? maxLines,
-      String? labelText,
-      String? errorText,
-      TextStyle? labelStyle,
-      TextStyle? hintStyle,
-      TextStyle? textStyle,
-      List<DropdownMenuItem<dynamic>> ?items,
-      Function(dynamic) ?onChanged,
-      dynamic value
-    }) {
+    Widget? prefix,
+    String hint = "",
+    double? borderRadius = 8,
+    Color? borderColor,
+    Color? fillColor,
+    double? height,
+    Widget? suffix,
+    bool autofocus = false,
+    bool obscureText = false,
+    bool readOnly = false,
+    Color? color,
+    Function()? onTap,
+    EdgeInsetsGeometry? contentPadding,
+    TextCapitalization? textCapitalization,
+    TextEditingController? controller,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+    Function(String?)? onSaved,
+    TextInputAction? textInputAction,
+    int? maxLength,
+    int? maxLines,
+    String? labelText,
+    String? errorText,
+    TextStyle? labelStyle,
+    TextStyle? hintStyle,
+    TextStyle? textStyle,
+    List<DropdownMenuItem<dynamic>>? items,
+    Function(dynamic)? onChanged,
+    dynamic value}) {
   return Container(
     height: height,
     child: DropdownButtonFormField(
@@ -152,27 +182,53 @@ Widget customDropdown(BuildContext context,
             borderSide: BorderSide(color: Colors.grey, width: 0.3)),
         isDense: true,
         filled: true,
-        contentPadding: contentPadding ?? EdgeInsets.symmetric(vertical: 13.h, horizontal: 10.w),
+        contentPadding: contentPadding ??
+            EdgeInsets.symmetric(vertical: 13.h, horizontal: 10.w),
         fillColor: fillColor ?? Colors.white.withOpacity(0.2),
         counterText: "",
-        prefixIcon: prefix ,
-        suffixIcon: suffix,
+        prefixIcon: prefix != null
+            ? Padding(
+                padding: EdgeInsets.only(left: 12.w, right: 8.w),
+                child: IconTheme(
+                  data: IconThemeData(size: 20.sp, color: Colors.grey.shade600),
+                  child: prefix,
+                ),
+              )
+            : null,
+        suffixIcon: suffix != null
+            ? Padding(
+                padding: EdgeInsets.only(left: 8.w, right: 12.w),
+                child: IconTheme(
+                  data: IconThemeData(size: 20.sp, color: Colors.grey.shade600),
+                  child: suffix,
+                ),
+              )
+            : null,
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 0,
+          minHeight: 0,
+        ),
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: 0,
+          minHeight: 0,
+        ),
         hintText: hint,
         errorText: errorText,
-        hintStyle: hintStyle ?? TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            fontFamily: "verdana_regular"
-        ),
+        hintStyle: hintStyle ??
+            TextStyle(
+              color: Colors.grey,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w400,
+            ),
         labelText: labelText ?? 'Email/Mobile',
-        labelStyle: labelStyle ?? TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            fontFamily: "verdana_regular"
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always, // Always show the label
+        labelStyle: labelStyle ??
+            TextStyle(
+              color: Colors.black,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w400,
+            ),
+        floatingLabelBehavior:
+            FloatingLabelBehavior.always, // Always show the label
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius ?? 10.0),
           borderSide: BorderSide(
@@ -194,8 +250,9 @@ Widget customDropdown(BuildContext context,
             width: 1.0,
           ),
         ),
-      ), items: items, onChanged: onChanged,
+      ),
+      items: items,
+      onChanged: onChanged,
     ),
   );
 }
-

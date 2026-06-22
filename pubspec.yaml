@@ -1,7 +1,7 @@
 name: care2caretaker
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.0+3
+version: 1.0.2+5
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -29,7 +29,7 @@ dependencies:
   easy_date_timeline: ^1.1.3
   lottie:
   dotted_border:
-  table_calendar:
+  table_calendar: ^3.1.2
   shared_preferences: ^2.5.3
   fluttertoast: ^9.0.0
   geolocator:
@@ -46,9 +46,10 @@ dependencies:
   open_filex: ^4.7.0
   dio:
   path_provider: ^2.1.5
+  flutter_pdfview:
   firebase_analytics:
   flutter_local_notifications:
-  url_launcher:
+  #url_launcher: ^6.3.2
   awesome_dialog:
   dropdown_button2: ^2.3.9
   animated_refresh: ^1.0.0

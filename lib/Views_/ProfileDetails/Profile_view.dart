@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:care2caretaker/Utils/screen_utils.dart';
 import 'package:care2caretaker/Views_/Auth_screen/Sigin_screen/signIn_view.dart';
 import 'package:care2caretaker/Views_/Document_Upload/document_uploadView.dart';
 import 'package:care2caretaker/Views_/Profile/Controller/profileController.dart';
@@ -52,10 +53,11 @@ class ProfileDetails extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 18.w),
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 kHeight10,
                 Container(
-                  height: 80.h,
+                  height: 65.h,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor,
@@ -67,13 +69,13 @@ class ProfileDetails extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 8.w),
                         child: CircleAvatar(
-                          radius: 20.r, // The size of the CircleAvatar
+                          radius: 18.r, // The size of the CircleAvatar
                           child: ClipOval(
                             child: CachedNetworkImage(
                               imageUrl: '${v.profileList!.profilePath}${v.profileList!.data!.profileImage!}',
                               fit: BoxFit.cover,
-                              width: 40.w,
-                              height: 40.h,
+                              width: 36.w,
+                              height: 36.h,
                               placeholder: (context, url) =>
                                   const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
@@ -85,57 +87,40 @@ class ProfileDetails extends StatelessWidget {
                       Expanded(
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: Container(
-                            height: MediaQuery.of(context).size.height * 0.10,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 5.h),
-                                v.profileList!.data!=null && v.profileList!.data!.caretakerInfo!=null?Text(
-                                  '${v.profileList!.data!.caretakerInfo!.firstName!} ${v.profileList!.data!.caretakerInfo!.lastName!}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ) : SizedBox(),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  "Am Care Taker",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: Colors.black54,
-                                  ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              v.profileList!.data!=null && v.profileList!.data!.caretakerInfo!=null?Text(
+                                '${v.profileList!.data!.caretakerInfo!.firstName!} ${v.profileList!.data!.caretakerInfo!.lastName!}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
-                              ],
-                            ),
+                              ) : SizedBox(),
+                              SizedBox(height: 2.h),
+                              Text(
+                                "Am Care Taker",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                   /*   Align(
-                        alignment: Alignment.topRight,
-                        child: IconButton(
-                          onPressed: () {
-                            // Handle edit action
-                          },
-                          icon: Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                            size: 20.sp,
-                          ),
-                        ),
-                      ),*/
                     ],
                   ),
                 ),
-                kHeight30,
+                kHeight20,
                 CustomLabel(text: "General"),
-                kHeight10,
+                kHeight5,
                 ProfileDetailsCustom(
                   icons: IconlyBold.profile,
                   iconColor: Color(0xff246AFD),
@@ -146,7 +131,6 @@ class ProfileDetails extends StatelessWidget {
                   },
                 ),
                 Divider(),
-                kHeight10,
                 ProfileDetailsCustom(
                   icons: Icons.medical_information,
                   iconColor: Colors.red,
@@ -157,15 +141,6 @@ class ProfileDetails extends StatelessWidget {
                   },
                 ),
                 Divider(),
-             /*   kHeight10,
-                ProfileDetailsCustom(
-                  icons: EneftyIcons.wallet_remove_bold,
-                  iconColor: Colors.green,
-                  heading: "Insurance Details",
-                  message: "Add your Insurance Details",
-                ),
-                Divider(),*/
-                kHeight10,
                 ProfileDetailsCustom(
                   icons: Icons.picture_as_pdf,
                   iconColor: Colors.redAccent,
@@ -175,23 +150,7 @@ class ProfileDetails extends StatelessWidget {
                     Get.to(() => DocumentUploadNew());
                   },
                 ),
-             /*   kHeight10,
-                ProfileDetailsCustom(
-                  icons: EneftyIcons.buildings_bold,
-                  iconColor: Colors.amberAccent,
-                  heading: "Medical Records",
-                  message: "History about the your medical records",
-                ),*/
-               /* Divider(),
-                kHeight10,
-                ProfileDetailsCustom(
-                  icons: IconlyBold.location,
-                  iconColor: Color(0xff076F88),
-                  heading: "My Address",
-                  message: "Add Your Address",
-                ),*/
                 Divider(),
-                kHeight10,
                 ProfileDetailsCustom(
                   callback: () async {
                     AwesomeDialog(
@@ -246,51 +205,48 @@ class ProfileDetailsCustom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-
-      padding: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: CircleAvatar(
               backgroundColor: Colors.grey.withOpacity(0.1),
-              radius: radiusSize ?? 20,
+              radius: radiusSize ?? 18.r,
               child: Icon(
                 icons,
                 color: iconColor,
+                size: 20.sp,
               ),
             ),
           ),
           kWidth10,
           Expanded(
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(height: 5),
-                  Text(
-                    heading ?? "Alis Dia",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  heading ?? "Alis Dia",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  Text(
-                    message ?? "sujnc901@gmail.com",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.black54,
-                    ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  message ?? "sujnc901@gmail.com",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: Colors.black54,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           IconButton(
@@ -298,7 +254,7 @@ class ProfileDetailsCustom extends StatelessWidget {
             icon: Icon(
               Icons.arrow_forward_ios_sharp,
               color: Colors.black,
-              size: 20.sp,
+              size: 16.sp,
             ),
           ),
         ],

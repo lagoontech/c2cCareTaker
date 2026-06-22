@@ -6,7 +6,7 @@ import 'package:care2caretaker/reuse_widgets/customToast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
+//import 'package:url_launcher/url_launcher.dart';
 import '../../../sharedPref/sharedPref.dart';
 import '../../Appointments/appointmentStaus_view.dart';
 import '../modal/getService_history.dart';
@@ -218,11 +218,11 @@ class PatientRequestController extends GetxController {
       path: phoneNumber,
     );
     print(phoneNumber);
-    if (await canLaunchUrl(telUri)) {
+    /*if (await canLaunchUrl(telUri)) {
       await launchUrl(telUri);
     } else {
       throw 'Could not launch $telUri';
-    }
+    }*/
   }
 
   //

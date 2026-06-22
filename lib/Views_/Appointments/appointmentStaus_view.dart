@@ -88,8 +88,7 @@ class AppointmentStatusView extends StatelessWidget {
                         hintStyle: TextStyle(
                             color: Colors.grey,
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "verdana_regular"),
+                            fontWeight: FontWeight.w400),
                         controller: controller.searchTEC,
                         borderColor: AppColors.primaryColor,
                         labelText: "",
@@ -113,7 +112,7 @@ class AppointmentStatusView extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.calendar_month,size: 16.sp),
+                            Icon(Icons.calendar_month, size: 16.sp),
                             SizedBox(width: 4.w),
                             GetBuilder<PatientRequestController>(builder: (vc) {
                               return controller.selectedDate != null
@@ -127,8 +126,7 @@ class AppointmentStatusView extends StatelessWidget {
                                       style: TextStyle(
                                           color: Colors.grey,
                                           fontSize: 14.sp,
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: "verdana_regular"),
+                                          fontWeight: FontWeight.w400),
                                     ));
                             }),
                             SizedBox(width: 2.w),
@@ -153,217 +151,376 @@ class AppointmentStatusView extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: GetBuilder<PatientRequestController>(
-                builder: (vc) {
-                  return vc.isLoading?Center(child: CircularProgressIndicator()):TabBarView(
-                    children: [
-                      // Approved Tab
-                      GetBuilder<PatientRequestController>(
-                        builder: (v) {
-                          return v.isLoading
-                              ? Center(child: CircularProgressIndicator())
-                              : AnimatedRefresh(
-                                  triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                                  backgroundColor: AppColors.secondaryColor,
-                                  onRefresh: _refreshData,
-                                  swipeChild: Icon(Icons.accessibility),
-                                  refreshChild: Lottie.asset(
-                                    "assets/lottie/lottieflow-loading-08-15ADD2-easey.json",
-                                    fit: BoxFit.cover,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  child: v.approvedList.isEmpty
-                                      ? SingleChildScrollView(
-                                          physics: AlwaysScrollableScrollPhysics(),
-                                          child: Container(
-                                            height:
-                                                MediaQuery.of(context).size.height *
-                                                    0.8,
-                                            child: Center(
-                                                child: Text(
-                                                    'No approved appointments')),
-                                          ),
-                                        )
-                                      : ListView.builder(
-                                          itemCount:
-                                              v.searchedApprovedList.isEmpty &&
-                                                      v.displayDate == null &&
-                                                      v.searchTEC.text.isEmpty
-                                                  ? v.approvedList.length
-                                                  : v.searchedApprovedList.length,
-                                          itemBuilder: (context, index) {
-                                            var data;
-                                            if (v.searchedApprovedList.isNotEmpty) {
-                                              data = v.searchedApprovedList[index];
-                                            } else {
-                                              data = v.approvedList[index];
-                                            }
-                                            String? path =
-                                                '${v.careTakersListResponse!.profilePath}';
-                                            String? url =
-                                                '${data.patient?.profileImageUrl}';
-                                            return Padding(
-                                              padding: const EdgeInsets.all(7.0),
-                                              child: CustomCareTakers(
-                                                name: data.patient?.patientInfo!
-                                                    .firstName,
-                                                gender:
-                                                    data.patient?.patientInfo!.sex,
-                                                age: data.patient?.patientInfo!.age,
-                                                imageUrl: "${path}${url}",
-                                                appointmentDates: data.appointmentDates,
-                                                appointmentDate:
-                                                    data.appointmentDate,
-                                                startTime:
-                                                    data.appointmentStartTime,
-                                                endTime: data.appointmentEndTime,
-                                              ),
-                                            );
-                                          },
+              child: GetBuilder<PatientRequestController>(builder: (vc) {
+                return vc.isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : TabBarView(
+                        children: [
+                          // Approved Tab
+                          GetBuilder<PatientRequestController>(
+                            builder: (v) {
+                              return v.isLoading
+                                  ? Center(child: CircularProgressIndicator())
+                                  : Column(
+                                      children: [
+                                        _buildStatusInfoCard(
+                                          title: "Approved Appointments",
+                                          description:
+                                              "These appointments are accepted and waiting for payment.",
+                                          color: const Color(0xFF2E7D32),
+                                          icon: Icons.check_circle_outline,
                                         ),
-                                );
-                        },
-                      ),
-                      // Processing Tab
-                      GetBuilder<PatientRequestController>(
-                        builder: (v) {
-                          return AnimatedRefresh(
-                            triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                            backgroundColor: AppColors.secondaryColor,
-                            onRefresh: _refreshData,
-                            swipeChild: Icon(Icons.accessibility),
-                            refreshChild: Lottie.asset(
-                              "assets/lottie/lottieflow-loading-08-15ADD2-easey.json",
-                              fit: BoxFit.fill,
-                              width: 30,
-                              height: 30,
-                            ),
-                            child: v.processingList.isEmpty
-                                ? SingleChildScrollView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height * 0.8,
-                                      child: Center(
-                                          child:
-                                              Text('No processing appointments')),
-                                    ),
-                                  )
-                                : ListView.builder(
-                                    itemCount: v.searchedProcessingList.isEmpty &&
-                                            v.displayDate == null &&
-                                            v.searchTEC.text.isEmpty
-                                        ? v.processingList.length
-                                        : v.searchedProcessingList.length,
-                                    itemBuilder: (context, index) {
-                                      var data;
-                                      if (v.searchedProcessingList.isNotEmpty) {
-                                        data = v.searchedProcessingList[index];
-                                      } else {
-                                        data = v.processingList[index];
-                                      }
-                                      String? path =
-                                          '${v.careTakersListResponse!.profilePath}';
-                                      String? url =
-                                          '${data.patient!.profileImageUrl}';
-                                      return Padding(
-                                        padding: const EdgeInsets.all(7.0),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            var result = await Get.to(
-                                                () => NewPatientHistory(
-                                                      appointmentId: data.id,
-                                                      patientId: data.patientId,
+                                        Expanded(
+                                          child: AnimatedRefresh(
+                                            triggerMode:
+                                                RefreshIndicatorTriggerMode
+                                                    .onEdge,
+                                            backgroundColor:
+                                                AppColors.secondaryColor,
+                                            onRefresh: _refreshData,
+                                            swipeChild:
+                                                Icon(Icons.accessibility),
+                                            refreshChild: Lottie.asset(
+                                              "assets/lottie/lottieflow-loading-08-15ADD2-easey.json",
+                                              fit: BoxFit.cover,
+                                              width: 30,
+                                              height: 30,
+                                            ),
+                                            child: v.approvedList.isEmpty
+                                                ? SingleChildScrollView(
+                                                    physics:
+                                                        AlwaysScrollableScrollPhysics(),
+                                                    child: Container(
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              0.6,
+                                                      child: Center(
+                                                          child: Text(
+                                                              'No approved appointments')),
+                                                    ),
+                                                  )
+                                                : ListView.builder(
+                                                    itemCount:
+                                                        v.searchedApprovedList
+                                                                    .isEmpty &&
+                                                                v.displayDate ==
+                                                                    null &&
+                                                                v.searchTEC.text
+                                                                    .isEmpty
+                                                            ? v.approvedList
+                                                                .length
+                                                            : v.searchedApprovedList
+                                                                .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      var data;
+                                                      if (v.searchedApprovedList
+                                                          .isNotEmpty) {
+                                                        data =
+                                                            v.searchedApprovedList[
+                                                                index];
+                                                      } else {
+                                                        data = v.approvedList[
+                                                            index];
+                                                      }
+                                                      String? path =
+                                                          '${v.careTakersListResponse!.profilePath}';
+                                                      String? url =
+                                                          '${data.patient?.profileImageUrl}';
+                                                      return Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(7.0),
+                                                        child: CustomCareTakers(
+                                                          name: data
+                                                              .patient
+                                                              ?.patientInfo!
+                                                              .firstName,
+                                                          gender: data
+                                                              .patient
+                                                              ?.patientInfo!
+                                                              .sex,
+                                                          age: data
+                                                              .patient
+                                                              ?.patientInfo!
+                                                              .age,
+                                                          imageUrl:
+                                                              "${path}${url}",
+                                                          appointmentDates: data
+                                                              .appointmentDates,
+                                                          appointmentDate: data
+                                                              .appointmentDate,
+                                                          startTime: data
+                                                              .appointmentStartTime,
+                                                          endTime: data
+                                                              .appointmentEndTime,
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                            },
+                          ),
+                          // Processing Tab
+                          GetBuilder<PatientRequestController>(
+                            builder: (v) {
+                              return Column(
+                                children: [
+                                  _buildStatusInfoCard(
+                                    title: "Processing & In-Progress",
+                                    description:
+                                        "These appointments are active. Tap on any item to log/update tasks, vitals, hydration, or status.",
+                                    color: const Color(0xFFE65100),
+                                    icon: Icons.pending_actions_outlined,
+                                  ),
+                                  Expanded(
+                                    child: AnimatedRefresh(
+                                      triggerMode:
+                                          RefreshIndicatorTriggerMode.onEdge,
+                                      backgroundColor: AppColors.secondaryColor,
+                                      onRefresh: _refreshData,
+                                      swipeChild: Icon(Icons.accessibility),
+                                      refreshChild: Lottie.asset(
+                                        "assets/lottie/lottieflow-loading-08-15ADD2-easey.json",
+                                        fit: BoxFit.fill,
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                      child: v.processingList.isEmpty
+                                          ? SingleChildScrollView(
+                                              physics:
+                                                  AlwaysScrollableScrollPhysics(),
+                                              child: Container(
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.6,
+                                                child: Center(
+                                                    child: Text(
+                                                        'No processing appointments')),
+                                              ),
+                                            )
+                                          : ListView.builder(
+                                              itemCount:
+                                                  v.searchedProcessingList
+                                                              .isEmpty &&
+                                                          v.displayDate ==
+                                                              null &&
+                                                          v.searchTEC.text
+                                                              .isEmpty
+                                                      ? v.processingList.length
+                                                      : v.searchedProcessingList
+                                                          .length,
+                                              itemBuilder: (context, index) {
+                                                var data;
+                                                if (v.searchedProcessingList
+                                                    .isNotEmpty) {
+                                                  data =
+                                                      v.searchedProcessingList[
+                                                          index];
+                                                } else {
+                                                  data =
+                                                      v.processingList[index];
+                                                }
+                                                String? path =
+                                                    '${v.careTakersListResponse!.profilePath}';
+                                                String? url =
+                                                    '${data.patient!.profileImageUrl}';
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(7.0),
+                                                  child: InkWell(
+                                                    onTap: () async {
+                                                      var result = await Get.to(
+                                                          () =>
+                                                              NewPatientHistory(
+                                                                appointmentId:
+                                                                    data.id,
+                                                                patientId: data
+                                                                    .patientId,
+                                                                appointmentDates:
+                                                                    data.appointmentDates,
+                                                              ));
+                                                      vc.loadRequests();
+                                                    },
+                                                    child: CustomCareTakers(
+                                                      name: data
+                                                          .patient!
+                                                          .patientInfo!
+                                                          .firstName,
+                                                      gender: data.patient!
+                                                          .patientInfo!.sex,
+                                                      age: data.patient!
+                                                          .patientInfo!.age,
                                                       appointmentDates:
                                                           data.appointmentDates,
-                                                    ));
-                                            vc.loadRequests();
-                                          },
-                                          child: CustomCareTakers(
-                                            name: data
-                                                .patient!.patientInfo!.firstName,
-                                            gender: data.patient!.patientInfo!.sex,
-                                            age: data.patient!.patientInfo!.age,
-                                            appointmentDates: data.appointmentDates,
-                                            imageUrl: "${path}${url}",
-                                            appointmentDate: data.appointmentDate,
-                                            startTime: data.appointmentStartTime,
-                                            endTime: data.appointmentEndTime,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                          );
-                        },
-                      ),
-                      // Rejected Tab
-                      GetBuilder<PatientRequestController>(
-                        builder: (v) {
-                          return AnimatedRefresh(
-                            triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                            backgroundColor: AppColors.secondaryColor,
-                            onRefresh: _refreshReject,
-                            swipeChild: Icon(Icons.accessibility),
-                            refreshChild: Lottie.asset(
-                              "assets/lottie/lottieflow-loading-08-15ADD2-easey.json",
-                              fit: BoxFit.cover,
-                              width: 30,
-                              height: 30,
-                            ),
-                            child: v.rejectedList.isEmpty
-                                ? SingleChildScrollView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height * 0.8,
-                                      child: Center(
-                                          child: Text('No rejected appointments')),
+                                                      imageUrl: "${path}${url}",
+                                                      appointmentDate:
+                                                          data.appointmentDate,
+                                                      startTime: data
+                                                          .appointmentStartTime,
+                                                      endTime: data
+                                                          .appointmentEndTime,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                     ),
-                                  )
-                                : ListView.builder(
-                                    itemCount: v.searchedRejectedList.isEmpty &&
-                                            v.displayDate == null &&
-                                            v.searchTEC.text.isEmpty
-                                        ? v.rejectedList.length
-                                        : v.searchedRejectedList.length,
-                                    itemBuilder: (context, index) {
-                                      var data;
-                                      if (v.searchedRejectedList.isNotEmpty) {
-                                        data = v.searchedRejectedList[index];
-                                      } else {
-                                        data = v.rejectedList[index];
-                                      }
-                                      String? path =
-                                          '${v.careTakersListResponse!.profilePath}';
-                                      String? url =
-                                          '${data.patient!.profileImageUrl}';
-                                      return Padding(
-                                        padding: const EdgeInsets.all(7.0),
-                                        child: CustomCareTakers(
-                                          name:
-                                              data.patient!.patientInfo!.firstName,
-                                          gender: data.patient!.patientInfo!.sex,
-                                          age: data.patient!.patientInfo!.age,
-                                          imageUrl: "${path}${url}",
-                                          appointmentDate: data.appointmentDate,
-                                          startTime: data.appointmentStartTime,
-                                          endTime: data.appointmentEndTime,
-                                        ),
-                                      );
-                                    },
                                   ),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                }
-              ),
+                                ],
+                              );
+                            },
+                          ),
+                          // Rejected Tab
+                          GetBuilder<PatientRequestController>(
+                            builder: (v) {
+                              return Column(
+                                children: [
+                                  _buildStatusInfoCard(
+                                    title: "Rejected / Cancelled",
+                                    description:
+                                        "These appointments have been rejected or cancelled. No further action is required.",
+                                    color: const Color(0xFFC62828),
+                                    icon: Icons.cancel_outlined,
+                                  ),
+                                  Expanded(
+                                    child: AnimatedRefresh(
+                                      triggerMode:
+                                          RefreshIndicatorTriggerMode.onEdge,
+                                      backgroundColor: AppColors.secondaryColor,
+                                      onRefresh: _refreshReject,
+                                      swipeChild: Icon(Icons.accessibility),
+                                      refreshChild: Lottie.asset(
+                                        "assets/lottie/lottieflow-loading-08-15ADD2-easey.json",
+                                        fit: BoxFit.cover,
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                      child: v.rejectedList.isEmpty
+                                          ? SingleChildScrollView(
+                                              physics:
+                                                  AlwaysScrollableScrollPhysics(),
+                                              child: Container(
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.6,
+                                                child: Center(
+                                                    child: Text(
+                                                        'No rejected appointments')),
+                                              ),
+                                            )
+                                          : ListView.builder(
+                                              itemCount: v.searchedRejectedList
+                                                          .isEmpty &&
+                                                      v.displayDate == null &&
+                                                      v.searchTEC.text.isEmpty
+                                                  ? v.rejectedList.length
+                                                  : v.searchedRejectedList
+                                                      .length,
+                                              itemBuilder: (context, index) {
+                                                var data;
+                                                if (v.searchedRejectedList
+                                                    .isNotEmpty) {
+                                                  data = v.searchedRejectedList[
+                                                      index];
+                                                } else {
+                                                  data = v.rejectedList[index];
+                                                }
+                                                String? path =
+                                                    '${v.careTakersListResponse!.profilePath}';
+                                                String? url =
+                                                    '${data.patient!.profileImageUrl}';
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(7.0),
+                                                  child: CustomCareTakers(
+                                                    name: data.patient!
+                                                        .patientInfo!.firstName,
+                                                    gender: data.patient!
+                                                        .patientInfo!.sex,
+                                                    age: data.patient!
+                                                        .patientInfo!.age,
+                                                    imageUrl: "${path}${url}",
+                                                    appointmentDate:
+                                                        data.appointmentDate,
+                                                    startTime: data
+                                                        .appointmentStartTime,
+                                                    endTime:
+                                                        data.appointmentEndTime,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      );
+              }),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatusInfoCard({
+    required String title,
+    required String description,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      margin: EdgeInsets.all(8.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: color.withOpacity(0.15),
+            radius: 16.r,
+            child: Icon(icon, color: color, size: 18.sp),
+          ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.bold,
+                    color: color.withOpacity(0.9),
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: Colors.black87,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

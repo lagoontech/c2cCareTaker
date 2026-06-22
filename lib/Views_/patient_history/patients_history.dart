@@ -174,7 +174,6 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                             color: Colors.grey,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w400,
-                            fontFamily: "verdana_regular"
                         ),
                         controller: controller.searchTEC,
                         borderColor: AppColors.primaryColor,
@@ -216,7 +215,6 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                                       color: Colors.grey,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w400,
-                                      fontFamily: "verdana_regular"
                                   ),));
 
                                 }

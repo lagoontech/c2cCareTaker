@@ -231,7 +231,8 @@ class PatientHistoryController extends GetxController {
 
     if(selectedDate!=null){
       statuses.forEach((element) {
-        if(DateFormat("MMM dd").format(DateTime.parse(element.serviceDate!)) == DateFormat("MMM dd").format(selectedDate!)){
+        final parsedDate = DateTime.tryParse(element.serviceDate ?? '');
+        if(parsedDate != null && DateFormat("MMM dd").format(parsedDate) == DateFormat("MMM dd").format(selectedDate!)){
           isServiceComplete = element.status == 1 ? true : false;
         }
       });
@@ -241,8 +242,56 @@ class PatientHistoryController extends GetxController {
 
   }
 
+  List<dynamic> _parseDynamicList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) return value;
+    if (value is String && value.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) return decoded;
+      } catch (e) {
+        return [value];
+      }
+    }
+    return [];
+  }
+
+  void clearAllFields() {
+    breakfastField.clear();
+    lunchField.clear();
+    snacksField.clear();
+    dinnerField.clear();
+    breakFastDetail = "";
+    lunchDetail = "";
+    snacksDetail = "";
+    dinnerDetail = "";
+    
+    toileting.clear();
+    temp.clear();
+    bp.clear();
+    heartRate.clear();
+    respiration.clear();
+    bloodSugarTEC.clear();
+    hydrationTEC.clear();
+    pastSurgicalCT.clear();
+    activityCT.clear();
+    
+    selectedOralCareTimings = [];
+    selectedBathingTimings = [];
+    selectedDressingTimings = [];
+    selectedWalkingTimings = [];
+    
+    filters.clear();
+    lunchFilters.clear();
+    snacks.clear();
+    dinner.clear();
+    
+    setInitialMedication();
+  }
+
   //
   Future<void> fetchPrimaryInformationApi() async {
+    clearAllFields();
     try {
       String? token = await SharedPref().getToken();
       String? patientIDStr = await SharedPref().getId();
@@ -260,26 +309,18 @@ class PatientHistoryController extends GetxController {
         profile = ProfileList.fromJson(jsonResponse);
         update();
         if (profile!.data != null && profile!.data!.patientSchedules != null) {
-          breakfastField.text = "";
-          lunchField.text = "";
-          snacksField.text = "";
-          dinnerField.text = "";
-          breakFastDetail = "";
-          lunchDetail = "";
-          snacksDetail = "";
-          dinnerDetail = "";
           patientSchedules = profile!.data!.patientSchedules!;
           pastSurgicalCT.text =
-              patientSchedules!.patientPastsurgicalhistory!.toString();
-          activityCT.text = patientSchedules!.patientActivitytype!;
-          toileting.text = patientSchedules!.patientToileting!;
-          temp.text = patientSchedules!.patientVitalsigns!.temperature ?? "";
-          bp.text = patientSchedules!.patientVitalsigns!.bloodPressure!;
-          selectedWalkingTimings = jsonDecode(patientSchedules!.patientWalkingtime!);
+              patientSchedules!.patientPastsurgicalhistory?.toString() ?? "";
+          activityCT.text = patientSchedules!.patientActivitytype ?? "";
+          toileting.text = patientSchedules!.patientToileting ?? "";
+          temp.text = patientSchedules!.patientVitalsigns?.temperature ?? "";
+          bp.text = patientSchedules!.patientVitalsigns?.bloodPressure ?? "";
+          selectedWalkingTimings = _parseDynamicList(patientSchedules!.patientWalkingtime);
           heartRate.text =
-              patientSchedules!.patientVitalsigns!.heartRate.toString();
+              patientSchedules!.patientVitalsigns?.heartRate?.toString() ?? "";
           respiration.text =
-          patientSchedules!.patientVitalsigns!.respiratoryRate!;
+              patientSchedules!.patientVitalsigns?.respiratoryRate ?? "";
 
           ///
           if (patientSchedules!.patientBreakfasttime != null &&
@@ -320,28 +361,11 @@ class PatientHistoryController extends GetxController {
             debugPrint(medidation);
             update();
           }
-          if (patientSchedules!.patientOralcare != null &&
-              patientSchedules!.patientOralcare!.isNotEmpty) {
-            //oralSelection = patientSchedules!.patientOralcare!;
-            selectedOralCareTimings = jsonDecode(patientSchedules!.patientOralcare!);
-            debugPrint(medidation);
-            update();
-          }
-          if (patientSchedules!.patientBathing != null &&
-              patientSchedules!.patientBathing!.isNotEmpty) {
-            //bathingSelection = patientSchedules!.patientBathing!;
-            selectedBathingTimings = jsonDecode(patientSchedules!.patientBathing!);
-
-            debugPrint(medidation);
-            update();
-          }
-          if (patientSchedules!.patientDressing != null &&
-              patientSchedules!.patientDressing!.isNotEmpty) {
-            //dressingSelection = patientSchedules!.patientDressing!;
-            selectedDressingTimings = jsonDecode(patientSchedules!.patientDressing!);
-            debugPrint(medidation);
-            update();
-          }
+          
+          selectedOralCareTimings = _parseDynamicList(patientSchedules!.patientOralcare);
+          selectedBathingTimings = _parseDynamicList(patientSchedules!.patientBathing);
+          selectedDressingTimings = _parseDynamicList(patientSchedules!.patientDressing);
+          update();
 
           if (patientSchedules!.patientLunchtime != null &&
               patientSchedules!.patientLunchtime!.isNotEmpty) {
@@ -391,10 +415,10 @@ class PatientHistoryController extends GetxController {
 
   //
   loadGetHistory({int? appointmentId, int? patientId}) async {
-
     loadingServiceHistory = true;
     update();
-    try{
+    clearAllFields();
+    try {
       String? token = await SharedPref().getToken();
       final uri = Uri.parse(URls().ServiceHistory).replace(queryParameters: {
         "appointment_id": appointmentId?.toString(),
@@ -416,7 +440,7 @@ class PatientHistoryController extends GetxController {
           patientSchedules = profile!.data!.patientSchedules!;
           pastSurgicalCT.text =
               patientSchedules!.patientPastsurgicalhistory ?? "";
-          breakfastField.text = patientSchedules!.patientBreakfast!;
+          breakfastField.text = patientSchedules!.patientBreakfast ?? "";
           lunchField.text = patientSchedules!.patientLunch ?? "";
           snacksField.text = patientSchedules!.patientSnacks ?? "";
           dinnerField.text = patientSchedules!.patientDinner ?? "";
@@ -427,21 +451,20 @@ class PatientHistoryController extends GetxController {
           print(breakFastDetail);
           activityCT.text = patientSchedules!.patientActivitytype ?? "";
           toileting.text = patientSchedules!.patientToileting ?? "";
-          temp.text = patientSchedules!.patientVitalsigns!.temperature ?? "";
-          bp.text = patientSchedules!.patientVitalsigns!.bloodPressure!;
-          selectedWalkingTimings = jsonDecode(patientSchedules!.patientWalkingtime!);
+          temp.text = patientSchedules!.patientVitalsigns?.temperature ?? "";
+          bp.text = patientSchedules!.patientVitalsigns?.bloodPressure ?? "";
+          selectedWalkingTimings = _parseDynamicList(patientSchedules!.patientWalkingtime);
           print(selectedWalkingTimings);
           heartRate.text =
-              patientSchedules!.patientVitalsigns!.heartRate.toString();
+              patientSchedules!.patientVitalsigns?.heartRate?.toString() ?? "";
           respiration.text =
-          patientSchedules!.patientVitalsigns!.respiratoryRate!;
+              patientSchedules!.patientVitalsigns?.respiratoryRate ?? "";
 
           ///
           if (patientSchedules!.patientBreakfasttime != null &&
               patientSchedules!.patientBreakfasttime!.isNotEmpty) {
             filters.clear();
             filters.add(patientSchedules!.patientBreakfasttime!);
-            update();
           }
 
           if (patientSchedules!.patientMedications != null &&
@@ -473,63 +496,38 @@ class PatientHistoryController extends GetxController {
             });
             selectedMedication = medidation;
             debugPrint(medidation);
-            update();
           }
-          if (patientSchedules!.patientOralcare != null &&
-              patientSchedules!.patientOralcare!.isNotEmpty) {
-            //oralSelection = patientSchedules!.patientOralcare!;
-            selectedOralCareTimings = jsonDecode(patientSchedules!.patientOralcare!);
-            debugPrint(medidation);
-            update();
-          }
-          if (patientSchedules!.patientBathing != null &&
-              patientSchedules!.patientBathing!.isNotEmpty) {
-            //bathingSelection = patientSchedules!.patientBathing!;
-            selectedBathingTimings = jsonDecode(patientSchedules!.patientBathing!);
-
-            debugPrint(medidation);
-            update();
-          }
-          if (patientSchedules!.patientDressing != null &&
-              patientSchedules!.patientDressing!.isNotEmpty) {
-            //dressingSelection = patientSchedules!.patientDressing!;
-            selectedDressingTimings = jsonDecode(patientSchedules!.patientDressing!);
-            debugPrint(medidation);
-            update();
-          }
+          
+          selectedOralCareTimings = _parseDynamicList(patientSchedules!.patientOralcare);
+          selectedBathingTimings = _parseDynamicList(patientSchedules!.patientBathing);
+          selectedDressingTimings = _parseDynamicList(patientSchedules!.patientDressing);
 
           if (patientSchedules!.patientLunchtime != null &&
               patientSchedules!.patientLunchtime!.isNotEmpty) {
             lunchFilters.clear();
             lunchFilters.add(patientSchedules!.patientLunchtime!);
-            update();
           }
           if (patientSchedules!.patientHydration != null &&
               patientSchedules!.patientHydration!.isNotEmpty) {
             hydrationTEC.text = patientSchedules!.patientHydration!;
-            update();
           }
 
           if (patientSchedules!.patientSnackstime != null &&
               patientSchedules!.patientSnackstime!.isNotEmpty) {
             snacks.clear();
             snacks.add(patientSchedules!.patientSnackstime!);
-            update();
           }
 
           if (patientSchedules!.patientDinnertime != null &&
               patientSchedules!.patientDinnertime!.isNotEmpty) {
             dinner.clear();
             dinner.add(patientSchedules!.patientDinnertime!);
-            update();
           }
           if (patientSchedules!.patientBloodsugar != null &&
               patientSchedules!.patientBloodsugar!.isNotEmpty) {
             bloodSugarTEC.text = patientSchedules!.patientBloodsugar!;
-            update();
           }
           checkStatus();
-          update();
         } else {
           debugPrint("No patient schedules found.");
         }
@@ -537,7 +535,7 @@ class PatientHistoryController extends GetxController {
         print('Failed to load history: ${res.statusCode}');
         fetchPrimaryInformationApi();
         isServiceComplete = false;
-      }}catch(e){
+      }} catch (e) {
       debugPrint('Error: $e');
     }
     loadingServiceHistory = false;
@@ -552,18 +550,18 @@ class PatientHistoryController extends GetxController {
     final Map<String, dynamic> data = {
       "appointment_id": appointmentId,
       "patient_id": patientId,
-      "patient_breakfasttime": patientSchedules!.patientBreakfasttime,
-      "patient_breakfasttime_details": breakFastDetail,
-      "patient_lunchtime": patientSchedules!.patientLunchtime,
-      "patient_lunchtime_details": lunchDetail,
-      "patient_snackstime": patientSchedules!.patientSnackstime,
-      "patient_snackstime_details": snacksDetail,
-      "patient_dinnertime": patientSchedules!.patientDinnertime,
-      "patient_dinnertime_details": dinnerDetail,
+      "patient_breakfasttime": patientSchedules?.patientBreakfasttime ?? "",
+      "patient_breakfasttime_details": breakfastField.text,
+      "patient_lunchtime": patientSchedules?.patientLunchtime ?? "",
+      "patient_lunchtime_details": lunchField.text,
+      "patient_snackstime": patientSchedules?.patientSnackstime ?? "",
+      "patient_snackstime_details": snacksField.text,
+      "patient_dinnertime": patientSchedules?.patientDinnertime ?? "",
+      "patient_dinnertime_details": dinnerField.text,
       "patient_medications_details": {
-        "Morning": meditationDetails.firstWhere((element) => element.time=="Morning").medicationDetails!.map((e) => e.text).toList(),
-        "Noon": meditationDetails.firstWhere((element) => element.time=="Noon").medicationDetails!.map((e) => e.text).toList(),
-        "Evening": meditationDetails.firstWhere((element) => element.time=="Evening").medicationDetails!.map((e) => e.text).toList()
+        "Morning": meditationDetails.firstWhere((element) => element.time=="Morning", orElse: () => MedicationModel(time: "Morning", medicationDetails: [])).medicationDetails!.map((e) => e.text).toList(),
+        "Noon": meditationDetails.firstWhere((element) => element.time=="Noon", orElse: () => MedicationModel(time: "Noon", medicationDetails: [])).medicationDetails!.map((e) => e.text).toList(),
+        "Evening": meditationDetails.firstWhere((element) => element.time=="Evening", orElse: () => MedicationModel(time: "Evening", medicationDetails: [])).medicationDetails!.map((e) => e.text).toList()
       },
       "patient_hydration": hydrationTEC.text,
       "patient_oralcare": selectedOralCareTimings,

@@ -88,14 +88,14 @@ class _HomePageState extends State<HomePage> {
                               TextSpan(
                                 text: "Welcome ",
                                 style: TextStyle(
-                                  fontSize: 19.sp,
+                                  fontSize: 16.sp,
                                   color: Colors.black, // Default text color
                                 ),
                               ),
                               TextSpan(
                                 text: "CareTaker",
                                 style: TextStyle(
-                                  fontSize: 19.sp,
+                                  fontSize: 16.sp,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors
                                       .primaryColor, // CareTaker text color
@@ -105,17 +105,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-
-                      /*CustomLabel(
-                        text: "See all",
-                        fontSize: 15.sp,
-                        color: AppColors.primaryColor,
-                      ),*/
                     ],
                   ),
-                  kHeight15,
+                  kHeight10,
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.18,
+                    height: MediaQuery.of(context).size.height * 0.14,
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.r),
@@ -136,71 +130,25 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                             flex: 5,
                             child: Padding(
-                              padding: EdgeInsets.only(left: 12.w),
+                              padding: EdgeInsets.only(left: 12.w, right: 4.w),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  kHeight35,
                                   Text(
                                     "Your well-being is our priority. Trust us to provide the support you deserve",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 12.sp),
+                                        fontSize: 11.sp),
                                   ),
-                                  kHeight10,
-                                  /*     Text(
-                                    "Physiotherapist",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17.sp),
-                                  ),
-                                  kHeight5,
-                                  ClipRRect(
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 3, sigmaY: 3),
-                                      child: Container(
-                                        width: double.infinity,
-                                        padding: EdgeInsets.all(3.r),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.white.withOpacity(0.1),
-                                              Colors.white.withOpacity(0.1),
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10.r)),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          // Align content to the start
-                                          children: [
-                                            Icon(
-                                              IconlyLight.calendar,
-                                              color: Colors.white,
-                                            ),
-                                            SizedBox(width: 5.w),
-                                            Text(
-                                              "Aug 5  9:00AM",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  )*/
                                 ],
                               ),
                             )),
                         Flexible(
-                            flex: 5,
+                            flex: 4,
                             child: Padding(
-                              padding: EdgeInsets.only(top: 18.h),
+                              padding: EdgeInsets.only(top: 8.h),
                               child: Image.asset(
                                 fit: BoxFit.cover,
                                 "assets/images/female-nurse-hospital 1.png",
@@ -216,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: CustomLabel(
                           text: "Upcoming Appointments",
-                          fontSize: 19.sp,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -226,13 +174,13 @@ class _HomePageState extends State<HomePage> {
                         },
                         child: CustomLabel(
                           text: "See all",
-                          fontSize: 15.sp,
+                          fontSize: 13.sp,
                           color: AppColors.primaryColor,
                         ),
                       ),
                     ],
                   ),
-                  kHeight10,
+                  kHeight5,
                   GetBuilder<PatientRequestController>(builder: (v) {
                     return v.processingList.isNotEmpty
                         ? ListView.builder(
@@ -363,92 +311,77 @@ class CustomCareTakers extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            //   height: MediaQuery.of(context).size.height*0.20,
-            width: 80.w,
+            width: 60.w,
+            height: 60.w,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.primaryColor,
             ),
             clipBehavior: Clip.antiAlias,
             child: Image.network(
-              height: MediaQuery.of(context).size.height * 0.12,
-              width: MediaQuery.of(context).size.width * 0.2,
               fit: BoxFit.cover,
               imageUrl ?? '',
-              errorBuilder: (b,c,s){
-                return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.10,
-                    width: MediaQuery.of(context).size.width * 0.18,
-                    child: Icon(Icons.person,size: 26.sp,));
+              errorBuilder: (b, c, s) {
+                return Icon(
+                  Icons.person,
+                  size: 22.sp,
+                  color: Colors.white,
+                );
               },
             ),
           ),
           kWidth10,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                name ?? '',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                "Age : ${age ?? ''}",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12.sp,
-                ),
-              ),
-              Text(
-                "Gender : ${gender?.capitalize ?? ''}",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12.sp,
-                ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    DateFormat("MMM dd").format(appointmentDates![0]),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  name ?? '',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                  appointmentDates!.length > 1
-                      ? Text(
-                    " To ${DateFormat("MMM dd").format(appointmentDates!.last)}",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ) : SizedBox(),
-                ],
-              ),
-
-              Text(
-                "${startTime != null ? DateFormat('h:mm a').format(startDateTime!) : ''} To ${endTime != null ? DateFormat('h:mm a').format(endDateTime!) : ''}",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12.sp,
                 ),
-              ),
-
-              /*   RatingBar(
-                size: 23.sp,
-                filledIcon: Icons.star,
-                emptyIcon: Icons.star_border,
-                onRatingChanged: (value) => debugPrint('$value'),
-                initialRating: initial,
-                maxRating: 5,
-              ),*/
-            ],
+                Text(
+                  "Age : ${age ?? ''}  |  Gender : ${gender?.capitalize ?? ''}",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 11.sp,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      DateFormat("MMM dd").format(appointmentDates![0]),
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    appointmentDates!.length > 1
+                        ? Text(
+                            " To ${DateFormat("MMM dd").format(appointmentDates!.last)}",
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                ),
+                Text(
+                  "${startTime != null ? DateFormat('h:mm a').format(startDateTime!) : ''} To ${endTime != null ? DateFormat('h:mm a').format(endDateTime!) : ''}",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -43,7 +43,7 @@ class DocumentUploadNew extends StatelessWidget {
                   children: [
                     GetBuilder<DocsUploadController>(builder: (v) {
                       return DottedBorder(
-                          color: Colors.grey,
+                          //color: Colors.grey,
                           child: InkWell(
                             onTap: () async {
                               controller.toggleUploadField();

@@ -137,7 +137,7 @@ class DefaultFirebaseOptions {
         appId: '1:496441455277:android:23d1d1089abd3bbc774c24',
         messagingSenderId: '496441455277',
         projectId: 'c2cpatient-d4526',
-        storageBucket: 'c2cpatient-d4526.appspot.com',
+        storageBucket: 'c2cpatient-d4526.firebasestorage.app',
       );
     } else {
       return FirebaseOptions(

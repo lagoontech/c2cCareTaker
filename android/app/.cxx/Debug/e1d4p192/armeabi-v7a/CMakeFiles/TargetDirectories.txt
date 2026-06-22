@@ -1,0 +1,2 @@
+C:/Users/anlin/Git Projects/c2cCareTaker/android/app/.cxx/Debug/e1d4p192/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/anlin/Git Projects/c2cCareTaker/android/app/.cxx/Debug/e1d4p192/armeabi-v7a/CMakeFiles/rebuild_cache.dir

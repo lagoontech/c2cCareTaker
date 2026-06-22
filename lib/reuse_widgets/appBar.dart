@@ -65,68 +65,66 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(100.0), // Adjust height as needed
-      child: AppBar(
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-          child: CircleAvatar(
-            radius: 20.0,
-            backgroundImage: NetworkImage(avatarUrl),
-          ),
+    return AppBar(
+      scrolledUnderElevation: 0,
+      backgroundColor: Colors.white,
+      elevation: 0,
+      leadingWidth: 46.w,
+      leading: Padding(
+        padding: EdgeInsets.only(left: 12.w),
+        child: CircleAvatar(
+          radius: 17.r,
+          backgroundImage: NetworkImage(avatarUrl),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hi, $username',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14.0,
-              ),
-            ),
-          ],
-        ),
-        actions: actions ??
-            [
-              IconButton(
-                icon: Icon(IconlyLight.search, color: Colors.black),
-                onPressed: () {
-                  // Handle search action
-                },
-              ),
-              GetBuilder<NotificationController>(builder: (v) {
-                return Badge(
-                  offset: Offset(-5, 3),
-                  label: Text(v.unreadCount.toString()),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(IconlyLight.notification, color: Colors.black),
-                    // Adjust icon color
-                    onPressed: () {
-                      v.notificationsUnread();
-                      Get.to(() =>NotificationView());
-                    },
-                  ),
-                );
-              }),
-              SizedBox(width: 16.w),
-            ],
       ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Hi, $username',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 11.sp,
+            ),
+          ),
+        ],
+      ),
+      actions: actions ??
+          [
+            IconButton(
+              icon: Icon(IconlyLight.search, color: Colors.black, size: 20.sp),
+              onPressed: () {
+                // Handle search action
+              },
+            ),
+            GetBuilder<NotificationController>(builder: (v) {
+              return Badge(
+                offset: Offset(-3, 3),
+                label: Text(v.unreadCount.toString(), style: TextStyle(fontSize: 8.sp)),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: Icon(IconlyLight.notification, color: Colors.black, size: 20.sp),
+                  onPressed: () {
+                    v.notificationsUnread();
+                    Get.to(() => NotificationView());
+                  },
+                ),
+              );
+            }),
+            SizedBox(width: 12.w),
+          ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(60);
+  Size get preferredSize => Size.fromHeight(56.h);
 }

@@ -54,7 +54,7 @@ class _MobileEmailState extends State<MobileEmail> {
                       },
               ),
               SizedBox(height: 30.h),
-              Padding(
+/*              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w),
                 child: SizedBox(
                   height: 20.h,
@@ -82,7 +82,7 @@ class _MobileEmailState extends State<MobileEmail> {
                     ],
                   ),
                 ),
-              ),
+              )*/
               kHeight20,
               /*InkWell(
                 onTap: () {},
@@ -147,25 +147,11 @@ class LoginScreen extends StatelessWidget {
                   )),
               SizedBox(height: 20.h),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 22.r),
+                padding: EdgeInsets.symmetric(horizontal: 44.r),
                 child: customTextField(
                   context,
-                  prefix: GetBuilder<LoginController>(builder: (v) {
-                    return CountryCodePicker(
-                      onChanged: (countryCode) {
-                        v.countryCode = countryCode;
-                        v.update();
-                        print(countryCode);
-                      },
-                      initialSelection: 'US',
-                      favorite: ['+1', 'FR'],
-                      showCountryOnly: false,
-                      showOnlyCountryWhenClosed: false,
-                      alignLeft: false,
-                      flagDecoration: BoxDecoration(shape: BoxShape.circle),
-                    );
-                  }),
                   controller: lc.phoneCT,
+                  textAlign: TextAlign.center,
                   textStyle: TextStyle(
                     fontSize: 17.sp,
                   ),

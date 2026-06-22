@@ -44,9 +44,8 @@ class _AddressViewState extends State<AddressView> {
             ),
             kHeight20,
 
-            DottedBorder(
-                stackFit: StackFit.loose,
-                color: AppColors.primaryColor,
+            DottedBorder(options: CircularDottedBorderOptions(   stackFit: StackFit.loose,
+              color: AppColors.primaryColor,),
                 child: Container(
                   height: 40.h,
                   child: Center(

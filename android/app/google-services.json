@@ -2,12 +2,50 @@
   "project_info": {
     "project_number": "496441455277",
     "project_id": "c2cpatient-d4526",
-    "storage_bucket": "c2cpatient-d4526.appspot.com"
+    "storage_bucket": "c2cpatient-d4526.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:496441455277:android:23d1d1089abd3bbc774c24",
+        "mobilesdk_app_id": "1:496441455277:android:aee3ec6b8fa7b9b0774c24",
+        "android_client_info": {
+          "package_name": "com.care2care.care2caretaker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFzoMa0Qn3hH_WFT2qhcmnJ_cWN5GmjVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496441455277:android:8e8e837b4dbe07d1774c24",
+        "android_client_info": {
+          "package_name": "com.care2care.patient"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFzoMa0Qn3hH_WFT2qhcmnJ_cWN5GmjVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496441455277:android:8f0c349bd0d6b915774c24",
         "android_client_info": {
           "package_name": "com.example.care2care"
         }

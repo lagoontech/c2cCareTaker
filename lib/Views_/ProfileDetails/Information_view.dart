@@ -497,8 +497,8 @@ class SkeletonLoader extends StatelessWidget {
                   // Multiline address field
                   SizedBox(height: 15.h),
                   DottedBorder(
-                    color: Colors.grey[300]!,
-                    strokeWidth: 1,
+                    //color: Colors.grey[300]!,
+                    //strokeWidth: 1,
                     child: Container(
                       height: 80.h,
                       width: double.infinity,
