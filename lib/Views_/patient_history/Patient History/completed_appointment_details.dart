@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:care2caretaker/Views_/patient_history/Patient%20History/Controller/completed_appointment_details_controller.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class CompletedAppointmentDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(sc.patientSchedules == null){
-      sc.selectedDate = appointmentDates![0];
+      sc.selectedDate = NullSafe.firstDate(appointmentDates) ?? DateTime.now();
       sc.loadGetHistory(patientId: patientId, appointmentId: appointmentId);
     }
 
@@ -85,7 +86,7 @@ class CompletedAppointmentDetails extends StatelessWidget {
                                           defaultBuilder: (context, date, _) {
                                             bool isAppointmentDate = false;
                                             print(DateFormat("MMM dd").format(date));
-                                            appointmentDates!.forEach((element) {
+                                            appointmentDates?.forEach((element) {
                                               if(DateFormat("MMM dd").format(element) == DateFormat("MMM dd").format(date)){
                                                 isAppointmentDate = true;
                                               }
@@ -124,8 +125,8 @@ class CompletedAppointmentDetails extends StatelessWidget {
                                               appointmentId: appointmentId, patientId: patientId);
                                           Get.back();
                                         },
-                                        focusedDay: appointmentDates![0],
-                                        firstDay: appointmentDates![0],
+                                        focusedDay: NullSafe.firstDate(appointmentDates) ?? DateTime.now(),
+                                        firstDay: NullSafe.firstDate(appointmentDates) ?? DateTime.now(),
                                         lastDay: DateTime(2050),
                                         currentDay: sc.selectedDate,
                                         calendarStyle: CalendarStyle(

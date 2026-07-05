@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import '../../../Utils/date_utils.dart';
+
 ProfileList profileListFromJson(String str) => ProfileList.fromJson(json.decode(str));
 
 String profileListToJson(ProfileList data) => json.encode(data.toJson());
@@ -97,9 +99,8 @@ class Data {
     "patient_info": patientInfo?.toJson(),
     "caretaker_info": caretakerInfo?.toJson(),
     "patient_schedules": patientSchedules?.toJson(),
-    "patient_documents": patientDocuments == null
-        ? []
-        : List<dynamic>.from(patientDocuments!.map((x) => x.toJson())),
+    "patient_documents": List<dynamic>.from(
+        (patientDocuments ?? []).map((x) => x.toJson())),
   };
 }
 
@@ -237,7 +238,7 @@ class PatientInfo {
     "sex": sex,
     "age": age,
     "email":email,
-    "dob": "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+    "dob": formatDateOnly(dob),
     "height": height,
     "weight": weight,
     "bmi": bmi,
@@ -335,7 +336,7 @@ class CaretakerInfo {
     "email": email,
     "sex": sex,
     "age": age,
-    "dob": "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+    "dob": formatDateOnly(dob),
     "medical_license": medicalLicense,
     "location": location,
     "nationality": nationality,

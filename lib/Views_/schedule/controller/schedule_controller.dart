@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:care2caretaker/Utils/http_service.dart';
 import 'package:care2caretaker/api_urls/url.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -138,18 +139,18 @@ class ScheduleController extends GetxController {
     final Map<String, dynamic> data = {
       "appointment_id": appointmentId,
       "patient_id": patientId,
-      "patient_breakfasttime": patientSchedules!.patientBreakfasttime,
+      "patient_breakfasttime": patientSchedules?.patientBreakfasttime,
       "patient_breakfasttime_details": breakFastDetail,
-      "patient_lunchtime": patientSchedules!.patientLunchtime,
+      "patient_lunchtime": patientSchedules?.patientLunchtime,
       "patient_lunchtime_details": lunchDetail,
-      "patient_snackstime": patientSchedules!.patientSnackstime,
+      "patient_snackstime": patientSchedules?.patientSnackstime,
       "patient_snackstime_details": snacksDetail,
-      "patient_dinnertime": patientSchedules!.patientDinnertime,
+      "patient_dinnertime": patientSchedules?.patientDinnertime,
       "patient_dinnertime_details": dinnerDetail,
       "patient_medications_details": {
-         "Morning": meditationDetails.firstWhere((element) => element.time=="Morning").medicationDetails!.map((e) => e.text).toList(),
-         "Noon": meditationDetails.firstWhere((element) => element.time=="Noon").medicationDetails!.map((e) => e.text).toList(),
-         "Evening": meditationDetails.firstWhere((element) => element.time=="Evening").medicationDetails!.map((e) => e.text).toList()
+         "Morning": meditationDetails.firstWhere((element) => element.time=="Morning", orElse: () => MedicationModel(time: "Morning", medicationDetails: [])).medicationDetails?.map((e) => e.text).toList() ?? [],
+         "Noon": meditationDetails.firstWhere((element) => element.time=="Noon", orElse: () => MedicationModel(time: "Noon", medicationDetails: [])).medicationDetails?.map((e) => e.text).toList() ?? [],
+         "Evening": meditationDetails.firstWhere((element) => element.time=="Evening", orElse: () => MedicationModel(time: "Evening", medicationDetails: [])).medicationDetails?.map((e) => e.text).toList() ?? []
     },
       "patient_hydration": hydrationTEC.text,
       "patient_oralcare": selectedOralCareTimings,
@@ -168,7 +169,7 @@ class ScheduleController extends GetxController {
 
     try {
       String? token = await SharedPref().getToken();
-      final response = await http.post(
+      final response = await HttpService.instance.post(
         Uri.parse(URls().serviceHistory),
         headers: {
           "Content-Type": "application/json",
@@ -210,7 +211,7 @@ class ScheduleController extends GetxController {
     String? token = await SharedPref().getToken();
     String? patientIDStr = await SharedPref().getId();
 
-    var response = await http.get(
+    var response = await HttpService.instance.get(
       Uri.parse(URls().individualPatient+"?patient_id=$patientID"),
       headers: {
         "Content-Type": "application/json",
@@ -222,110 +223,116 @@ class ScheduleController extends GetxController {
       var jsonResponse = jsonDecode(response.body);
       profile = ProfileList.fromJson(jsonResponse);
       update();
-      if (profile!.data != null && profile!.data!.patientSchedules != null) {
-        patientSchedules = profile!.data!.patientSchedules!;
+        final schedules = profile?.data?.patientSchedules;
+        if (schedules != null) {
+          patientSchedules = schedules;
         pastSurgicalCT.text =
-            patientSchedules!.patientPastsurgicalhistory!.toString();
-        activityCT.text = patientSchedules!.patientActivitytype!;
-        toileting.text = patientSchedules!.patientToileting!;
-        temp.text = 120.toString();
-        bp.text = patientSchedules!.patientVitalsigns!.bloodPressure!;
-        selectedWalkingTimings = jsonDecode(patientSchedules!.patientWalkingtime!);
+            schedules.patientPastsurgicalhistory?.toString() ?? '';
+        activityCT.text = schedules.patientActivitytype ?? '';
+        toileting.text = schedules.patientToileting ?? '';
+        temp.text = schedules.patientVitalsigns?.temperature ?? '';
+        bp.text = schedules.patientVitalsigns?.bloodPressure ?? '';
+        selectedWalkingTimings = schedules.patientWalkingtime != null
+            ? jsonDecode(schedules.patientWalkingtime!)
+            : [];
         heartRate.text =
-            patientSchedules!.patientVitalsigns!.heartRate.toString();
+            schedules.patientVitalsigns?.heartRate?.toString() ?? '';
         respiration.text =
-            patientSchedules!.patientVitalsigns!.respiratoryRate!;
+            schedules.patientVitalsigns?.respiratoryRate ?? '';
 
         ///
-        if (patientSchedules!.patientBreakfasttime != null &&
-            patientSchedules!.patientBreakfasttime!.isNotEmpty) {
+        if (schedules.patientBreakfasttime != null &&
+            schedules.patientBreakfasttime!.isNotEmpty) {
           filters.clear();
-          filters.add(patientSchedules!.patientBreakfasttime!);
+          filters.add(schedules.patientBreakfasttime!);
           update();
         }
 
-        if (patientSchedules!.patientMedications != null &&
-            patientSchedules!.patientMedications!.isNotEmpty) {
+        if (schedules.patientMedications != null &&
+            schedules.patientMedications!.isNotEmpty) {
           medidation = "Morning";
           meditationDetails = [
             MedicationModel(time: "Morning",medicationDetails: []),
             MedicationModel(time: "Noon",medicationDetails: []),
             MedicationModel(time: "Evening",medicationDetails: []),
           ];
-          var medicationValues = jsonDecode(patientSchedules!.patientMedications!);
+          var medicationValues = jsonDecode(schedules.patientMedications!);
           medicationValues.keys.forEach((time) {
             List<dynamic> ?details = medicationValues[time];
             if(time == "Morning"){
-              details!.forEach((element) {
-                meditationDetails[0].medicationDetails!.add(TextEditingController(text:element.toString()));
-              });
+                details?.forEach((element) {
+                  (meditationDetails[0].medicationDetails ??= [])
+                      .add(TextEditingController(text: element.toString()));
+                });
             }
             if(time == "Noon"){
-              details!.forEach((element) {
-                meditationDetails[1].medicationDetails!.add(TextEditingController(text:element.toString()));
-              });
+                details?.forEach((element) {
+                  (meditationDetails[1].medicationDetails ??= [])
+                      .add(TextEditingController(text: element.toString()));
+                });
             }
             if(time == "Evening"){
-              details!.forEach((element) {
-                meditationDetails[2].medicationDetails!.add(TextEditingController(text:element.toString()));
-              });
+                details?.forEach((element) {
+                  (meditationDetails[2].medicationDetails ??= [])
+                      .add(TextEditingController(text: element.toString()));
+                });
             }
           });
           selectedMedication = medidation;
           debugPrint(medidation);
           update();
         }
-        if (patientSchedules!.patientOralcare != null &&
-            patientSchedules!.patientOralcare!.isNotEmpty) {
-          //oralSelection = patientSchedules!.patientOralcare!;
-          selectedOralCareTimings = jsonDecode(patientSchedules!.patientOralcare!);
+        if (schedules.patientOralcare != null &&
+            schedules.patientOralcare!.isNotEmpty) {
+          //oralSelection = schedules.patientOralcare!;
+          selectedOralCareTimings = jsonDecode(schedules.patientOralcare!);
           debugPrint(medidation);
           update();
         }
-        if (patientSchedules!.patientBathing != null &&
-            patientSchedules!.patientBathing!.isNotEmpty) {
-          //bathingSelection = patientSchedules!.patientBathing!;
-          selectedBathingTimings = jsonDecode(patientSchedules!.patientBathing!);
+        if (schedules.patientBathing != null &&
+            schedules.patientBathing!.isNotEmpty) {
+          //bathingSelection = schedules.patientBathing!;
+          selectedBathingTimings = jsonDecode(schedules.patientBathing!);
 
           debugPrint(medidation);
           update();
         }
-        if (patientSchedules!.patientDressing != null &&
-            patientSchedules!.patientDressing!.isNotEmpty) {
-          //dressingSelection = patientSchedules!.patientDressing!;
-          selectedDressingTimings = jsonDecode(patientSchedules!.patientDressing!);
+        if (schedules.patientDressing != null &&
+            schedules.patientDressing!.isNotEmpty) {
+          //dressingSelection = schedules.patientDressing!;
+          selectedDressingTimings = jsonDecode(schedules.patientDressing!);
           debugPrint(medidation);
           update();
         }
 
-        if (patientSchedules!.patientLunchtime != null &&
-            patientSchedules!.patientLunchtime!.isNotEmpty) {
+        if (schedules.patientLunchtime != null &&
+            schedules.patientLunchtime!.isNotEmpty) {
           lunchFilters.clear();
-          lunchFilters.add(patientSchedules!.patientLunchtime!);
+          lunchFilters.add(schedules.patientLunchtime!);
           update();
         }
-        if (patientSchedules!.patientHydration != null &&
-            patientSchedules!.patientHydration!.isNotEmpty) {
-          hydrationTEC.text = patientSchedules!.patientHydration!;
+        if (schedules.patientHydration != null &&
+            schedules.patientHydration!.isNotEmpty) {
+          hydrationTEC.text = schedules.patientHydration!;
           update();
         }
 
-        if (patientSchedules!.patientSnackstime != null &&
-            patientSchedules!.patientSnackstime!.isNotEmpty) {
+        if (schedules.patientSnackstime != null &&
+            schedules.patientSnackstime!.isNotEmpty) {
           snacks.clear();
-          snacks.add(patientSchedules!.patientSnackstime!);
+          snacks.add(schedules.patientSnackstime!);
           update();
         }
 
-        if (patientSchedules!.patientDinnertime != null &&
-            patientSchedules!.patientDinnertime!.isNotEmpty) {
+        if (schedules.patientDinnertime != null &&
+            schedules.patientDinnertime!.isNotEmpty) {
           dinner.clear();
-          dinner.add(patientSchedules!.patientDinnertime!);
+          dinner.add(schedules.patientDinnertime!);
           update();
         }
-        if (patientSchedules!.patientBloodsugar != null &&
-            patientSchedules!.patientBloodsugar!.isNotEmpty) {
-          bloodSugarTEC.text = patientSchedules!.patientBloodsugar!;
+        if (schedules.patientBloodsugar != null &&
+            schedules.patientBloodsugar!.isNotEmpty) {
+          bloodSugarTEC.text = schedules.patientBloodsugar!;
           update();
         }
         update();

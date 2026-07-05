@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import '../../../Utils/date_utils.dart';
+
 ProfileInsert profileInsertFromJson(String str) => ProfileInsert.fromJson(json.decode(str));
 
 String profileInsertToJson(ProfileInsert data) => json.encode(data.toJson());
@@ -101,7 +103,7 @@ class Data {
     "last_name": lastName,
     "sex": sex,
     "age": age,
-    "dob": "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+    "dob": formatDateOnly(dob),
     "medical_license": medicalLicense,
     "location": location,
     "nationality": nationality,

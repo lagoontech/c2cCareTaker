@@ -1,10 +1,11 @@
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'dart:convert';
 import 'package:care2caretaker/Views_/HomeView/Controller/bottomNav_controller.dart';
+import 'package:care2caretaker/reuse_widgets/customToast.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
 import 'package:care2caretaker/reuse_widgets/customButton.dart';
 import 'package:care2caretaker/reuse_widgets/customLabel.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
-import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/sizes.dart';
 import '../PatientRequest/controller/patient_request_controller.dart';
-import '../PatientRequest/modal/patientRequest_modal.dart';
+import 'package:care2caretaker/Views_/PatientRequest/modal/patientRequest_modal.dart';
 
 class Primaryinformationview extends StatefulWidget {
   String? firstName;
@@ -71,6 +72,50 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
   final BottomNavController bn = Get.put(BottomNavController());
   final PatientRequestController controller =
       Get.put(PatientRequestController());
+
+  DateTime get _calendarStart =>
+      NullSafe.firstDate(widget.dates) ?? DateTime.now();
+
+  List<String> _decodeStringList(String? raw) {
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  Map<String, dynamic> _decodeScheduleMap(String? raw) {
+    if (raw == null || raw.isEmpty) return {};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  String _formatAppointmentTime(String? time, DateTime? date) {
+    if (time == null || time.trim().isEmpty || date == null) {
+      return 'Invalid Time';
+    }
+    try {
+      final parts = time.trim().split(':');
+      final hour = parts[0].padLeft(2, '0');
+      final minute = parts.length > 1 ? parts[1].padLeft(2, '0') : '00';
+      final second = parts.length > 2 ? parts[2].padLeft(2, '0') : '00';
+      final normalized = '$hour:$minute:$second';
+      final parsed = DateTime.parse(
+        '${DateFormat('yyyy-MM-dd').format(date)} $normalized',
+      );
+      return DateFormat('hh:mm a').format(parsed);
+    } catch (_) {
+      return 'Invalid Time';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,29 +178,28 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
           child: NestedScrollView(
             body: CustomScrollView(
               slivers: [
-
-                SliverList(delegate: SliverChildListDelegate([
-
+                SliverList(
+                    delegate: SliverChildListDelegate([
                   carTakerList(context,
                       doctorName: '${widget.firstName}${widget.lastName}',
                       doctorState: widget.nationality,
                       //genderIcon: widget.sex,
-                      sendTime: widget.toTime,
+                      startTime: widget.toTime,
+                      endTime: widget.sendTime,
                       sendDate: widget.sendDate,
                       age: widget.age,
                       bmi: widget.bmi,
-                      toTime: widget.sendTime,
                       imageUrl: widget.imgUrl),
                   kHeight15,
-
                   Stack(
                     children: [
                       TableCalendar(
                           availableGestures: AvailableGestures.none,
-                          focusedDay: widget.dates!.first,
+                          focusedDay: _calendarStart,
                           selectedDayPredicate: (day) {
-                            return widget.dates!.any((date) =>
-                                isSameDay(date, day)); // Highlight appointment dates
+                            return widget.dates
+                                    ?.any((date) => isSameDay(date, day)) ??
+                                false;
                           },
                           headerStyle: HeaderStyle(
                               formatButtonVisible: false, titleCentered: true),
@@ -166,25 +210,28 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          firstDay: widget.dates!.first,
+                          firstDay: _calendarStart,
                           lastDay: DateTime(2050)),
-
                       Padding(
                         padding: EdgeInsets.only(top: 32.h),
                         child: SizedBox(
                           height: 200.h,
                         ),
                       )
-
                     ],
                   ),
-
                   Column(
                     children: [
-
                       InkWell(
                         onTap: () {
-                          controller.launchDialer(widget.patientContactNumber!);
+                          final phone = widget.patientContactNumber?.trim();
+                          if (phone != null && phone.isNotEmpty) {
+                            controller.launchDialer(phone);
+                          } else {
+                            showCustomToast(
+                              message: 'Patient contact number not available',
+                            );
+                          }
                         },
                         child: Container(
                           height: 35.h,
@@ -192,15 +239,15 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               color: AppColors.primaryColor,
                               borderRadius: BorderRadius.circular(23.r)),
                           child: Padding(
-                            padding:
-                            EdgeInsets.symmetric(horizontal: 4.r, vertical: 5.r),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 4.r, vertical: 5.r),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 CircleAvatar(
                                   backgroundColor: Colors.white,
                                   child: Icon(
-                                    Icons.message_outlined,
+                                    Icons.phone_outlined,
                                     size: 15.sp,
                                   ),
                                 ),
@@ -231,16 +278,6 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       Divider(
                         thickness: 0.2,
                       ),
-                      DocsCustom(
-                        radiusSize: 26,
-                        heading: "Experience Certificates",
-                        message: "Add your career info",
-                        icons: EneftyIcons.hospital_bold,
-                        iconColor: Colors.orange,
-                      ),
-                      Divider(
-                        thickness: 0.2,
-                      ),
                       CustomLabel(text: "Past medical history"),
                       kHeight10,
                       SizedBox(
@@ -250,14 +287,12 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               return kWidth5;
                             },
                             scrollDirection: Axis.horizontal,
-                            itemCount: (jsonDecode(
-                                widget.schedule!.patientPastmedicalhistory!)
-                            as List<dynamic>)
+                            itemCount: _decodeStringList(
+                                    widget.schedule?.patientPastmedicalhistory)
                                 .length,
                             itemBuilder: (context, index) {
-                              var result = (jsonDecode(
-                                  widget.schedule!.patientPastmedicalhistory!)
-                              as List<dynamic>)[index];
+                              var result = _decodeStringList(widget
+                                  .schedule?.patientPastmedicalhistory)[index];
                               return detailsWidget(context, details: result);
                             }),
                       ),
@@ -267,7 +302,9 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       SizedBox(
                         height: 32.h,
                         child: detailsWidget(context,
-                            details: widget.schedule!.patientPastsurgicalhistory),
+                            details:
+                                widget.schedule?.patientPastsurgicalhistory ??
+                                    ''),
                       ),
                       kHeight10,
                       CustomLabel(text: "Personal Details"),
@@ -280,7 +317,8 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               savedDetails(context,
-                                  details: "BreakFast", timing: widget.breakfast),
+                                  details: "BreakFast",
+                                  timing: widget.breakfast),
                               kWidth5,
                               savedDetails(context,
                                   details: "lunch", timing: widget.lunch),
@@ -304,13 +342,12 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               return kWidth5;
                             },
                             scrollDirection: Axis.horizontal,
-                            itemCount: (jsonDecode(widget.schedule!.patientDietplan!)
-                            as List<dynamic>)
+                            itemCount: _decodeStringList(
+                                    widget.schedule?.patientDietplan)
                                 .length,
                             itemBuilder: (context, index) {
-                              var result =
-                              (jsonDecode(widget.schedule!.patientDietplan!)
-                              as List<dynamic>)[index];
+                              var result = _decodeStringList(
+                                  widget.schedule?.patientDietplan)[index];
                               return detailsWidget(context, details: result);
                             }),
                       ),
@@ -320,7 +357,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       SizedBox(
                         height: 32.h,
                         child: detailsWidget(context,
-                            details: widget.schedule!.patientToileting),
+                            details: widget.schedule?.patientToileting ?? ''),
                       ),
                       kHeight10,
                       CustomLabel(text: "Hydration"),
@@ -328,7 +365,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       SizedBox(
                         height: 32.h,
                         child: detailsWidget(context,
-                            details: widget.schedule!.patientHydration),
+                            details: widget.schedule?.patientHydration ?? ''),
                       ),
                       kHeight10,
                       CustomLabel(text: "Walking"),
@@ -340,14 +377,12 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               return kWidth5;
                             },
                             scrollDirection: Axis.horizontal,
-                            itemCount:
-                            (jsonDecode(widget.schedule!.patientWalkingtime!)
-                            as List<dynamic>)
+                            itemCount: _decodeStringList(
+                                    widget.schedule?.patientWalkingtime)
                                 .length,
                             itemBuilder: (context, index) {
-                              var result =
-                              (jsonDecode(widget.schedule!.patientWalkingtime!)
-                              as List<dynamic>)[index];
+                              var result = _decodeStringList(
+                                  widget.schedule?.patientWalkingtime)[index];
                               return detailsWidget(context, details: result);
                             }),
                       ),
@@ -361,13 +396,12 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               return kWidth5;
                             },
                             scrollDirection: Axis.horizontal,
-                            itemCount: (jsonDecode(widget.schedule!.patientOralcare!)
-                            as List<dynamic>)
+                            itemCount: _decodeStringList(
+                                    widget.schedule?.patientOralcare)
                                 .length,
                             itemBuilder: (context, index) {
-                              var result =
-                              (jsonDecode(widget.schedule!.patientOralcare!)
-                              as List<dynamic>)[index];
+                              var result = _decodeStringList(
+                                  widget.schedule?.patientOralcare)[index];
                               return detailsWidget(context, details: result);
                             }),
                       ),
@@ -381,13 +415,12 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               return kWidth5;
                             },
                             scrollDirection: Axis.horizontal,
-                            itemCount: (jsonDecode(widget.schedule!.patientBathing!)
-                            as List<dynamic>)
+                            itemCount: _decodeStringList(
+                                    widget.schedule?.patientBathing)
                                 .length,
                             itemBuilder: (context, index) {
-                              var result =
-                              (jsonDecode(widget.schedule!.patientBathing!)
-                              as List<dynamic>)[index];
+                              var result = _decodeStringList(
+                                  widget.schedule?.patientBathing)[index];
                               return detailsWidget(context, details: result);
                             }),
                       ),
@@ -404,17 +437,17 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                               savedDetails(context,
                                   details: "Temperature",
                                   timing:
-                                  "${jsonDecode(widget.schedule!.patientVitalsigns!)["temperature"]}\u2109"),
+                                      "${_decodeScheduleMap(widget.schedule?.patientVitalsigns)['temperature'] ?? ''}\u2109"),
                               kWidth5,
                               savedDetails(context,
                                   details: "Pulse",
                                   timing:
-                                  "${jsonDecode(widget.schedule!.patientVitalsigns!)["heart_rate"]}"),
+                                      "${_decodeScheduleMap(widget.schedule?.patientVitalsigns)['heart_rate'] ?? ''}"),
                               kWidth5,
                               savedDetails(context,
                                   details: "Respiration",
                                   timing:
-                                  "${jsonDecode(widget.schedule!.patientVitalsigns!)["respiratory_rate"]}"),
+                                      "${_decodeScheduleMap(widget.schedule?.patientVitalsigns)['respiratory_rate'] ?? ''}"),
                               kWidth5,
                             ],
                           ),
@@ -432,7 +465,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                             children: [
                               detailsWidget(context,
                                   details:
-                                  widget.schedule!.patientBloodsugar ?? "" + " mg/dL"),
+                                      '${widget.schedule?.patientBloodsugar ?? ''} mg/dL'),
                               kWidth5,
                               /* savedDetails(context, details: "Noon", timing: "70mg"),
                           kWidth5,
@@ -446,13 +479,13 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                       kHeight10,
                     ],
                   )
-
                 ]))
-
               ],
-            ), headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            ),
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
               return [];
-          },
+            },
           ),
         ));
   }
@@ -501,10 +534,17 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
       IconData? genderIcon,
       int? age,
       DateTime? sendDate,
-      String? sendTime,
-      String? toTime,
+      String? startTime,
+      String? endTime,
       double? bmi,
       String? imageUrl}) {
+    final dates = widget.dates;
+    final hasDates = NullSafe.hasDates(dates);
+    final startDate = hasDates ? NullSafe.firstDate(dates) : null;
+    final endDate = hasDates
+        ? (dates!.length > 1 ? NullSafe.lastDate(dates) : startDate)
+        : null;
+
     return Container(
       padding: EdgeInsets.all(10.r),
       height: MediaQuery.of(context).size.height * 0.24,
@@ -654,22 +694,26 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                             size: 20.sp,
                           ),
                           SizedBox(width: 5.w),
-                          Text(
-                            DateFormat("MMM dd").format(widget.dates![0]),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
+                          if (NullSafe.hasDates(widget.dates))
+                            Text(
+                              DateFormat("MMM dd")
+                                  .format(NullSafe.firstDate(widget.dates)!),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          Text(
-                            " To ${DateFormat("MMM dd").format(widget.dates!.last)}",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
+                          if (NullSafe.hasDates(widget.dates) &&
+                              widget.dates!.length > 1)
+                            Text(
+                              " To ${DateFormat("MMM dd").format(NullSafe.lastDate(widget.dates)!)}",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
                         ],
                       ),
                       SizedBox(height: 8.h), // Spacing between date and time
@@ -682,10 +726,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                           ),
                           SizedBox(width: 5.w), // Spacing between icon and text
                           Text(
-                            sendTime != null
-                                ? "${DateFormat('hh:mm a').format(DateTime.parse('${DateFormat('yyyy-MM-dd').format(widget.dates![0])} $sendTime'))}"
-                                : 'Invalid Time',
-                            // Replace with actual time variable
+                            _formatAppointmentTime(startTime, startDate),
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 12.sp,
@@ -695,10 +736,7 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
                           SizedBox(width: 5.w),
                           Text("-"), SizedBox(width: 2.w),
                           Text(
-                            toTime != null
-                                ? "${DateFormat('hh:mm a').format(DateTime.parse('${DateFormat('yyyy-MM-dd').format(widget.dates!.last)} $toTime'))}"
-                                : 'Invalid Time',
-                            // Replace with actual time variable
+                            _formatAppointmentTime(endTime, endDate),
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 12.sp,
@@ -736,88 +774,6 @@ class _PrimaryinformationviewState extends State<Primaryinformationview> {
           ),
         )
       ],
-    );
-  }
-}
-
-class DocsCustom extends StatelessWidget {
-  final String? heading;
-  final String? message;
-  final IconData? icons;
-  final Color? circleColor;
-  final Color? iconColor;
-  final VoidCallback? onTap;
-  final double? radiusSize;
-
-  DocsCustom({
-    super.key,
-    this.heading,
-    this.message,
-    this.icons,
-    this.onTap,
-    this.circleColor,
-    this.iconColor,
-    this.radiusSize,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        // Ensures the Row shrinks to fit its children
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              backgroundColor: circleColor ?? Colors.grey.withOpacity(0.1),
-              radius: radiusSize ?? 22.r,
-              child: Icon(
-                icons,
-                color: iconColor ?? Colors.black,
-              ),
-            ),
-          ),
-          kWidth10,
-          Flexible(
-            fit: FlexFit.tight,
-            child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    heading ?? "Alis Dia",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    message ?? "sujnc901@gmail.com",
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          IconButton(
-              onPressed: onTap,
-              icon: Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14.sp,
-              ))
-        ],
-      ),
     );
   }
 }

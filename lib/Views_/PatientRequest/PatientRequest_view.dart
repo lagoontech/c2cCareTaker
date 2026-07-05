@@ -2,6 +2,7 @@ import 'package:care2caretaker/Utils/screen_utils.dart';
 import 'package:care2caretaker/Views_/Profile/Controller/profileController.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
+import 'package:care2caretaker/reuse_widgets/empty_state_view.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:care2caretaker/reuse_widgets/sizes.dart';
 import 'package:flutter/material.dart';
@@ -52,17 +53,11 @@ class CustomPatientRequest extends StatelessWidget {
         if (v.isLoading) return const ShimmerLoaderShimmer();
 
         if (v.requestList.isEmpty) {
-          return ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              SizedBox(height: 50.h),
-              Center(
-                child: Text(
-                  "No Requests Found",
-                  style: TextStyle(fontSize: 16.sp, color: Colors.grey),
-                ),
-              ),
-            ],
+          return EmptyStateView.scrollable(
+            context: context,
+            icon: Icons.inbox_outlined,
+            title: 'No requests found',
+            subtitle: 'New patient requests will show up here.',
           );
         }
 
@@ -104,7 +99,7 @@ class CustomPatientRequest extends StatelessWidget {
                     doctorName: '${data.firstName} ${data.lastName}',
                     doctorDesignation: "Patient",
                     doctorState: data.address,
-                    imageUrl: '$path${res.patient!.profileImageUrl}',
+                    imageUrl: '$path${res.patient?.profileImageUrl ?? ''}',
                     age: data.age,
                     bmi: data.bmi,
                     sendTime: data.createdAt,
@@ -130,7 +125,7 @@ class CustomPatientRequest extends StatelessWidget {
                         appointmentId: res.id,
                         patientId: res.patientId,
                         patientContactNumber: data.primaryContactNumber,
-                        imgUrl: '$path${res.patient!.profileImageUrl}',
+                        imgUrl: '$path${res.patient?.profileImageUrl ?? ''}',
                         breakfast: schedule?.patientBreakfasttime,
                         dinner: schedule?.patientDinnertime,
                         snacks: schedule?.patientSnackstime,
@@ -242,12 +237,12 @@ Widget carTakerList(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              controller.caretakersList[index].patient!.patientInfo!.sex == "male"
+              controller.caretakersList[index].patient?.patientInfo?.sex == "male"
                   ? Icons.male
                   : Icons.female,
               size: 34.sp,
               color:
-              controller.caretakersList[index].patient!.patientInfo!.sex == "male"
+              controller.caretakersList[index].patient?.patientInfo?.sex == "male"
                   ? Colors.blueAccent
                   : Colors.pinkAccent,
             ),

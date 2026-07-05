@@ -6,13 +6,27 @@ import '../../Notification/controller/controller.dart';
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/appBar.dart';
 import '../../reuse_widgets/customLabel.dart';
+import '../../reuse_widgets/empty_state_view.dart';
 import '../../reuse_widgets/image_background.dart';
 import '../../reuse_widgets/sizes.dart';
 
-class NotificationView extends StatelessWidget {
+class NotificationView extends StatefulWidget {
   NotificationView({super.key});
 
-  final NotificationController controller = Get.put(NotificationController());
+  @override
+  State<NotificationView> createState() => _NotificationViewState();
+}
+
+class _NotificationViewState extends State<NotificationView> {
+  final NotificationController controller = Get.find<NotificationController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.allNotifications();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,111 +58,70 @@ class NotificationView extends StatelessWidget {
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.r),
-            child: SingleChildScrollView(
-              child: Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: GetBuilder<NotificationController>(
+              builder: (v) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   children: [
-                    Expanded(
-                      child: CustomLabel(
-                        text: "Today",
-                        fontSize: 19.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: CustomLabel(
+                            text: "Today",
+                            fontSize: 19.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => v.notificationsUnread(),
+                          child: CustomLabel(
+                            text: "Mark all as read",
+                            fontSize: 12.sp,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
-                    CustomLabel(
-                        text: "Mark all as read",
-                        fontSize: 12.sp,
-                        color: Colors.black),
-                  ],
-                ),
-                kHeight10,
-                GetBuilder<NotificationController>(builder: (v) {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: ListView.builder(
-                        itemCount: v.listNotification.length,
-                        itemBuilder: (context, index) {
-                          var data = v.listNotification[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5.0),
-                            child: InkWell(
-                              onTap: () {},
-                              child: CustomNotification(
-                                icon: IconlyBold.calendar,
-                                circleColor: Color(0xfffafcf9),
-                                iconColor: AppColors.primaryColor,
-                                heading: data.data!.title,
-                                message: data.data!.body,
-                              ),
+                    kHeight10,
+                    if (v.listNotification.isEmpty)
+                      EmptyStateView(
+                        icon: Icons.notifications_none_rounded,
+                        title: 'No notifications yet',
+                        subtitle:
+                            'New updates and appointment alerts will appear here.',
+                        minHeight: MediaQuery.of(context).size.height * 0.62,
+                      )
+                    else
+                      ...v.listNotification.map((item) {
+                        final title = item.data?.title ?? '';
+                        final body = item.data?.body ?? '';
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          child: CustomNotification(
+                            icon: IconlyBold.calendar,
+                            circleColor: const Color(0xfffafcf9),
+                            iconColor: AppColors.primaryColor,
+                            heading: title,
+                            message: body,
+                            notificationId: item.id,
+                            showViewAppointment:
+                                controller.isAppointmentNotificationText(
+                              title,
+                              body,
                             ),
-                          );
-                        }),
-                  );
-                }),
-                kHeight10,
-                CustomNotification(
-                  icon: IconlyBold.calendar,
-                  circleColor: Color(0xfffdeef1),
-                  iconColor: Colors.red,
-                  heading: 'Your appointment placed successfully',
-                  message:
-                      'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-                ),
-                kHeight10,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: CustomLabel(
-                        text: "Old",
-                        fontSize: 19.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    CustomLabel(
-                        text: "Mark all as read",
-                        fontSize: 12.sp,
-                        color: Colors.black),
+                            onViewAppointment: () {
+                              controller.openAppointmentFromNotificationText(
+                                title,
+                                body,
+                              );
+                            },
+                          ),
+                        );
+                      }),
                   ],
-                ),
-                kHeight10,
-                CustomNotification(
-                  icon: IconlyBold.calendar,
-                  circleColor: Color(0xfffafcf9),
-                  iconColor: AppColors.primaryColor,
-                  heading: 'Your appointment placed successfully',
-                  message:
-                      'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-                ),
-                kHeight10,
-                CustomNotification(
-                  icon: IconlyBold.calendar,
-                  circleColor: Color(0xfffafcf9),
-                  iconColor: AppColors.primaryColor,
-                  heading: 'Your appointment placed successfully',
-                  message:
-                      'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-                ),
-                kHeight10,
-                CustomNotification(
-                  icon: IconlyBold.calendar,
-                  circleColor: Color(0xfffafcf9),
-                  iconColor: AppColors.primaryColor,
-                  heading: 'Your appointment placed successfully',
-                  message:
-                      'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-                ),
-                kHeight10,
-                CustomNotification(
-                  icon: IconlyBold.calendar,
-                  circleColor: Color(0xfffafcf9),
-                  iconColor: AppColors.primaryColor,
-                  heading: 'Your appointment placed successfully',
-                  message:
-                      'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-                ),
-              ]),
+                );
+              },
             ),
           ),
         ));
@@ -161,7 +134,9 @@ class CustomNotification extends StatelessWidget {
   final IconData? icon;
   final Color? circleColor;
   final Color? iconColor;
-  String ?notificationId;
+  final String? notificationId;
+  final bool showViewAppointment;
+  final VoidCallback? onViewAppointment;
 
   CustomNotification({
     super.key,
@@ -170,13 +145,15 @@ class CustomNotification extends StatelessWidget {
     this.icon,
     this.circleColor,
     this.iconColor,
-    this.notificationId
+    this.notificationId,
+    this.showViewAppointment = false,
+    this.onViewAppointment,
   });
-  final NotificationController controller = Get.put(NotificationController());
+  final NotificationController controller = Get.find<NotificationController>();
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(notificationId),
+      key: ValueKey(notificationId ?? '$heading-$message'),
       direction: DismissDirection.endToStart,
      /* background: Container(
         color: AppColors.primaryColor.withOpacity(0.8),
@@ -188,7 +165,9 @@ class CustomNotification extends StatelessWidget {
         ),
       ),*/
       onDismissed: (direction) {
-        controller.deleteNotification(notificationId!);
+        if (notificationId != null) {
+          controller.deleteNotification(notificationId!);
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Notification deleted'),
@@ -206,7 +185,9 @@ class CustomNotification extends StatelessWidget {
         ),
       ),*/
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.13,
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height * 0.13,
+        ),
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: Colors.grey.withOpacity(0.09),
@@ -231,7 +212,9 @@ class CustomNotification extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
                 child: Container(
-                  height: MediaQuery.of(context).size.height * 0.10,
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height * 0.10,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -256,6 +239,21 @@ class CustomNotification extends StatelessWidget {
                           color: Colors.black54,
                         ),
                       ),
+                      if (showViewAppointment) ...[
+                        SizedBox(height: 6.h),
+                        GestureDetector(
+                          onTap: onViewAppointment,
+                          child: Text(
+                            "View appointment",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

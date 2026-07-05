@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Notification/controller/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -31,6 +32,16 @@ class _HomeViewState extends State<HomeView> {
       bn.update(); // Notify the controller to update the view
       return Future.value(false); // Return false to prevent the default back navigation
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<NotificationController>()) {
+        Get.find<NotificationController>().markAppReady();
+      }
+    });
   }
 
   @override

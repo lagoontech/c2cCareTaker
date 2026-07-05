@@ -40,14 +40,14 @@ class ChatListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chat!.name!,
+                      chat?.name ?? '',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 4.h),
                     SizedBox(
                         width: MediaQuery.of(context).size.width * 0.6,
                         child: Text(
-                          chat!.chat!,
+                          chat?.chat ?? '',
                           style: TextStyle(
                               overflow: TextOverflow.ellipsis, fontSize: 12.sp),
                         ))
@@ -61,7 +61,7 @@ class ChatListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        chat!.time!,
+                        chat?.time ?? '',
                         style: TextStyle(fontSize: 12.sp),
                       ),
                       SizedBox(height: 4.h),

@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Notification/controller/controller.dart';
 import 'package:care2caretaker/sharedPref/sharedPref.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,7 +10,6 @@ import '../../reuse_widgets/image_background.dart';
 import '../../reuse_widgets/loader.dart';
 import '../../reuse_widgets/sizes.dart';
 import '../Auth_screen/Sigin_screen/signIn_view.dart';
-import '../HomeScreen/home-screen.dart';
 import '../HomeView/home_view.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -34,6 +34,9 @@ class SplashScreenState extends State<SplashScreen> {
       if (isDetailsComplete) {
         Get.off(() => HomeView());
       } else {
+        if (Get.isRegistered<NotificationController>()) {
+          Get.find<NotificationController>().clearPendingNavigation();
+        }
         Get.off(() => MobileEmail());
       }
     });

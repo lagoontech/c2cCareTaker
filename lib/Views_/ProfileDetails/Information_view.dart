@@ -7,6 +7,7 @@ import 'package:care2caretaker/reuse_widgets/custom_textfield.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:care2caretaker/reuse_widgets/sizes.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -22,12 +23,17 @@ class AccountInformation extends StatefulWidget {
 
 class _AccountInformationState extends State<AccountInformation> {
   final ProfileController controller = Get.put(ProfileController());
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  static const double _formFontSize = 14;
 
   bool _hasChanges = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchCareTakerDetails();
+    });
 
     // Set initial values for comparison
     controller.firstNameController.addListener(_onFieldChanged);
@@ -67,6 +73,62 @@ class _AccountInformationState extends State<AccountInformation> {
   void _onFieldChanged() {
   }
 
+  String? _requiredValidator(String? value, String field) {
+    if (value == null || value.trim().isEmpty) {
+      return '$field is required';
+    }
+    return null;
+  }
+
+  String? _ageValidator(String? value) {
+    final requiredError = _requiredValidator(value, 'Age');
+    if (requiredError != null) return requiredError;
+    final age = int.tryParse(value!.trim());
+    if (age == null) return 'Age must be a number';
+    if (age < 0 || age > 150) return 'Age must be between 0 and 150';
+    return null;
+  }
+
+  String? _emailValidator(String? value) {
+    final requiredError = _requiredValidator(value, 'Email');
+    if (requiredError != null) return requiredError;
+    final text = value!.trim();
+    final emailReg = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailReg.hasMatch(text)) return 'Enter a valid email';
+    return null;
+  }
+
+  String? _serviceChargeValidator(String? value) {
+    final requiredError = _requiredValidator(value, 'Service charge');
+    if (requiredError != null) return requiredError;
+    final amount = double.tryParse(value!.trim());
+    if (amount == null) return 'Service charge must be numeric';
+    if (amount < 0) return 'Service charge must be positive';
+    return null;
+  }
+
+  String? _contactValidator(String? value, String field) {
+    final requiredError = _requiredValidator(value, field);
+    if (requiredError != null) return requiredError;
+    final cleaned = value!.trim();
+    final reg = RegExp(r'^[0-9+\-\s()]{7,15}$');
+    if (!reg.hasMatch(cleaned)) {
+      return '$field is invalid';
+    }
+    return null;
+  }
+
+  bool _validateBeforeSubmit() {
+    final formValid = _formKey.currentState?.validate() ?? false;
+    if (!formValid) return false;
+
+    if (controller.sexController.text.trim().isEmpty) {
+      Get.snackbar('Validation', 'Sex is required');
+      return false;
+    }
+    return true;
+  }
+
   bool _hasFormChanged() {
     return controller.firstNameController.text.trim() !=
             controller.profileList?.data?.caretakerInfo?.firstName ||
@@ -97,9 +159,7 @@ class _AccountInformationState extends State<AccountInformation> {
         controller.secondaryContactController.text.trim() !=
             controller
                 .profileList?.data?.caretakerInfo?.secondaryContactNumber ||
-        controller.selectImage !=
-            controller.profileList!.profilePath! +
-                controller.profileList!.data!.profileImage!;
+        controller.selectImage != null;
   }
 
   @override
@@ -108,12 +168,11 @@ class _AccountInformationState extends State<AccountInformation> {
       if (controller.fetchLoading) {
         return Container(
           height: MediaQuery.of(context).size.height,
-          color: Colors.white, // Set the background color you want
+          color: Colors.white,
           child: SkeletonLoader(),
         );
       }
 
-      var data = controller.profileList!.data!.caretakerInfo!;
       return CustomBackground(
         appBar: CustomAppBar(
           leading: IconButton(
@@ -128,7 +187,9 @@ class _AccountInformationState extends State<AccountInformation> {
                 padding: const EdgeInsets.only(right: 8.0),
                 child: TextButton(
                   onPressed:  () {
-                          controller.updateCaretakerProfileDetails();
+                          if (_validateBeforeSubmit()) {
+                            controller.updateCaretakerProfileDetails();
+                          }
                         },
                   child: controller.isLoading
                       ? SizedBox(
@@ -151,7 +212,9 @@ class _AccountInformationState extends State<AccountInformation> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: SingleChildScrollView(
-            child: GetBuilder<ProfileController>(builder: (v) {
+            child: Form(
+              key: _formKey,
+              child: GetBuilder<ProfileController>(builder: (v) {
               String fullImageUrl = (v.profileList?.profilePath ?? '') +
                   (v.profileList?.data?.profileImage ?? '');
               return Column(
@@ -179,7 +242,6 @@ class _AccountInformationState extends State<AccountInformation> {
                       ),
                       kWidth10,
                       GetBuilder<ProfileController>(
-                          init: ProfileController(),
                           builder: (v) {
                             return Container(
                               height: MediaQuery.of(context).size.height * 0.10,
@@ -188,7 +250,10 @@ class _AccountInformationState extends State<AccountInformation> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '${data!.firstName}  ${data.lastName}',
+                                    NullSafe.displayName(
+                                      controller.firstNameController.text,
+                                      controller.lastNameController.text,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -209,7 +274,7 @@ class _AccountInformationState extends State<AccountInformation> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           color: fullImageUrl.endsWith(
                                                   'default-profile-img.png')
                                               ? Colors.black54
@@ -270,7 +335,7 @@ class _AccountInformationState extends State<AccountInformation> {
                               'Change Photo',
                               style: TextStyle(
                                 color: Colors.blue,
-                                fontSize: 14.sp,
+                                fontSize: 12.sp,
                               ),
                             ),
                           ),
@@ -279,12 +344,39 @@ class _AccountInformationState extends State<AccountInformation> {
                     ],
                   ),
                   kHeight20,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: customTextField(
+                          context,
+                          controller: controller.firstNameController,
+                          labelText: "First Name *",
+                          fontSize: _formFontSize.sp,
+                          validator: (value) =>
+                              _requiredValidator(value, 'First Name'),
+                        ),
+                      ),
+                      kWidth15,
+                      Expanded(
+                        child: customTextField(
+                          context,
+                          controller: controller.lastNameController,
+                          labelText: "Last Name *",
+                          fontSize: _formFontSize.sp,
+                          validator: (value) =>
+                              _requiredValidator(value, 'Last Name'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  kHeight15,
                   customTextField(
                     context,
-                    controller: TextEditingController(
-                        text: '${controller.firstNameController.text} '
-                            '${controller.lastNameController.text}'),
-                    labelText: "Full Name",
+                    controller: controller.emailCT,
+                    labelText: "E-mail *",
+                    fontSize: _formFontSize.sp,
+                    textInputType: TextInputType.emailAddress,
+                    validator: _emailValidator,
                   ),
                   kHeight15,
                   Row(
@@ -292,14 +384,17 @@ class _AccountInformationState extends State<AccountInformation> {
                       Expanded(
                           flex: 5,
                           child: customDropdown(context,
-                              value: controller.sexController.text,
+                              value: ["Male", "Female", "Other"]
+                                      .contains(controller.sexController.text)
+                                  ? controller.sexController.text
+                                  : null,
                               items: ["Male", "Female", "Other"]
                                   .map((e) => DropdownMenuItem(
                                         child: Text(e),
                                         value: e,
                                       ))
                                   .toList(),
-                              labelText: "Sex", onChanged: (v) {
+                              labelText: "Sex *", onChanged: (v) {
                             controller.sexController.text = v;
                           })),
                       kWidth20,
@@ -308,7 +403,10 @@ class _AccountInformationState extends State<AccountInformation> {
                         child: customTextField(
                             controller: controller.ageController,
                             context,
-                            labelText: "Age"),
+                            labelText: "Age *",
+                            fontSize: _formFontSize.sp,
+                            textInputType: TextInputType.number,
+                            validator: _ageValidator),
                       ),
                     ],
                   ),
@@ -316,19 +414,53 @@ class _AccountInformationState extends State<AccountInformation> {
                   customTextField(
                     context,
                     controller: controller.dobController,
-                    labelText: "Date of Birth",
+                    labelText: "Date of Birth *",
+                    fontSize: _formFontSize.sp,
+                    readOnly: true,
+                    onTap: () => controller.selectDob(context),
+                    suffix: IconButton(
+                      onPressed: () => controller.selectDob(context),
+                      icon: Icon(
+                        Icons.calendar_month,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    validator: (value) =>
+                        _requiredValidator(value, 'Date of Birth'),
                   ),
                   kHeight15,
-                  customTextField(
-                    context,
-                    controller: controller.medicalLicenseController,
-                    labelText: "Medical License",
+                  Row(
+                    children: [
+                      Expanded(
+                        child: customTextField(
+                          context,
+                          controller: controller.medicalLicenseController,
+                          labelText: "Medical License *",
+                          fontSize: _formFontSize.sp,
+                          validator: (value) =>
+                              _requiredValidator(value, 'Medical License'),
+                        ),
+                      ),
+                      kWidth15,
+                      Expanded(
+                        child: customTextField(
+                          context,
+                          controller: controller.yearOfExperienceController,
+                          labelText: "Experience",
+                          fontSize: _formFontSize.sp,
+                        ),
+                      ),
+                    ],
                   ),
                   kHeight15,
                   customTextField(
                     context,
                     controller: controller.costCT,
-                    labelText: "Service Charge \$",
+                    labelText: "Service Charge \$ *",
+                    fontSize: _formFontSize.sp,
+                    textInputType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: _serviceChargeValidator,
                   ),
                   kHeight15,
                   Row(
@@ -337,7 +469,8 @@ class _AccountInformationState extends State<AccountInformation> {
                           flex: 5,
                           child: customTextField(context,
                               controller: controller.locationController,
-                              labelText: "Location")),
+                              labelText: "Location",
+                              fontSize: _formFontSize.sp)),
                       kWidth15,
                       Flexible(
                           child: GestureDetector(
@@ -359,20 +492,18 @@ class _AccountInformationState extends State<AccountInformation> {
                     context,
                     controller: controller.nationalityController,
                     labelText: "Nationality",
+                    fontSize: _formFontSize.sp,
                   ),
                   kHeight15,
                   customTextField(
                     context,
                     maxLines: 3,
                     controller: controller.addressController,
-                    labelText: "Address",
+                    labelText: "Address *",
+                    fontSize: _formFontSize.sp,
+                    validator: (value) => _requiredValidator(value, 'Address'),
                   ),
                   kHeight15,
-                  customTextField(
-                    context,
-                    controller: controller.yearOfExperienceController,
-                    labelText: "Experience",
-                  ),
                   kHeight15,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -381,13 +512,18 @@ class _AccountInformationState extends State<AccountInformation> {
                         context,
                         width: MediaQuery.of(context).size.width * 0.45,
                         controller: controller.primaryContactController,
-                        labelText: "Primary ContactNumber",
+                        labelText: "Primary ContactNumber *",
+                        fontSize: _formFontSize.sp,
+                        textInputType: TextInputType.phone,
+                        validator: (value) =>
+                            _contactValidator(value, 'Primary contact number'),
                       ),
                       customTextField(
                         context,
                         width: MediaQuery.of(context).size.width * 0.45,
                         controller: controller.secondaryContactController,
                         labelText: "Secondary ContactNumber",
+                        fontSize: _formFontSize.sp,
                       ),
                     ],
                   ),
@@ -395,6 +531,7 @@ class _AccountInformationState extends State<AccountInformation> {
                 ],
               );
             }),
+            ),
           ),
         ),
       );

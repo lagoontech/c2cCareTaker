@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../../api_urls/url.dart';
 import '../../../modals/profilr_info_modal.dart';
+import '../../../Utils/http_service.dart';
 import '../../../reuse_widgets/customToast.dart';
 import '../../../sharedPref/sharedPref.dart';
 import '../../HomeView/home_view.dart';
@@ -37,6 +38,33 @@ class ProfileController extends GetxController {
   bool isLocation = false;
   CaretakerInfo? profileInfo;
   ProfileList? profileList;
+
+  String _extractValidationError(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map<String, dynamic>) {
+        final errors = decoded['errors'];
+        if (errors is Map<String, dynamic> && errors.isNotEmpty) {
+          final first = errors.values.first;
+          if (first is List && first.isNotEmpty) {
+            return first.first.toString();
+          }
+          if (first != null) return first.toString();
+        }
+
+        if (decoded['message'] != null) {
+          return decoded['message'].toString();
+        }
+
+        for (final value in decoded.values) {
+          if (value is List && value.isNotEmpty) {
+            return value.first.toString();
+          }
+        }
+      }
+    } catch (_) {}
+    return 'Please check the highlighted fields and try again.';
+  }
 
   //
   Future<void> selectDob(BuildContext context) async {
@@ -71,23 +99,6 @@ class ProfileController extends GetxController {
   }
 
   //
-  void setInitialValues() {
-    firstNameController.text = "John";
-    lastNameController.text = "Doe";
-    sexController.text = "Male";
-    ageController.text = "30";
-    dobController.text = "1993-05-15";
-    emailCT.text = "john.doe@example.com";
-    costCT.text = "50";
-    totalPatientsCT.text = "100";
-    medicalLicenseController.text = "ML12345";
-    locationController.text = "New York";
-    nationalityController.text = "American";
-    addressController.text = "123 Main St";
-    yearOfExperienceController.text = "5";
-    primaryContactController.text = "1234567890";
-    secondaryContactController.text = "9876543210";
-  }
 
   //
   insertCaretakerProfileDetails() async {
@@ -110,13 +121,13 @@ class ProfileController extends GetxController {
         "location": locationController.text,
         "nationality": nationalityController.text,
         "address": addressController.text,
-        "uploaded_documents": "sasasasasasasasasa",
+        "uploaded_documents": profileInfo?.uploadedDocuments ?? '',
         "year_of_experiences": yearOfExperienceController.text,
         "primary_contact_number": primaryContactController.text,
         "secondary_contact_number": secondaryContactController.text
       };
 
-      var res = await http.post(
+      var res = await HttpService.instance.post(
         Uri.parse(URls().profileDetailsInsert),
         body: jsonEncode(caretakerData),
         headers: {
@@ -135,7 +146,7 @@ class ProfileController extends GetxController {
         Get.to(() => HomeView());
         debugPrint("Successfully Insert care Taker Details");
       } else {
-        var error = jsonDecode(res.body)['message'] ?? 'Error occurred';
+        final error = _extractValidationError(res.body);
         showCustomToast(message: error);
         debugPrint("Not Successfully Insert care Taker Details");
       }
@@ -168,13 +179,13 @@ class ProfileController extends GetxController {
         "location": locationController.text,
         "nationality": nationalityController.text,
         "address": addressController.text,
-        "uploaded_documents": "sasasasasasasasasa",
+        "uploaded_documents": profileInfo?.uploadedDocuments ?? '',
         "year_of_experiences": yearOfExperienceController.text,
         "primary_contact_number": primaryContactController.text,
         "secondary_contact_number": secondaryContactController.text
       };
 
-      var res = await http.put(
+      var res = await HttpService.instance.put(
         Uri.parse(URls().profileDetailsEdit),
         body: jsonEncode(caretakerData),
         headers: {
@@ -191,7 +202,8 @@ class ProfileController extends GetxController {
         );
         update();
       } else {
-
+        final error = _extractValidationError(res.body);
+        showCustomToast(message: error);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -201,59 +213,105 @@ class ProfileController extends GetxController {
   }
 
   bool fetchLoading = false;
+  int _fetchGeneration = 0;
+
+  static const _sexOptions = ['Male', 'Female', 'Other'];
+
+  String? _normalizeSex(String? sex) {
+    if (sex == null || sex.trim().isEmpty) return null;
+    final normalized = sex.trim().toLowerCase();
+    for (final option in _sexOptions) {
+      if (option.toLowerCase() == normalized) return option;
+    }
+    return null;
+  }
+
+  void _clearFormFields() {
+    firstNameController.clear();
+    lastNameController.clear();
+    sexController.clear();
+    ageController.clear();
+    dobController.clear();
+    emailCT.clear();
+    medicalLicenseController.clear();
+    locationController.clear();
+    nationalityController.clear();
+    addressController.clear();
+    costCT.clear();
+    totalPatientsCT.clear();
+    yearOfExperienceController.clear();
+    primaryContactController.clear();
+    secondaryContactController.clear();
+    dob = null;
+  }
+
+  void _applyCaretakerInfoToForm(CaretakerInfo? info) {
+    _clearFormFields();
+    profileInfo = info;
+    if (info == null) return;
+
+    firstNameController.text = info.firstName ?? '';
+    lastNameController.text = info.lastName ?? '';
+    sexController.text = _normalizeSex(info.sex) ?? '';
+    emailCT.text = info.email ?? '';
+    costCT.text = info.serviceCharge ?? '';
+    totalPatientsCT.text = info.totalPatientsAttended ?? '';
+    dob = info.dob;
+    dobController.text =
+        info.dob != null ? DateFormat('yyyy-MM-dd').format(info.dob!) : '';
+    locationController.text = info.location ?? '';
+    ageController.text = info.age?.toString() ?? '';
+    nationalityController.text = info.nationality ?? '';
+    medicalLicenseController.text = info.medicalLicense ?? '';
+    yearOfExperienceController.text = info.yearOfExperiences ?? '';
+    addressController.text = info.address ?? '';
+    primaryContactController.text = info.primaryContactNumber ?? '';
+    secondaryContactController.text = info.secondaryContactNumber ?? '';
+  }
 
   //
   fetchCareTakerDetails() async {
+    final generation = ++_fetchGeneration;
     fetchLoading = true;
+    _clearFormFields();
     update();
 
     try {
       var token = await SharedPref().getToken();
-      var res = await http.get(
+      var res = await HttpService.instance.get(
         Uri.parse(URls().careTakerInfo),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
         },
       );
-      if (res.statusCode == 200) {
-        var decodeJson = jsonDecode(res.body);
-        /*if (decodeJson['data'] != null) {*/
-        profileList = ProfileList.fromJson(decodeJson);
-        update();
-        if (profileList!.data!.caretakerInfo != null) {
-          profileInfo = profileList!.data!.caretakerInfo;
-          firstNameController.text = profileInfo!.firstName ?? '';
-          lastNameController.text = profileInfo!.lastName ?? '';
-          sexController.text = profileInfo!.sex!.capitalizeFirst ?? '';
-          emailCT.text = profileInfo!.email ?? '';
-          costCT.text = profileInfo!.serviceCharge ?? "";
-          totalPatientsCT.text = profileInfo!.totalPatientsAttended ?? '';
-          dobController.text =
-              DateFormat('yyyy-MM-dd').format(profileInfo!.dob!);
-          locationController.text = profileInfo!.location ?? '';
-          ageController.text = profileInfo!.age.toString();
-          nationalityController.text = profileInfo!.nationality ?? '';
-          medicalLicenseController.text = profileInfo!.medicalLicense ?? "";
-          yearOfExperienceController.text =
-              profileInfo!.yearOfExperiences ?? '';
-          addressController.text = profileInfo!.address ?? '';
-          primaryContactController.text =
-              profileInfo!.primaryContactNumber ?? '';
-          secondaryContactController.text =
-              profileInfo!.secondaryContactNumber ?? '';
-          update();
+      if (generation != _fetchGeneration) return;
+
+      if (res.statusCode == 200 && res.body.trim().isNotEmpty) {
+        final decodeJson = jsonDecode(res.body);
+        if (decodeJson is Map<String, dynamic>) {
+          profileList = ProfileList.fromJson(decodeJson);
+          _applyCaretakerInfoToForm(profileList?.data?.caretakerInfo);
+        } else {
+          profileList = null;
+          profileInfo = null;
+          _clearFormFields();
         }
-        update();
-        /* } else {
-          debugPrint("Data is null or not in expected format");
-        }*/
       } else {
+        profileList = null;
+        profileInfo = null;
+        _clearFormFields();
         debugPrint("Error fetching data: ${res.statusCode} - ${res.body}");
       }
     } catch (e) {
+      if (generation != _fetchGeneration) return;
+      profileList = null;
+      profileInfo = null;
+      _clearFormFields();
       debugPrint("Exception: ${e.toString()}");
     }
+
+    if (generation != _fetchGeneration) return;
     fetchLoading = false;
     update();
   }
@@ -334,25 +392,31 @@ class ProfileController extends GetxController {
     try {
       String? patientId = await SharedPref().getId();
       String? token = await SharedPref().getToken();
+      if (patientId == null || selectImage == null) {
+        debugPrint("Missing patient id or image for upload");
+        uploadLoading = false;
+        update();
+        return;
+      }
       String fileName = path.basename(selectImage!.path);
       var req =
-          await http.MultipartRequest('POST', Uri.parse(URls().uploadImage));
+          http.MultipartRequest('POST', Uri.parse(URls().uploadImage));
       req.files.add(await http.MultipartFile.fromPath(
           'profile_image_url', selectImage!.path,
           filename: fileName));
-      req.fields['id'] = patientId!;
+      req.fields['id'] = patientId;
       req.headers['Content-Type'] = 'multipart/form-data';
       if (token != null) {
         req.headers['Authorization'] = 'Bearer $token';
       }
-      var response = await req.send();
+      var response = await HttpService.instance.sendMultipart(req);
       update();
       if (response.statusCode == 200) {
         final responseData = await response.stream.toBytes();
         final responseString = String.fromCharCodes(responseData);
         final Map<String, dynamic> jsonResponse = jsonDecode(responseString);
         String newImageUrl = jsonResponse['image'];
-        profileList!.data!.profileImage = newImageUrl;
+        profileList?.data?.profileImage = newImageUrl;
         update();
       } else {}
     } catch (e) {
@@ -365,7 +429,7 @@ class ProfileController extends GetxController {
   deleteProfileImage() async {
     try {
       String? token = await SharedPref().getToken();
-      var res = await http.post(
+      var res = await HttpService.instance.post(
         Uri.parse(URls().deleteProfileImage),
         headers: {
           "Authorization": "Bearer $token",
@@ -374,7 +438,7 @@ class ProfileController extends GetxController {
       );
       if(res.statusCode ==200 ){
         selectImage = null;
-        profileList!.data!.profileImage = 'default-profile-img-female.png';
+        profileList?.data?.profileImage = 'default-profile-img-female.png';
         update();
         showCustomToast(message: 'Successfully Removed');
       }else{
@@ -387,11 +451,7 @@ class ProfileController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     fetchCareTakerDetails();
-    if(kDebugMode){
-      setInitialValues();
-    }
     super.onInit();
   }
 }

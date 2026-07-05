@@ -21,7 +21,7 @@ void main() async {
     name: "main",
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  Get.put(NotificationController());
+  Get.put(NotificationController(), permanent: true);
   FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);} on Exception catch (e) {
     if(kDebugMode){
       print("Firebase initialization error: $e");

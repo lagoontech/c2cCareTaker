@@ -1,7 +1,7 @@
 import 'package:care2caretaker/Views_/HomeScreen/controller/home_controller.dart';
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:care2caretaker/Views_/PatientRequest/controller/patient_request_controller.dart';
 import 'package:care2caretaker/Views_/Profile/Controller/profileController.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -10,6 +10,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../reuse_widgets/AppColors.dart';
 import '../../reuse_widgets/appBar.dart';
 import '../../reuse_widgets/customLabel.dart';
+import '../../reuse_widgets/empty_state_view.dart';
 import '../../reuse_widgets/sizes.dart';
 import '../PatientRequest/PatientRequest_view.dart';
 
@@ -27,27 +28,9 @@ class _HomePageState extends State<HomePage> {
   PatientRequestController vc = Get.put(PatientRequestController());
 
   @override
-  void initState() {
-    // TODO: implement initState
-    // Listen for messages when the app is in the foreground
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Received a message while in the foreground: ${message.messageId}');
-      if (message.notification != null) {
-        print('Message contains a notification: ${message.notification}');
-        // You can show a custom notification using a package like flutter_local_notifications
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Notification clicked, app opened!');
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GetBuilder<ProfileController>(builder: (v) {
-      if (v.fetchLoading) {
+      if (v.fetchLoading || v.profileList?.data == null) {
         return Container(
           height: MediaQuery.of(context).size.height,
           color: Colors.white,
@@ -55,12 +38,14 @@ class _HomePageState extends State<HomePage> {
         );
       }
 
-      var data = hc.profileList!.data!.caretakerInfo;
-      var full = (hc.profileList!.profilePath)! +
-          (hc.profileList!.data!.profileImage!);
+      final profileData = hc.profileList?.data;
+      final caretakerInfo = profileData?.caretakerInfo;
+      final profilePath = hc.profileList?.profilePath ?? '';
+      final profileImage = profileData?.profileImage ?? '';
+      final full = '$profilePath$profileImage';
       return Scaffold(
         appBar: HomeAppBar(
-          username: data != null ? data.firstName! : "",
+          username: NullSafe.orEmpty(caretakerInfo?.firstName),
           subtitle: 'How is your Health?',
           avatarUrl: full,
         ),
@@ -191,26 +176,35 @@ class _HomePageState extends State<HomePage> {
                                 : v.processingList.length,
                             itemBuilder: (BuildContext context, index) {
                               var res = v.processingList[index];
-                              var path = v.careTakersListResponse!.profilePath;
-                              var data = res.patient!.patientInfo;
+                              var path =
+                                  v.careTakersListResponse?.profilePath ?? '';
+                              final patientInfo = res.patient?.patientInfo;
                               return Padding(
                                 padding: EdgeInsets.symmetric(vertical: 3.h),
                                 child: CustomCareTakers(
-                                  name: '${data!.firstName} ${data.lastName}' ??
-                                      '',
-                                  age: data.age,
+                                  name: NullSafe.displayName(
+                                      patientInfo?.firstName,
+                                      patientInfo?.lastName),
+                                  age: patientInfo?.age,
                                   appointmentDate: res.appointmentDate,
                                   appointmentDates: res.appointmentDates,
                                   startTime: res.appointmentStartTime,
                                   endTime: res.appointmentEndTime,
-                                  gender: data.sex,
+                                  gender: patientInfo?.sex,
                                   //initial: 2,
                                   imageUrl:
-                                      '${path}${res.patient!.profileImageUrl}',
+                                      '$path${res.patient?.profileImageUrl ?? ''}',
                                 ),
                               );
                             })
-                        : Text("No current appointments");
+                        : EmptyStateView(
+                            icon: Icons.calendar_month_rounded,
+                            title: 'No upcoming appointments',
+                            subtitle:
+                                'Scheduled visits will appear here once assigned.',
+                            minHeight:
+                                MediaQuery.of(context).size.height * 0.22,
+                          );
                   }),
                   /*     kHeight10,
                   Row(
@@ -353,24 +347,26 @@ class CustomCareTakers extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    Text(
-                      DateFormat("MMM dd").format(appointmentDates![0]),
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
+                    if (NullSafe.hasDates(appointmentDates))
+                      Text(
+                        DateFormat("MMM dd")
+                            .format(NullSafe.firstDate(appointmentDates)!),
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    appointmentDates!.length > 1
-                        ? Text(
-                            " To ${DateFormat("MMM dd").format(appointmentDates!.last)}",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
-                        : const SizedBox(),
+                    if (NullSafe.hasDates(appointmentDates) &&
+                        appointmentDates!.length > 1)
+                      Text(
+                        " To ${DateFormat("MMM dd").format(NullSafe.lastDate(appointmentDates)!)}",
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                   ],
                 ),
                 Text(

@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:care2caretaker/Views_/patient_history/Models/service_status_model.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
@@ -17,6 +18,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../reuse_widgets/customChips.dart';
 import '../../reuse_widgets/customradio.dart';
 import '../../sharedPref/sharedPref.dart';
+import '../schedule/modal/medication_model.dart';
 import 'controller/PatientHistoryController.dart';
 
 class NewPatientHistory extends StatefulWidget {
@@ -40,13 +42,16 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
   final TextEditingController snacksTimeController = TextEditingController();
   final TextEditingController dinnerTimeController = TextEditingController();
 
+  DateTime get _calendarStart =>
+      NullSafe.firstDate(widget.appointmentDates) ?? DateTime.now();
+
   @override
   void initState() {
     super.initState();
     sc.setInitialMedication();
     if (sc.patientID == null) {
       sc.patientID = widget.patientId;
-      sc.selectedDate = widget.appointmentDates![0];
+      sc.selectedDate = NullSafe.firstDate(widget.appointmentDates) ?? DateTime.now();
       sc.loadGetHistory(
           appointmentId: widget.appointmentId, patientId: widget.patientId);
       sc.getServiceStatus(
@@ -97,7 +102,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                   ),
                                   kHeight15,
                                   TableCalendar(
-                                    focusedDay: widget.appointmentDates!.first,
+                                    focusedDay: _calendarStart,
                                     headerStyle: HeaderStyle(
                                       formatButtonVisible: false,
                                       titleCentered: true,
@@ -108,8 +113,8 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                     calendarBuilders: CalendarBuilders(
                                       defaultBuilder: (context, date, _) {
                                         bool isAppointmentDate = false;
-                                        widget.appointmentDates!
-                                            .forEach((element) {
+                                        widget.appointmentDates
+                                            ?.forEach((element) {
                                           if (DateFormat("MMM dd")
                                                   .format(element) ==
                                               DateFormat("MMM dd")
@@ -162,7 +167,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                         );
                                       },
                                     ),
-                                    firstDay: widget.appointmentDates!.first,
+                                    firstDay: _calendarStart,
                                     lastDay: DateTime(2050),
                                   ),
                                   CustomButton(
@@ -195,7 +200,7 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                           kHeight10,
                           DropdownButtonFormField(
                               value: sc.selectedDate,
-                              items: widget.appointmentDates!
+                              items: (widget.appointmentDates ?? [])
                                   .map((e) => DropdownMenuItem(
                                         child: Text(
                                             DateFormat("MMM dd").format(e)),
@@ -708,12 +713,18 @@ class _NewPatientHistoryState extends State<NewPatientHistory> {
                                                                     fontSize:
                                                                         12.sp,
                                                                     context,
-                                                                    controller: sc
-                                                                        .meditationDetails
-                                                                        .firstWhere((element) =>
-                                                                            element.time ==
-                                                                            sc.selectedMedication!)
-                                                                        .medicationDetails![index],
+                                                                    controller: () {
+                                                                      final slot = sc.meditationDetails.firstWhere(
+                                                                          (element) => element.time == sc.selectedMedication,
+                                                                          orElse: () => MedicationModel(
+                                                                              time: sc.selectedMedication ?? '',
+                                                                              medicationDetails: []));
+                                                                      final meds = slot.medicationDetails;
+                                                                      if (meds != null && index < meds.length) {
+                                                                        return meds[index];
+                                                                      }
+                                                                      return TextEditingController();
+                                                                    }(),
                                                                     hint: "Enter details",
                                                                     labelText: "${sc.selectedMedication!} medication ${index + 1}"),
                                                               ),

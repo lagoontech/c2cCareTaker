@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
+import '../../../Utils/http_service.dart';
 import '../../../api_urls/url.dart';
 import '../../../sharedPref/sharedPref.dart';
 import '../../Appointments/appointmentStaus_view.dart';
@@ -53,7 +54,7 @@ class BottomNavController extends GetxController {
     String? patientId = await SharedPref().getId();
 
     if (patientId != null) {
-      var response = await http.post(
+      var response = await HttpService.instance.post(
         Uri.parse(URls().UpdateFCMToken),
         body: {
           'caretaker_id': patientId,

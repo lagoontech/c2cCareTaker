@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../Utils/date_utils.dart';
+
 PatientInfo patientInfoFromJson(String str) =>
     PatientInfo.fromJson(json.decode(str));
 
@@ -77,7 +79,7 @@ class Data {
             : PatientInfoClass.fromJson(json["patient_info"]),
         patientDocuments: json["patient_documents"] == null
             ? []
-            : List<dynamic>.from(json["patient_documents"]!.map((x) => x)),
+            : List<dynamic>.from(json["patient_documents"] as List),
       );
 
   Map<String, dynamic> toJson() => {
@@ -89,9 +91,7 @@ class Data {
         "created_at": createdAt?.toIso8601String(),
         "updated_at": updatedAt?.toIso8601String(),
         "patient_info": patientInfo?.toJson(),
-        "patient_documents": patientDocuments == null
-            ? []
-            : List<dynamic>.from(patientDocuments!.map((x) => x)),
+        "patient_documents": List<dynamic>.from(patientDocuments ?? []),
       };
 }
 
@@ -191,8 +191,7 @@ class PatientInfoClass {
         "email": email,
         "sex": sex,
         "age": age,
-        "dob":
-            "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+        "dob": formatDateOnly(dob),
         "height": height,
         "weight": weight,
         "bmi": bmi,

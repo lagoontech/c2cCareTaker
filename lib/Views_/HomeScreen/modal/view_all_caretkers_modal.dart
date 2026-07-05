@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import '../../../Utils/date_utils.dart';
+
 AllCareTakers allCareTakersFromJson(String str) => AllCareTakers.fromJson(json.decode(str));
 
 String allCareTakersToJson(AllCareTakers data) => json.encode(data.toJson());
@@ -25,14 +27,14 @@ class AllCareTakers {
     success: json["success"],
     status: json["status"],
     type: json["type"],
-    data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+    data: json["data"] == null ? [] : List<Datum>.from((json["data"] as List).map((x) => Datum.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "success": success,
     "status": status,
     "type": type,
-    "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
+    "data": List<dynamic>.from((data ?? []).map((x) => x.toJson())),
   };
 }
 
@@ -155,7 +157,7 @@ class CaretakerInfo {
     "last_name": lastName,
     "sex": sex,
     "age": age,
-    "dob": "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+    "dob": formatDateOnly(dob),
     "medical_license": medicalLicense,
     "location": location,
     "nationality": nationality,

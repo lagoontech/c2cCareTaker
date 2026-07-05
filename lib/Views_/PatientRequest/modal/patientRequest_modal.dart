@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import '../../../Utils/date_utils.dart';
+
 CareTakersList careTakersListFromJson(String str) =>
     CareTakersList.fromJson(json.decode(str));
 
@@ -30,7 +32,7 @@ class CareTakersList {
         type: json["type"],
         data: json["data"] == null
             ? []
-            : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+            : List<Datum>.from((json["data"] as List).map((x) => Datum.fromJson(x))),
         profilePath: json["profile_path"],
       );
 
@@ -38,9 +40,7 @@ class CareTakersList {
         "success": success,
         "status": status,
         "type": type,
-        "data": data == null
-            ? []
-            : List<dynamic>.from(data!.map((x) => x.toJson())),
+        "data": List<dynamic>.from((data ?? []).map((x) => x.toJson())),
         "profile_path": profilePath,
       };
 }
@@ -109,8 +109,7 @@ class Datum {
         'appointment_id': appointmentId,
         "patient_id": patientId,
         "caretaker_id": caretakerId,
-        "appointment_date":
-            "${appointmentDate!.year.toString().padLeft(4, '0')}-${appointmentDate!.month.toString().padLeft(2, '0')}-${appointmentDate!.day.toString().padLeft(2, '0')}",
+        "appointment_date": formatDateOnly(appointmentDate),
         "appointment_start_time": appointmentStartTime,
         "appointment_end_time": appointmentEndTime,
         "service_status": serviceStatus,
@@ -273,8 +272,7 @@ class PatientInfo {
         "email": email,
         "sex": sex,
         "age": age,
-        "dob":
-            "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+        "dob": formatDateOnly(dob),
         "height": height,
         "weight": weight,
         "bmi": bmi,

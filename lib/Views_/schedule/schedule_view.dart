@@ -1,6 +1,7 @@
 import 'package:care2caretaker/Utils/screen_utils.dart';
 import 'package:care2caretaker/Views_/patient_history/Patient%20History/completed_appointment_details.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
 import 'package:care2caretaker/reuse_widgets/customLabel.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
@@ -164,14 +165,16 @@ class WaitingPatients extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          Text(
-                            DateFormat("MMM dd").format(dates![0]) ?? '',
-                            style:
-                                TextStyle(fontSize: 13.sp, color: Color(0xffB9B9B9)),
-                          ),
-                          dates!.length>1
-                              ?Text(" To ${DateFormat("MMM dd").format(dates!.last)}",style:
-                          TextStyle(fontSize: 13.sp, color: Color(0xffB9B9B9))):SizedBox(),
+                          if (NullSafe.hasDates(dates))
+                            Text(
+                              DateFormat("MMM dd")
+                                  .format(NullSafe.firstDate(dates)!),
+                              style: TextStyle(
+                                  fontSize: 13.sp, color: Color(0xffB9B9B9)),
+                            ),
+                          if (NullSafe.hasDates(dates) && dates!.length > 1)
+                              Text(" To ${DateFormat("MMM dd").format(NullSafe.lastDate(dates)!)}",style:
+                          TextStyle(fontSize: 13.sp, color: Color(0xffB9B9B9))),
                         ],
                       ),
                       Text(
@@ -189,7 +192,7 @@ class WaitingPatients extends StatelessWidget {
                   right: showIcon == true ? 48 : 8,
                   // Adjust position if icon is shown
                   child: Text(
-                    '${status![0].toUpperCase()}${status!.substring(1)}',
+                    '${status != null && status!.isNotEmpty ? status![0].toUpperCase() : ''}${status != null && status!.length > 1 ? status!.substring(1) : ''}',
                     style: TextStyle(
                         fontSize: 12.sp,
                         color: Colors.green, // Customize color

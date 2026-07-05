@@ -1,7 +1,9 @@
 import 'package:animated_refresh/animated_refresh.dart';
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:care2caretaker/Views_/HomeScreen/home-screen.dart';
 import 'package:care2caretaker/reuse_widgets/AppColors.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
+import 'package:care2caretaker/reuse_widgets/empty_state_view.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:flutter/material.dart'
     hide RefreshIndicatorTriggerMode, DateUtils;
@@ -40,6 +42,7 @@ class AppointmentStatusView extends StatelessWidget {
     }
 
     return DefaultTabController(
+      initialIndex: controller.currentTab,
       length: 3,
       child: CustomBackground(
         appBar: CustomAppBar(
@@ -189,16 +192,20 @@ class AppointmentStatusView extends StatelessWidget {
                                             child: v.approvedList.isEmpty
                                                 ? SingleChildScrollView(
                                                     physics:
-                                                        AlwaysScrollableScrollPhysics(),
-                                                    child: Container(
-                                                      height:
-                                                          MediaQuery.of(context)
+                                                        const AlwaysScrollableScrollPhysics(),
+                                                    child: EmptyStateView(
+                                                      icon: Icons
+                                                          .check_circle_outline_rounded,
+                                                      title:
+                                                          'No approved appointments',
+                                                      subtitle:
+                                                          'Approved visits will be listed here.',
+                                                      minHeight:
+                                                          MediaQuery.of(
+                                                                      context)
                                                                   .size
                                                                   .height *
                                                               0.6,
-                                                      child: Center(
-                                                          child: Text(
-                                                              'No approved appointments')),
                                                     ),
                                                   )
                                                 : ListView.builder(
@@ -226,7 +233,7 @@ class AppointmentStatusView extends StatelessWidget {
                                                             index];
                                                       }
                                                       String? path =
-                                                          '${v.careTakersListResponse!.profilePath}';
+                                                          '${v.careTakersListResponse?.profilePath ?? ''}';
                                                       String? url =
                                                           '${data.patient?.profileImageUrl}';
                                                       return Padding(
@@ -234,18 +241,17 @@ class AppointmentStatusView extends StatelessWidget {
                                                             const EdgeInsets
                                                                 .all(7.0),
                                                         child: CustomCareTakers(
-                                                          name: data
-                                                              .patient
-                                                              ?.patientInfo!
-                                                              .firstName,
+                                                          name: NullSafe.displayName(
+                                                              data.patient?.patientInfo?.firstName,
+                                                              data.patient?.patientInfo?.lastName),
                                                           gender: data
                                                               .patient
-                                                              ?.patientInfo!
-                                                              .sex,
+                                                              ?.patientInfo
+                                                              ?.sex,
                                                           age: data
                                                               .patient
-                                                              ?.patientInfo!
-                                                              .age,
+                                                              ?.patientInfo
+                                                              ?.age,
                                                           imageUrl:
                                                               "${path}${url}",
                                                           appointmentDates: data
@@ -294,15 +300,19 @@ class AppointmentStatusView extends StatelessWidget {
                                       child: v.processingList.isEmpty
                                           ? SingleChildScrollView(
                                               physics:
-                                                  AlwaysScrollableScrollPhysics(),
-                                              child: Container(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.6,
-                                                child: Center(
-                                                    child: Text(
-                                                        'No processing appointments')),
+                                                  const AlwaysScrollableScrollPhysics(),
+                                              child: EmptyStateView(
+                                                icon: Icons
+                                                    .pending_actions_rounded,
+                                                title:
+                                                    'No processing appointments',
+                                                subtitle:
+                                                    'Active visits you are handling will appear here.',
+                                                minHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.6,
                                               ),
                                             )
                                           : ListView.builder(
@@ -328,9 +338,9 @@ class AppointmentStatusView extends StatelessWidget {
                                                       v.processingList[index];
                                                 }
                                                 String? path =
-                                                    '${v.careTakersListResponse!.profilePath}';
+                                                    '${v.careTakersListResponse?.profilePath ?? ''}';
                                                 String? url =
-                                                    '${data.patient!.profileImageUrl}';
+                                                    '${data.patient?.profileImageUrl ?? ''}';
                                                 return Padding(
                                                   padding:
                                                       const EdgeInsets.all(7.0),
@@ -349,14 +359,13 @@ class AppointmentStatusView extends StatelessWidget {
                                                       vc.loadRequests();
                                                     },
                                                     child: CustomCareTakers(
-                                                      name: data
-                                                          .patient!
-                                                          .patientInfo!
-                                                          .firstName,
-                                                      gender: data.patient!
-                                                          .patientInfo!.sex,
-                                                      age: data.patient!
-                                                          .patientInfo!.age,
+                                                      name: NullSafe.displayName(
+                                                          data.patient?.patientInfo?.firstName,
+                                                          data.patient?.patientInfo?.lastName),
+                                                      gender: data.patient
+                                                          ?.patientInfo?.sex,
+                                                      age: data.patient
+                                                          ?.patientInfo?.age,
                                                       appointmentDates:
                                                           data.appointmentDates,
                                                       imageUrl: "${path}${url}",
@@ -405,15 +414,19 @@ class AppointmentStatusView extends StatelessWidget {
                                       child: v.rejectedList.isEmpty
                                           ? SingleChildScrollView(
                                               physics:
-                                                  AlwaysScrollableScrollPhysics(),
-                                              child: Container(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.6,
-                                                child: Center(
-                                                    child: Text(
-                                                        'No rejected appointments')),
+                                                  const AlwaysScrollableScrollPhysics(),
+                                              child: EmptyStateView(
+                                                icon: Icons
+                                                    .event_busy_rounded,
+                                                title:
+                                                    'No rejected appointments',
+                                                subtitle:
+                                                    'Cancelled or declined visits will be listed here.',
+                                                minHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.6,
                                               ),
                                             )
                                           : ListView.builder(
@@ -434,19 +447,20 @@ class AppointmentStatusView extends StatelessWidget {
                                                   data = v.rejectedList[index];
                                                 }
                                                 String? path =
-                                                    '${v.careTakersListResponse!.profilePath}';
+                                                    '${v.careTakersListResponse?.profilePath ?? ''}';
                                                 String? url =
-                                                    '${data.patient!.profileImageUrl}';
+                                                    '${data.patient?.profileImageUrl ?? ''}';
                                                 return Padding(
                                                   padding:
                                                       const EdgeInsets.all(7.0),
                                                   child: CustomCareTakers(
-                                                    name: data.patient!
-                                                        .patientInfo!.firstName,
-                                                    gender: data.patient!
-                                                        .patientInfo!.sex,
-                                                    age: data.patient!
-                                                        .patientInfo!.age,
+                                                    name: NullSafe.displayName(
+                                                        data.patient?.patientInfo?.firstName,
+                                                        data.patient?.patientInfo?.lastName),
+                                                    gender: data.patient
+                                                        ?.patientInfo?.sex,
+                                                    age: data.patient
+                                                        ?.patientInfo?.age,
                                                     imageUrl: "${path}${url}",
                                                     appointmentDate:
                                                         data.appointmentDate,

@@ -1,1 +1,0 @@
-C:\Users\anlin\Git Projects\c2cCareTaker\build\app\intermediates\cxx\Debug\e1d4p192\obj\arm64-v8a

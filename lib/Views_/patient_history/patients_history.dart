@@ -1,7 +1,9 @@
 import 'package:animated_refresh/animated_refresh.dart';
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:care2caretaker/Views_/Receipt/receipt_view.dart';
 import 'package:care2caretaker/Views_/schedule/schedule_view.dart';
 import 'package:care2caretaker/reuse_widgets/appBar.dart';
+import 'package:care2caretaker/reuse_widgets/empty_state_view.dart';
 import 'package:care2caretaker/reuse_widgets/image_background.dart';
 import 'package:care2caretaker/reuse_widgets/sizes.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -261,11 +263,14 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                   ),
                   child: controller.completedList.isEmpty
                       ? SingleChildScrollView(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          child: Container(
-                            height: MediaQuery.of(context).size.height * 0.8,
-                            child:
-                                Center(child: Text('No History Available')),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: EmptyStateView(
+                            icon: Icons.history_rounded,
+                            title: 'No service history yet',
+                            subtitle:
+                                'Completed appointments will show up here.',
+                            minHeight:
+                                MediaQuery.of(context).size.height * 0.8,
                           ),
                         )
                       : ListView.builder(
@@ -281,7 +286,7 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                             }else{
                               data = v.completedList[index];
                             }
-                            var path = v.careTakersListResponse!.profilePath;
+                            var path = v.careTakersListResponse?.profilePath ?? '';
                             var url = data.patient?.profileImageUrl;
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -290,11 +295,13 @@ class _PatientsHistoryState extends State<PatientsHistory> {
                                 appoinId: data.id,
                                 showIcon: false,
                                 status: data.serviceStatus,
-                                name: data.patient?.patientInfo!.firstName!,
+                                name: NullSafe.displayName(
+                                    data.patient?.patientInfo?.firstName,
+                                    data.patient?.patientInfo?.lastName),
                                 dates: data.appointmentDates,
-                                imgurl: '${path}${url}',
+                                imgurl: '${path}${url ?? ''}',
                                 time:
-                                    '${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentStartTime!}'))} - ${DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentEndTime!}'))}',
+                                    '${data.appointmentStartTime != null ? DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentStartTime}')) : ''} - ${data.appointmentEndTime != null ? DateFormat('h:mm a').format(DateTime.parse('1970-01-01 ${data.appointmentEndTime}')) : ''}',
                               ),
                             );
                           },

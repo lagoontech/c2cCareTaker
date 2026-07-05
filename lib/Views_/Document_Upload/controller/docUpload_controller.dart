@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../Utils/http_service.dart';
 import '../../../modals/profilr_info_modal.dart';
 import '../../../sharedPref/sharedPref.dart';
 
@@ -86,7 +87,7 @@ class DocsUploadController extends GetxController {
     request.fields['document_name'] = inputFileNameCT.text;
 
     // Send the request
-    var res = await request.send();
+    var res = await HttpService.instance.sendMultipart(request);
     var response = await http.Response.fromStream(res);
 
     // Check for successful response
@@ -126,7 +127,7 @@ class DocsUploadController extends GetxController {
     update();
 
     try {
-      var res = await http.get(
+      var res = await HttpService.instance.get(
         Uri.parse(URls().careTakerInfo),
         headers: {
           "Content-Type": "application/json",
@@ -136,7 +137,7 @@ class DocsUploadController extends GetxController {
       if (res.statusCode == 200) {
         profileList = profileListFromJson(res.body);
         if (profileList != null) {
-          uploadedDocuments = profileList!.data!.caretakerDocuments!;
+          uploadedDocuments = profileList?.data?.caretakerDocuments ?? [];
           update();
         }
       }
@@ -150,7 +151,10 @@ class DocsUploadController extends GetxController {
   bool isDeleting = false;
 
   deleteDocumentApi(int? index) async {
-    var docDel = uploadedDocuments[index!];
+    if (index == null || index < 0 || index >= uploadedDocuments.length) {
+      return;
+    }
+    var docDel = uploadedDocuments[index];
     docDel.isDeletingDoc = true;
     update();
     try {
@@ -158,7 +162,7 @@ class DocsUploadController extends GetxController {
       var id = await SharedPref().getId();
       var token = await SharedPref().getToken();
       var req =
-      await http.delete(Uri.parse(URls().delDoc), headers: {
+      await HttpService.instance.delete(Uri.parse(URls().delDoc), headers: {
         'Authorization': 'Bearer $token',
       }, body: {
         'id': docIdToDelete.toString(),

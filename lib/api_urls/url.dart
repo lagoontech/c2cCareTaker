@@ -17,7 +17,7 @@ class URls {
 
   String uploadImage = '$baseUrl/api/caretaker/caretaker/profile-img-upload';
 
-  String uploadDoc  = '$baseUrl/api/caretaker/caretaker/documents-upload';
+  String uploadDoc = '$baseUrl/api/caretaker/caretaker/documents-upload';
 
   String delDoc = '$baseUrl/api/caretaker/caretaker-info/delete';
 
@@ -25,27 +25,37 @@ class URls {
 
   String viewRequests = '$baseUrl/api/caretaker/caretaker/appointment-requests';
 
-  String acceptPatientRequest = '$baseUrl/api/caretaker/caretaker/approve-appointment';
+  String acceptPatientRequest =
+      '$baseUrl/api/caretaker/caretaker/approve-appointment';
 
-  String rejectPatientRequest = '$baseUrl/api/caretaker/caretaker/reject-appointment';
+  String rejectPatientRequest =
+      '$baseUrl/api/caretaker/caretaker/reject-appointment';
 
-  String loadRejectList = '$baseUrl/api/caretaker/caretaker/cancelled-appointments';
+  String loadRejectList =
+      '$baseUrl/api/caretaker/caretaker/cancelled-appointments';
 
   String UpdateFCMToken = '$baseUrl/api/caretaker/update-token';
 
   String allNotifications = '$baseUrl/api/caretaker/caretaker/notifications';
 
-  String markAllUnread =  '$baseUrl/api/caretaker/caretaker/notifications/mark-all-as-read';
+  String markAllUnread =
+      '$baseUrl/api/caretaker/caretaker/notifications/mark-all-as-read';
 
-  String serviceHistory = '$baseUrl/api/caretaker/caretaker/create-service-history';
+  String serviceHistory =
+      '$baseUrl/api/caretaker/caretaker/create-service-history';
 
-  String ServiceHistory = '$baseUrl/api/caretaker/caretaker/get-service-history';
+  String ServiceHistory =
+      '$baseUrl/api/caretaker/caretaker/get-service-history';
 
-  String ServiceStatus = '$baseUrl/api/caretaker/caretaker/get-service-history-status/';
+  String ServiceStatus =
+      '$baseUrl/api/caretaker/caretaker/get-service-history-status/';
 
-  String completeService = '$baseUrl/api/caretaker/caretaker/complete-service-history/';
+  String completeService =
+      '$baseUrl/api/caretaker/caretaker/complete-service-history/';
 
-  String deleteProfileImage = '$baseUrl/api/caretaker/caretaker/delete-profile-img';
+  String deleteProfileImage =
+      '$baseUrl/api/caretaker/caretaker/delete-profile-img';
 
-  String deleteNotification = '$baseUrl/api/caretaker/caretaker/delete-notification';
+  String deleteNotification =
+      '$baseUrl/api/caretaker/caretaker/delete-notification';
 }

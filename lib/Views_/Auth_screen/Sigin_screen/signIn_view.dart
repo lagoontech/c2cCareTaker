@@ -148,16 +148,26 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 20.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 44.r),
-                child: customTextField(
-                  context,
-                  controller: lc.phoneCT,
-                  textAlign: TextAlign.center,
-                  textStyle: TextStyle(
-                    fontSize: 17.sp,
-                  ),
-                  labelText: 'Phone',
-                  readOnly: true,
-                ),
+                child: GetBuilder<LoginController>(builder: (v) {
+                  return customTextField(
+                    context,
+                    controller: lc.phoneCT,
+                    prefix: Text(
+                      v.countryCode?.dialCode ?? '+1',
+                      style: TextStyle(
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    textAlign: TextAlign.start,
+                    textStyle: TextStyle(
+                      fontSize: 17.sp,
+                    ),
+                    labelText: 'Phone',
+                    readOnly: true,
+                  );
+                }),
               ),
               SizedBox(height: 40.h),
               GetBuilder<LoginController>(builder: (v) {
@@ -180,7 +190,7 @@ class LoginScreen extends StatelessWidget {
                   onKeyboardTap: (val) {
                     // Get the selected country code
                     String selectedCountryCode =
-                        lc.countryCode?.dialCode ?? '+91';
+                        lc.countryCode?.dialCode ?? '+1';
                     int maxPhoneNumberLength =
                         lc.phoneNumberLengths[selectedCountryCode] ?? 10;
 

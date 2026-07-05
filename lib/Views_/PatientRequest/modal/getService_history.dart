@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import '../../../Utils/date_utils.dart';
+
 ServiceHistory serviceHistoryFromJson(String str) => ServiceHistory.fromJson(json.decode(str));
 
 String serviceHistoryToJson(ServiceHistory data) => json.encode(data.toJson());
@@ -198,7 +200,7 @@ class Appointment {
     "id": id,
     "patient_id": patientId,
     "caretaker_id": caretakerId,
-    "appointment_date": "${appointmentDate!.year.toString().padLeft(4, '0')}-${appointmentDate!.month.toString().padLeft(2, '0')}-${appointmentDate!.day.toString().padLeft(2, '0')}",
+    "appointment_date": formatDateOnly(appointmentDate),
     "appointment_start_time": appointmentStartTime,
     "appointment_end_time": appointmentEndTime,
     "service_status": serviceStatus,
@@ -336,7 +338,7 @@ class CaretakerInfo {
     "email": email,
     "sex": sex,
     "age": age,
-    "dob": "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+    "dob": formatDateOnly(dob),
     "medical_license": medicalLicense,
     "location": location,
     "nationality": nationality,
@@ -443,7 +445,7 @@ class PatientInfo {
     "email": email,
     "sex": sex,
     "age": age,
-    "dob": "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+    "dob": formatDateOnly(dob),
     "height": height,
     "weight": weight,
     "bmi": bmi,

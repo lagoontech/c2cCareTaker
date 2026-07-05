@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import '../../../Utils/date_utils.dart';
+
 import '../Views_/Document_Upload/controller/docUpload_controller.dart';
 
 ProfileList profileListFromJson(String str) =>
@@ -88,7 +90,7 @@ class Data {
                 .map((x) => CaretakerDocument.fromJson(x))),
         patientAppointments: json["patient_appointments"] == null
             ? []
-            : List<PatientAppointment>.from(json["patient_appointments"]!
+            : List<PatientAppointment>.from((json["patient_appointments"] as List)
                 .map((x) => PatientAppointment.fromJson(x))),
       );
 
@@ -101,12 +103,10 @@ class Data {
         "created_at": createdAt?.toIso8601String(),
         "updated_at": updatedAt?.toIso8601String(),
         "caretaker_info": caretakerInfo?.toJson(),
-        "caretaker_documents": caretakerDocuments == null
-            ? []
-            : List<dynamic>.from(caretakerDocuments!.map((x) => x.toJson())),
-        "patient_appointments": patientAppointments == null
-            ? []
-            : List<dynamic>.from(patientAppointments!.map((x) => x.toJson())),
+        "caretaker_documents": List<dynamic>.from(
+            (caretakerDocuments ?? []).map((x) => x.toJson())),
+        "patient_appointments": List<dynamic>.from(
+            (patientAppointments ?? []).map((x) => x.toJson())),
       };
 }
 
@@ -190,8 +190,7 @@ class CaretakerInfo {
         "sex": sex,
         "age": age,
         'email': email,
-        "dob":
-            "${dob!.year.toString().padLeft(4, '0')}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}",
+        "dob": formatDateOnly(dob),
         "medical_license": medicalLicense,
         "location": location,
         "nationality": nationality,
@@ -256,8 +255,7 @@ class PatientAppointment {
         "id": id,
         "patient_id": patientId,
         "caretaker_id": caretakerId,
-        "appointment_date":
-            "${appointmentDate!.year.toString().padLeft(4, '0')}-${appointmentDate!.month.toString().padLeft(2, '0')}-${appointmentDate!.day.toString().padLeft(2, '0')}",
+        "appointment_date": formatDateOnly(appointmentDate),
         "appointment_start_time": appointmentStartTime,
         "appointment_end_time": appointmentEndTime,
         "service_status": serviceStatus,

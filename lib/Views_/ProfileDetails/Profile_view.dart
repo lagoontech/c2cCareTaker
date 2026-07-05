@@ -1,3 +1,4 @@
+import 'package:care2caretaker/Utils/null_safe_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:care2caretaker/Utils/screen_utils.dart';
 import 'package:care2caretaker/Views_/Auth_screen/Sigin_screen/signIn_view.dart';
@@ -26,7 +27,7 @@ class ProfileDetails extends StatelessWidget {
   ProfileDetails({super.key});
 
   ProfileController controller = Get.put(ProfileController());
-  NotificationController notifyController = Get.put(NotificationController());
+  NotificationController get notifyController => Get.find<NotificationController>();
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ProfileController>(builder: (v) {
@@ -72,7 +73,7 @@ class ProfileDetails extends StatelessWidget {
                           radius: 18.r, // The size of the CircleAvatar
                           child: ClipOval(
                             child: CachedNetworkImage(
-                              imageUrl: '${v.profileList!.profilePath}${v.profileList!.data!.profileImage!}',
+                              imageUrl: '${v.profileList?.profilePath ?? ''}${v.profileList?.data?.profileImage ?? ''}',
                               fit: BoxFit.cover,
                               width: 36.w,
                               height: 36.h,
@@ -91,8 +92,10 @@ class ProfileDetails extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              v.profileList!.data!=null && v.profileList!.data!.caretakerInfo!=null?Text(
-                                '${v.profileList!.data!.caretakerInfo!.firstName!} ${v.profileList!.data!.caretakerInfo!.lastName!}',
+                              v.profileList?.data?.caretakerInfo != null ? Text(
+                                NullSafe.displayName(
+                                    v.profileList?.data?.caretakerInfo?.firstName,
+                                    v.profileList?.data?.caretakerInfo?.lastName),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:care2caretaker/Utils/http_service.dart';
 import 'package:care2caretaker/Views_/HomeView/home_view.dart';
 import 'package:care2caretaker/Views_/Profile/Controller/profileController.dart';
 import 'package:care2caretaker/api_urls/url.dart';
@@ -34,7 +35,7 @@ class OtpController extends GetxController {
     update();
 
     // try {
-    var res = await http.post(Uri.parse(URls().checkOtp), body: {
+    var res = await HttpService.instance.post(Uri.parse(URls().checkOtp), body: {
       "mobilenum": mobilnum,
       "otp": otpTEC.text,
     });
@@ -46,16 +47,14 @@ class OtpController extends GetxController {
       debugPrint("otp check After Store Token $token");
       await profileController.fetchCareTakerDetails();
 
-      if (profileController.profileList != null &&
-          profileController.profileList!.data!.caretakerInfo != null) {
+      if (profileController.profileList?.data?.caretakerInfo != null) {
         Get.offAll(() => HomeView());
       } else {
         Get.offAll(() => ProfileView());
       }
       update();
 
-      if (profileController.profileList != null &&
-          profileController.profileList!.data!.caretakerInfo != null) {
+      if (profileController.profileList?.data?.caretakerInfo != null) {
         onUserDetailsCompleted();
       }
       update();

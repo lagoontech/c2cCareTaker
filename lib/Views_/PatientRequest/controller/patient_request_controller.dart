@@ -4,13 +4,15 @@ import 'dart:ui';
 import 'package:care2caretaker/api_urls/url.dart';
 import 'package:care2caretaker/reuse_widgets/customToast.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-//import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../Utils/http_service.dart';
 import '../../../sharedPref/sharedPref.dart';
 import '../../Appointments/appointmentStaus_view.dart';
 import '../modal/getService_history.dart';
-import '../modal/patientRequest_modal.dart';
+import 'package:care2caretaker/Views_/PatientRequest/modal/patientRequest_modal.dart';
 
 class PatientRequestController extends GetxController {
   List<Datum> caretakersList = [];
@@ -44,7 +46,7 @@ class PatientRequestController extends GetxController {
     update();
 
     try {
-      var res = await http.get(
+      var res = await HttpService.instance.get(
         Uri.parse(URls().viewRequests),
         headers: {
           'Authorization': 'Bearer $token',
@@ -54,7 +56,7 @@ class PatientRequestController extends GetxController {
 
       if (res.statusCode == 200) {
         careTakersListResponse = careTakersListFromJson(res.body);
-        caretakersList.assignAll(careTakersListResponse!.data ?? []);
+        caretakersList.assignAll(careTakersListResponse?.data ?? []);
         approvedList.assignAll(caretakersList
             .where((item) => item.serviceStatus == 'approved')
             .toList());
@@ -96,7 +98,7 @@ class PatientRequestController extends GetxController {
         "appointment_id": appointmentId,
         "patient_id": patientId,
       };
-      var res = await http.post(
+      var res = await HttpService.instance.post(
         Uri.parse(URls().acceptPatientRequest),
         body: jsonEncode(bodyData),
         headers: {
@@ -135,7 +137,7 @@ class PatientRequestController extends GetxController {
         "appointment_id": appointmentId,
         "patient_id": patientId,
       };
-      var res = await http.post(
+      var res = await HttpService.instance.post(
         Uri.parse(URls().rejectPatientRequest),
         body: jsonEncode(bodyData),
         headers: {
@@ -163,7 +165,7 @@ class PatientRequestController extends GetxController {
   loadRejectList() async {
     try {
       String? token = await SharedPref().getToken();
-      var req = await http.get(
+      var req = await HttpService.instance.get(
         Uri.parse(URls().loadRejectList),
         headers: {
           'Authorization': 'Bearer $token',
@@ -171,7 +173,7 @@ class PatientRequestController extends GetxController {
       );
       if (req.statusCode == 200) {
         careTakersListResponse = careTakersListFromJson(req.body);
-        rejectedList = careTakersListResponse!.data ?? [];
+        rejectedList = careTakersListResponse?.data ?? [];
         update();
       } else {
         debugPrint("Not load cancel req");
@@ -192,7 +194,7 @@ class PatientRequestController extends GetxController {
         "patient_id": patientId?.toString(),
       });
 
-      var res = await http.get(
+      var res = await HttpService.instance.get(
         uri,
         headers: {
           'Authorization': 'Bearer $token',
@@ -213,118 +215,73 @@ class PatientRequestController extends GetxController {
 
   //
   Future<void> launchDialer(String phoneNumber) async {
-    final Uri telUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    print(phoneNumber);
-    /*if (await canLaunchUrl(telUri)) {
-      await launchUrl(telUri);
-    } else {
-      throw 'Could not launch $telUri';
-    }*/
+    final cleaned = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    if (cleaned.isEmpty) {
+      showCustomToast(message: 'Invalid phone number');
+      return;
+    }
+
+    final telUri = Uri(scheme: 'tel', path: cleaned);
+    try {
+      if (await canLaunchUrl(telUri)) {
+        await launchUrl(telUri);
+      } else {
+        showCustomToast(message: 'Could not open phone dialer');
+      }
+    } catch (e) {
+      debugPrint('Dialer error: $e');
+      showCustomToast(message: 'Could not open phone dialer');
+    }
+  }
+
+  bool _matchesSelectedDate(List<DateTime>? dates) {
+    if (selectedDate == null || dates == null || dates.isEmpty) {
+      return false;
+    }
+    final start = dates.first;
+    final end = dates.last;
+    return start.isAtSameMomentAs(selectedDate!) ||
+        end.isAtSameMomentAs(selectedDate!) ||
+        (selectedDate!.isAfter(start) && selectedDate!.isBefore(end));
+  }
+
+  bool _matchesAppointmentFilter(Datum app) {
+    final firstName =
+        app.patient?.patientInfo?.firstName?.toLowerCase() ?? '';
+    final query = searchTEC.text.toLowerCase();
+    final matchesName = query.isEmpty || firstName.contains(query);
+    final matchesDate = _matchesSelectedDate(app.appointmentDates);
+
+    if (displayDate == null) {
+      return matchesName;
+    }
+    if (query.isNotEmpty) {
+      return matchesName && matchesDate;
+    }
+    return matchesDate;
   }
 
   //
-  searchAppointments({bool completedOnly = false}){
-
-    if(completedOnly){
-      searchedCompletedList = completedList.where((app)
-      {
-        var hasAppointment = false;
-        if(displayDate==null)
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          bool has = false;
-          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-          hasAppointment = has;
-        } else if(displayDate!=null){
-          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-        }
-        return hasAppointment;
-      }
-      ).toList();
+  searchAppointments({bool completedOnly = false}) {
+    if (completedOnly) {
+      searchedCompletedList =
+          completedList.where(_matchesAppointmentFilter).toList();
       update();
       return;
     }
 
     print("searching appointments... in tab-->$currentTab");
-    if(currentTab == 0){
-      searchedApprovedList = approvedList.where((app)
-      {
-        var hasAppointment = false;
-        if(displayDate==null)
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          bool has = false;
-          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-          hasAppointment = has;
-        } else if(displayDate!=null){
-          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-        }
-        return hasAppointment;
-      }
-      ).toList();
+    if (currentTab == 0) {
+      searchedApprovedList =
+          approvedList.where(_matchesAppointmentFilter).toList();
     }
-    if(currentTab == 1){
-      searchedProcessingList = processingList.where((app) {
-        var hasAppointment = false;
-        if(displayDate==null)
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          bool has = false;
-          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-          hasAppointment = has;
-        } else if(displayDate!=null){
-          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-        }
-        return hasAppointment;
-      }
-      ).toList();
+    if (currentTab == 1) {
+      searchedProcessingList =
+          processingList.where(_matchesAppointmentFilter).toList();
     }
-    if(currentTab == 2){
-      searchedRejectedList = rejectedList.where((app)
-      {
-        var hasAppointment = false;
-        if(displayDate==null)
-          hasAppointment = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-        else if(displayDate!=null && searchTEC.text.isNotEmpty) {
-          bool has = false;
-          has = app.patient!.patientInfo!.firstName!.toLowerCase().contains(
-              searchTEC.text.toLowerCase());
-          has = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-          hasAppointment = has;
-        } else if(displayDate!=null){
-          hasAppointment = app.appointmentDates![0].isAtSameMomentAs(selectedDate!)
-              || app.appointmentDates!.last.isAtSameMomentAs(selectedDate!)
-              || (selectedDate!.isAfter(app.appointmentDates![0]) && selectedDate!.isBefore(app.appointmentDates!.last));
-        }
-        return hasAppointment;
-      }).toList();
+    if (currentTab == 2) {
+      searchedRejectedList =
+          rejectedList.where(_matchesAppointmentFilter).toList();
     }
     update();
   }

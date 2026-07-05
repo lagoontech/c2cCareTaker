@@ -2,14 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:iconly/iconly.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../Notification/controller/controller.dart';
-import '../Notification/notification view.dart';
 import '../Views_/Notifications/Notification_view.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -25,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading,
     this.bottom,
   }) : super(key: key);
-  NotificationController controller = Get.put(NotificationController());
+  NotificationController get controller => Get.find<NotificationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +56,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.avatarUrl,
     this.actions,
   });
-  NotificationController controller = Get.put(NotificationController());
+  NotificationController get controller => Get.find<NotificationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -100,13 +95,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: actions ??
           [
-            IconButton(
-              icon: Icon(IconlyLight.search, color: Colors.black, size: 20.sp),
-              onPressed: () {
-                // Handle search action
-              },
-            ),
-            GetBuilder<NotificationController>(builder: (v) {
+            GetBuilder<NotificationController>(
+              init: Get.isRegistered<NotificationController>()
+                  ? Get.find<NotificationController>()
+                  : Get.put(NotificationController(), permanent: true),
+              builder: (v) {
               return Badge(
                 offset: Offset(-3, 3),
                 label: Text(v.unreadCount.toString(), style: TextStyle(fontSize: 8.sp)),

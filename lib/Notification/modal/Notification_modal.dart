@@ -17,12 +17,12 @@ class ReceiveNotification {
   });
 
   factory ReceiveNotification.fromJson(Map<String, dynamic> json) => ReceiveNotification(
-    notifications: json["notifications"] == null ? [] : List<AllNotification>.from(json["notifications"]!.map((x) => AllNotification.fromJson(x))),
+    notifications: json["notifications"] == null ? [] : List<AllNotification>.from((json["notifications"] as List).map((x) => AllNotification.fromJson(x))),
     unreadCount: json["unread_count"],
   );
 
   Map<String, dynamic> toJson() => {
-    "notifications": notifications == null ? [] : List<dynamic>.from(notifications!.map((x) => x.toJson())),
+    "notifications": List<dynamic>.from((notifications ?? []).map((x) => x.toJson())),
     "unread_count": unreadCount,
   };
 }

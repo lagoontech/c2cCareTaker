@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:care2caretaker/Utils/http_service.dart';
 import 'package:care2caretaker/api_urls/url.dart';
 import 'package:care2caretaker/reuse_widgets/customToast.dart';
 import 'package:care2caretaker/sharedPref/sharedPref.dart';
@@ -13,12 +14,11 @@ import 'dart:io';
 import '../../../OtpScreen/otp_screen.dart';
 
 class LoginController extends GetxController {
-
   TextEditingController phoneCT = TextEditingController();
-  FocusNode focusNode           = FocusNode();
-  GoogleSignIn googleSignIn     = GoogleSignIn.instance;
-  bool isLoading                = false;
-  CountryCode? countryCode      = CountryCode.fromDialCode('+91');
+  FocusNode focusNode = FocusNode();
+  GoogleSignIn googleSignIn = GoogleSignIn.instance;
+  bool isLoading = false;
+  CountryCode? countryCode = CountryCode.fromDialCode('+1');
   int? getOtp;
   String? fcmToken;
 
@@ -26,9 +26,9 @@ class LoginController extends GetxController {
     try {
       await FirebaseMessaging.instance.deleteToken();
       bool android = Platform.isAndroid;
-      if(android){
+      if (android) {
         fcmToken = await FirebaseMessaging.instance.getToken();
-      }else {
+      } else {
         fcmToken = await FirebaseMessaging.instance.getToken();
       }
       print("Fetched FCM Token: $fcmToken");
@@ -40,30 +40,30 @@ class LoginController extends GetxController {
   }
 
   Future<void> updateFCMTokenOnServer(String newToken) async {
-   /* try {*/
-      String? patientId = await SharedPref().getId();
+    /* try {*/
+    String? patientId = await SharedPref().getId();
 
-      if (patientId != null) {
-        var response = await http.post(
-          Uri.parse(URls().UpdateFCMToken),
-          body: {
-            'caretaker_id': patientId,
-            'fcm_token': newToken,
-          },
+    if (patientId != null) {
+      var response = await HttpService.instance.post(
+        Uri.parse(URls().UpdateFCMToken),
+        body: {
+          'caretaker_id': patientId,
+          'fcm_token': newToken,
+        },
         /*  headers: {
             "Content-Type": "application/json",
           },*/
-        );
+      );
 
-        if (response.statusCode == 200) {
-          print("FCM Token updated successfully.");
-        } else {
-          print("Failed to update FCM Token: ${response.body}");
-        }
+      if (response.statusCode == 200) {
+        print("FCM Token updated successfully.");
       } else {
-        print("Patient ID is not available.");
+        print("Failed to update FCM Token: ${response.body}");
       }
- /*   } catch (e) {
+    } else {
+      print("Patient ID is not available.");
+    }
+    /*   } catch (e) {
       print("Error updating FCM Token on server: $e");
     }*/
   }
@@ -82,7 +82,7 @@ class LoginController extends GetxController {
       update();
       return;
     }
-    String selectedCountryCode = countryCode?.dialCode ?? '+91';
+    String selectedCountryCode = countryCode?.dialCode ?? '+1';
     int maxPhoneNumberLength = phoneNumberLengths[selectedCountryCode] ?? 10;
     if (phoneCT.text.length != maxPhoneNumberLength) {
       showCustomToast(
@@ -101,14 +101,17 @@ class LoginController extends GetxController {
       return;
     }
     try {
-      var result = await http.post(Uri.parse(URls().loginorsignup), body: jsonEncode({
-        'mobilenum': phoneCT.text,
-        'fcm_token': fcmToken ?? "",
-        'country_code': "${countryCode!.dialCode}",
-      }),headers: {
-        "Content-Type": "application/json",
-      });
-      if (result.statusCode == 200) {
+      var result =
+          await HttpService.instance.post(Uri.parse(URls().loginorsignup),
+              body: jsonEncode({
+                'mobilenum': phoneCT.text,
+                'fcm_token': fcmToken ?? "",
+                'country_code': "${countryCode!.dialCode}",
+              }),
+              headers: {
+            "Content-Type": "application/json",
+          });
+      if (result.statusCode == 200 || result.statusCode == 201) {
         print(result.body);
         var responseBody = jsonDecode(result.body);
         int getOtp = responseBody['otp'];
@@ -121,7 +124,7 @@ class LoginController extends GetxController {
               phone: phoneCT.text,
             ));
       }
-    } catch (e,s) {
+    } catch (e, s) {
       print(s);
     }
     isLoading = false;
