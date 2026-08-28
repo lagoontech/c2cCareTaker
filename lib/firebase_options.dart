@@ -140,12 +140,13 @@ class DefaultFirebaseOptions {
         storageBucket: 'c2cpatient-d4526.firebasestorage.app',
       );
     } else {
-      return FirebaseOptions(
+      return const FirebaseOptions(
         apiKey: 'AIzaSyARzj9bC7XvdxuxKDW2-mdnhpRpzoXwxnQ',
-        appId: '1:496441455277:ios:1a44c410aa9835ea774c24',
+        appId: '1:496441455277:ios:a4b8cbb1a262b433774c24',
         messagingSenderId: '496441455277',
         projectId: 'c2cpatient-d4526',
-        storageBucket: 'c2cpatient-d4526.appspot.com',
+        storageBucket: 'c2cpatient-d4526.firebasestorage.app',
+        iosBundleId: 'com.example.care2caretaker',
       );
     }
   }
