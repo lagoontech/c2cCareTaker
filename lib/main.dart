@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
           GetPage(name: '/notification', page: () => NotificationView()),
         ],
         debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.light,
         defaultTransition: Transition.native,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(

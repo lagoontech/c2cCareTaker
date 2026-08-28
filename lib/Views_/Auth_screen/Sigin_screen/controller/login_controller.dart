@@ -24,13 +24,16 @@ class LoginController extends GetxController {
 
   Future<void> getFcmToken() async {
     try {
-      await FirebaseMessaging.instance.deleteToken();
-      bool android = Platform.isAndroid;
-      if (android) {
-        fcmToken = await FirebaseMessaging.instance.getToken();
-      } else {
-        fcmToken = await FirebaseMessaging.instance.getToken();
+      if (Platform.isIOS) {
+        await FirebaseMessaging.instance.requestPermission();
       }
+      fcmToken = await FirebaseMessaging.instance.getToken().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          print("FCM Token fetch timed out");
+          return null;
+        },
+      );
       print("Fetched FCM Token: $fcmToken");
     } catch (e) {
       print("Error fetching FCM Token: $e");
@@ -40,7 +43,6 @@ class LoginController extends GetxController {
   }
 
   Future<void> updateFCMTokenOnServer(String newToken) async {
-    /* try {*/
     String? patientId = await SharedPref().getId();
 
     if (patientId != null) {
@@ -50,9 +52,6 @@ class LoginController extends GetxController {
           'caretaker_id': patientId,
           'fcm_token': newToken,
         },
-        /*  headers: {
-            "Content-Type": "application/json",
-          },*/
       );
 
       if (response.statusCode == 200) {
@@ -63,15 +62,8 @@ class LoginController extends GetxController {
     } else {
       print("Patient ID is not available.");
     }
-    /*   } catch (e) {
-      print("Error updating FCM Token on server: $e");
-    }*/
   }
 
-  /*Future<void> getFcmToken() async {
-    fcmToken = await FirebaseMessaging.instance.getToken();
-    print("Fetched FCM Token: $fcmToken");
-  }*/
   loginorRegister({required BuildContext context}) async {
     isLoading = true;
     update();
@@ -93,14 +85,12 @@ class LoginController extends GetxController {
       update();
       return;
     }
-    await getFcmToken();
-    if (fcmToken == null) {
-      showCustomToast(message: "FCM token is not available. Please try again.");
-      isLoading = false;
-      update();
-      return;
-    }
     try {
+      await getFcmToken();
+      if (fcmToken == null) {
+        showCustomToast(message: "FCM token is not available. Please try again.");
+        return;
+      }
       var result =
           await HttpService.instance.post(Uri.parse(URls().loginorsignup),
               body: jsonEncode({
@@ -126,9 +116,10 @@ class LoginController extends GetxController {
       }
     } catch (e, s) {
       print(s);
+    } finally {
+      isLoading = false;
+      update();
     }
-    isLoading = false;
-    update();
   }
 
   googleSignInAccount() async {
