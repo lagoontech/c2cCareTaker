@@ -18,7 +18,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try{
   await Firebase.initializeApp(
-    name: "main",
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Get.put(NotificationController(), permanent: true);
